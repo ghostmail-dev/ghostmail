@@ -1,9 +1,10 @@
 import { createBrowserRouter } from "react-router-dom"
 import { RootRoute } from "./root/route"
-import { InboxRoute } from "./inbox/route"
+import { MailboxRoute } from "./mailbox/route"
 import { LoginRoute } from "./login/route"
 import { LogoutRoute } from "./logout/route"
+import { EmailRoute } from "./mailbox.$emailId/route"
 
 export const router = createBrowserRouter([
-  RootRoute([InboxRoute(), LoginRoute(), LogoutRoute()]),
+  RootRoute([MailboxRoute([EmailRoute()]), LoginRoute(), LogoutRoute()]),
 ])

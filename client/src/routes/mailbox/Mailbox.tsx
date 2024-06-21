@@ -1,12 +1,16 @@
 import { useUserContext } from "~/global-contexts/useUserContext"
-import { Messages } from "./components/messages"
-import { Navigate } from "react-router-dom"
+import { Navigate, Outlet } from "react-router-dom"
 
-export default function Inbox() {
+export default function Mailbox() {
   const [username] = useUserContext()
   console.log(username)
   if (!username) {
     return <Navigate to="/login" />
   }
-  return <Messages />
+  return (
+    <div>
+      <h1>Mailbox for {username}</h1>
+      <Outlet />
+    </div>
+  )
 }

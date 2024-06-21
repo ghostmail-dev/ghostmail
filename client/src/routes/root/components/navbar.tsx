@@ -16,8 +16,8 @@ export const Navbar = () => {
           </li>
           {username ? (
             <li>
-              <Link to="/inbox" className="dark:prose-invert">
-                Inbox
+              <Link to="/mailbox" className="dark:prose-invert">
+                Mailbox
               </Link>
             </li>
           ) : null}

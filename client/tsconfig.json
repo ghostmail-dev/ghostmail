@@ -11,7 +11,7 @@
 
     /* Bundler mode */
     "moduleResolution": "node",
-    "types": ["node", "jest"],
+    "types": ["node"],
     "esModuleInterop": true,
     "preserveSymlinks": true,
     "allowImportingTsExtensions": true,
