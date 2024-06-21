@@ -17,6 +17,11 @@ export const Email = () => {
     email && (
       <div>
         <EmailHeader email={email} />
+        <div
+          dangerouslySetInnerHTML={{
+            __html: email.html ?? email.textAsHtml ?? email.text ?? "",
+          }}
+        />
       </div>
     )
   )
