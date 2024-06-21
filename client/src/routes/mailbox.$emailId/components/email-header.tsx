@@ -5,9 +5,9 @@ export const EmailHeader = (props: {
 }) => {
   return (
     <div className="email-header">
-      <ul>
-        <li>From:</li>
-        <li>To: </li>
+      <ul className="list-none list-outside">
+        <li>From: {props.email.fromText}</li>
+        <li>To: {props.email.toText}</li>
         <li>Subject: {props.email.subject}</li>
         <li>Date: {props.email.date} </li>
       </ul>

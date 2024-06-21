@@ -48,11 +48,13 @@ export type Email = {
   __typename?: "Email";
   _id: Scalars["ID"]["output"];
   date: Scalars["Date"]["output"];
+  fromText?: Maybe<Scalars["String"]["output"]>;
   html?: Maybe<Scalars["String"]["output"]>;
   messageId?: Maybe<Scalars["String"]["output"]>;
   subject?: Maybe<Scalars["String"]["output"]>;
   text?: Maybe<Scalars["String"]["output"]>;
   textAsHtml?: Maybe<Scalars["String"]["output"]>;
+  toText?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type Error = {
@@ -300,6 +302,7 @@ export type EmailResolvers<
 > = {
   _id?: Resolver<ResolversTypes["ID"], ParentType, ContextType>;
   date?: Resolver<ResolversTypes["Date"], ParentType, ContextType>;
+  fromText?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   html?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   messageId?: Resolver<
     Maybe<ResolversTypes["String"]>,
@@ -313,6 +316,7 @@ export type EmailResolvers<
     ParentType,
     ContextType
   >;
+  toText?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

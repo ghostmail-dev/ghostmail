@@ -7,5 +7,7 @@ query GetEmail($id: ID!) {
     subject
     date
     messageId
+    fromText
+    toText
   }
 }

@@ -18,6 +18,8 @@ export type GetEmailQuery = {
     subject: string | null;
     date: any;
     messageId: string | null;
+    fromText: string | null;
+    toText: string | null;
   } | null;
 };
 
@@ -31,6 +33,8 @@ export const GetEmailDocument = gql`
       subject
       date
       messageId
+      fromText
+      toText
     }
   }
 `;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, NavLink } from "react-router-dom"
 import { useUserContext } from "~/global-contexts/useUserContext"
 
 export const Navbar = () => {
@@ -7,18 +7,25 @@ export const Navbar = () => {
   return (
     <div className="navbar bg-base-100">
       <div className="flex-1">
-        <a className="btn btn-ghost text-xl dark:prose-invert">Ghostmail</a>
+        <img
+          src="ghostmail.png"
+          alt="Ghostmail"
+          className="h-12 w-12 mr-2 rounded-md"
+        />
+        <Link to="/" className="btn btn-ghost text-xl dark:prose-invert">
+          Ghostmail
+        </Link>
         <ul className="menu menu-horizontal px-1">
           <li>
-            <Link to="/" className="dark:prose-invert">
+            <NavLink to="/" className="dark:prose-invert">
               Home
-            </Link>
+            </NavLink>
           </li>
           {username ? (
             <li>
-              <Link to="/mailbox" className="dark:prose-invert">
+              <NavLink to="/mailbox" className="dark:prose-invert">
                 Mailbox
-              </Link>
+              </NavLink>
             </li>
           ) : null}
         </ul>

@@ -10,12 +10,12 @@ export const Login = () => {
     onCompleted: () => {
       const _username = getUsernameFromToken()
       setUsername(_username)
-      navigate("/inbox")
+      navigate("/mailbox")
     },
   })
 
   if (username) {
-    return <Navigate to="/inbox" />
+    return <Navigate to="/mailbox" />
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

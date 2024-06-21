@@ -6,7 +6,7 @@ export default function Root() {
   return (
     <UserProvider>
       <Navbar />
-      <div className="flex justify-center p-5">
+      <div className="flex p-5">
         <Outlet />
       </div>
     </UserProvider>

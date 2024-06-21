@@ -8,8 +8,8 @@ export default function Mailbox() {
     return <Navigate to="/login" />
   }
   return (
-    <div>
-      <h1>Mailbox for {username}</h1>
+    <div className="prose min-w-full">
+      <h1 className="prose-lg">Mailbox for {username}</h1>
       <Outlet />
     </div>
   )

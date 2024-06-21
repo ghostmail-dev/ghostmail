@@ -6,4 +6,6 @@ type Email {
   subject: String
   date: Date!
   messageId: String
+  fromText: String
+  toText: String
 }

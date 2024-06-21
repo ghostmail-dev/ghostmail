@@ -48,8 +48,8 @@ const NewMailForm = (props: {
     createEmail({ variables: { apiKey } })
   }
   return (
-    <div className="w-100">
-      <h1 className="prose prose-2xl dark:prose-invert">Ghostmail</h1>
+    <div className="prose w-full">
+      <h1 className="prose text-6xl dark:prose-invert mb-0">Ghostmail</h1>
       <h2 className="prose prose-lg">
         Create a new Ghostmail account by providing an API key.
       </h2>
@@ -100,8 +100,8 @@ const NewMailForm = (props: {
 const AccountCreated = (props: { email: EmailAccount }) => {
   const { email } = props
   return (
-    <div>
-      <h1 className="prose prose-2xl">Account Created</h1>
+    <div className="prose prose-2xl">
+      <h1>Account Created</h1>
       <h2 className="prose">
         Here you can find all the details needed to access your new Ghostmail
         test account. Remember that if sending messages through SMTP then no
