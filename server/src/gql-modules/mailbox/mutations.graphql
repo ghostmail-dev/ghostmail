@@ -1,0 +1,17 @@
+type InvalidApiKeyError implements Error {
+  message: String!
+}
+
+type NewMailbox {
+  _id: ObjectID!
+  name: String!
+  username: String!
+  password: String!
+}
+
+union CreateMailboxResponse = NewMailbox | InvalidApiKeyError
+
+extend type Mutation {
+  createMailbox(apiKey: ID!): CreateMailboxResponse
+  login(username: String!, password: String!): Boolean
+}

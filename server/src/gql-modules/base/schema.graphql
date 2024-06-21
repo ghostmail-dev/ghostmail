@@ -1,0 +1,10 @@
+scalar LocalDate
+scalar Date
+scalar ObjectID
+
+interface Error {
+  message: String!
+}
+
+type Query
+type Mutation

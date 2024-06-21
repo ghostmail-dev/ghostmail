@@ -1,0 +1,13 @@
+mutation CreateEmail($apiKey: ID!) {
+  createMailbox(apiKey: $apiKey) {
+    ... on NewMailbox {
+      _id
+      name
+      username
+      password
+    }
+    ... on InvalidApiKeyError {
+      message
+    }
+  }
+}

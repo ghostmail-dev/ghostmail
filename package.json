@@ -1,0 +1,24 @@
+{
+  "name": "ghost-mail",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "gql:generate": "graphql-codegen",
+    "gql:generate:watch": "graphql-codegen --watch"
+  },
+  "author": "joseph",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@eddeee888/gcg-typescript-resolver-files": "^0.9.4",
+    "@graphql-codegen/cli": "^5.0.2",
+    "@graphql-codegen/near-operation-file-preset": "^3.0.0",
+    "@graphql-codegen/typescript-react-apollo": "^4.3.0",
+    "@parcel/watcher": "^2.4.1",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "graphql": "^16.8.2",
+    "graphql-scalars": "^1.23.0"
+  }
+}

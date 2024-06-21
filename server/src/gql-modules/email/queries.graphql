@@ -1,0 +1,3 @@
+extend type Query {
+  email(_id: ID!): Email
+}

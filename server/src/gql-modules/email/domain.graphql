@@ -1,0 +1,9 @@
+type Email {
+  _id: ID!
+  html: String
+  text: String
+  textAsHtml: String
+  subject: String
+  date: Date!
+  messageId: String
+}

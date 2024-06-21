@@ -1,0 +1,11 @@
+query GetEmail($id: ID!) {
+  email(_id: $id) {
+    _id
+    html
+    text
+    textAsHtml
+    subject
+    date
+    messageId
+  }
+}

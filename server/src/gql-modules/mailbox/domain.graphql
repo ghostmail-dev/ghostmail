@@ -1,0 +1,5 @@
+type Mailbox {
+  _id: ObjectID!
+  name: String!
+  username: String!
+}
