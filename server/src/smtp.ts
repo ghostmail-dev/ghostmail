@@ -6,7 +6,7 @@ import { Mailboxes } from "./database/mailboxes"
 import { ObjectId } from "mongodb"
 import bcrypt from "bcrypt"
 
-export const smtpServer = new SMTPServer({
+const smtpServer = new SMTPServer({
   logger: false,
   authOptional: true,
   disableReverseLookup: true,
@@ -150,4 +150,8 @@ export const smtpServer = new SMTPServer({
       }
     })
   },
+})
+
+smtpServer.listen(process.env.SMTP_PORT, () => {
+  console.info(`📬 SMTP server running on port ${process.env.SMTP_PORT} `)
 })

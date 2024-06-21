@@ -15,6 +15,12 @@ export const app = express()
 // enabling our servers to shut down gracefully.
 const httpServer = http.createServer(app)
 
+const whitelist = process.env.CORS_ORIGIN
+
+if (!whitelist) {
+  throw new Error("CORS_ORIGIN is required")
+}
+
 export async function startApolloServer() {
   const server = new ApolloServer<ApolloContextType>({
     typeDefs,
@@ -33,11 +39,11 @@ export async function startApolloServer() {
   app.use(
     "/graphql",
     cors<cors.CorsRequest>({
-      origin: ["http://localhost:5173", "https://studio.apollographql.com"],
+      origin: whitelist.split(","),
       credentials: true,
     }),
     // 50mb is the limit that `startStandaloneServer` uses, but you may configure this to suit your needs
-    express.json({ limit: "50mb" }),
+    express.json({ limit: "1mb" }),
     // expressMiddleware accepts the same arguments:
     // an Apollo Server instance and optional configuration options
     expressMiddleware(server, {
@@ -49,7 +55,7 @@ export async function startApolloServer() {
   await new Promise<void>((resolve) =>
     httpServer.listen({ port: 4040 }, resolve)
   )
-  console.log(`🚀 Server ready at http://localhost:4040/graphql`)
+  console.log(`🚀 Apollo Server ready at http://localhost:4040/graphql`)
 
   return server
 }

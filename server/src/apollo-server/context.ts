@@ -54,10 +54,10 @@ function getUsernameFromToken({
     ? accessTokenHeader[0]?.replace(/^null$/, "")
     : refreshTokenHeader?.replace(/^null$/, "")
 
-  console.log({
-    accessToken,
-    refreshToken,
-  })
+  if (!accessToken) {
+    return null
+  }
+
   if (accessToken) {
     const decodedAccessToken = validateAccessToken(accessToken)
     if (!decodedAccessToken || typeof decodedAccessToken === "string") {
