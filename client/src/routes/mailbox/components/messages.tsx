@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom"
 import { useGetMailboxQuery } from "../gql/get-messages.operation"
+import { useUserContext } from "~/global-contexts/useUserContext"
 
 export function Messages() {
+  const [username] = useUserContext()
   const { data, loading, error } = useGetMailboxQuery({
     variables: {
-      name: "addison.mayert@ghostmail.dev",
+      name: username ?? "",
     },
   })
 
@@ -62,12 +64,14 @@ export function Messages() {
                             message.isRead ? "text-gray-500" : "text-gray-900"
                           }`}
                         >
-                          <Link to={message.emailId}>{message.sender}</Link>
+                          <Link to={message.emailId}>
+                            TO: {message.sender || "Unknown"}
+                          </Link>
                         </td>
                         <td
                           className={`whitespace-nowrap px-3 py-4 text-sm text-gray-500`}
                         >
-                          {message.subject}
+                          <Link to={message.emailId}>{message.subject}</Link>
                         </td>
                       </tr>
                     ))}
