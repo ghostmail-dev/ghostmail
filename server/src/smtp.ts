@@ -71,7 +71,7 @@ export const smtpServer = new SMTPServer({
 
       if (user) {
         try {
-          Mailboxes.updateOne(
+          await Mailboxes.updateOne(
             { username: user },
             {
               $push: {
@@ -101,7 +101,7 @@ export const smtpServer = new SMTPServer({
               continue
             }
             try {
-              Mailboxes.updateOne(
+              await Mailboxes.updateOne(
                 { username },
                 {
                   $push: {
@@ -129,7 +129,7 @@ export const smtpServer = new SMTPServer({
             continue
           }
           try {
-            Mailboxes.updateOne(
+            await Mailboxes.updateOne(
               { username },
               {
                 $push: {
