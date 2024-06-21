@@ -9,7 +9,7 @@ export const EmailHeader = (props: {
         <li>From: </li>
         <li>To: </li>
         <li>Subject: {props.email.subject}</li>
-        <li>Date: </li>
+        <li>Date: {props.email.date} </li>
       </ul>
     </div>
   )
