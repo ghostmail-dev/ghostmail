@@ -9,7 +9,7 @@ export default function Mailbox() {
   }
   return (
     <div className="prose min-w-full">
-      <h1 className="prose-lg">Mailbox for {username}</h1>
+      <h1 className="prose-lg">{username}</h1>
       <Outlet />
     </div>
   )

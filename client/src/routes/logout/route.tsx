@@ -1,6 +1,6 @@
 import { clearTokens } from "~/lib/apollo-tokens"
 import type { RouteConfigFunction } from "../../types"
-import { redirect, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { useUserContext } from "~/global-contexts/useUserContext"
 import { useEffect } from "react"
 
