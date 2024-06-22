@@ -3,7 +3,7 @@ import { getTokens, setTokens } from "./apollo-tokens"
 
 import { setContext } from "@apollo/client/link/context"
 
-const httpLink = new HttpLink({ uri: "http://localhost:4040/graphql" })
+const httpLink = new HttpLink({ uri: import.meta.env.VITE_GRAPHQL_URL })
 
 // get the access and refresh tokens from localStorage and use them to set the request headers
 const authLink = setContext(async (_, { headers }) => {
