@@ -7,14 +7,6 @@ export const EmailHeader = (props: {
     <div className="overflow-x-auto">
       <table className="table">
         <tbody>
-          {/* // <div className="email-header">
-    //   <ul className="list-none list-outside">
-    //     <li>From: {props.email.fromText}</li>
-    //     <li>To: {props.email.toText}</li>
-    //     <li>Subject: {props.email.subject}</li>
-    //     <li>Date: {props.email.date} </li>
-    //   </ul>
-    // </div> */}
           <tr>
             <td>From: {props.email.fromText}</td>
           </tr>
