@@ -1,0 +1,27 @@
+{
+  "name": "@ghostmail-packages/smtp-server",
+  "version": "1.0.0",
+  "description": "A simple smtp server",
+  "module": "dist/index.ts",
+  "types": "dist/index.d.ts",
+  "private": true,
+  "scripts": {
+    "build": "rm -rf dist && tsc",
+    "dev": "npx tsx watch index.ts",
+    "start": "npx tsx dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "joseph",
+  "license": "MIT",
+  "dependencies": {
+    "@ghostmail-packages/database": "^1.0.0",
+    "bcrypt": "^5.1.1",
+    "mailparser": "^3.7.1",
+    "smtp-server": "^3.13.4"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/smtp-server": "^3.5.10",
+    "typescript": "^5.5.2"
+  }
+}
