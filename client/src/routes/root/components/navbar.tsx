@@ -18,7 +18,7 @@ export const Navbar = () => {
         <Link to="/" className="btn btn-ghost text-xl dark:prose-invert">
           Ghostmail
         </Link>
-        <ul className="menu menu-horizontal px-1">
+        <ul className="menu menu-horizontal px-1 space-x-2">
           <li>
             <NavLink to="/" className="dark:prose-invert">
               Home
@@ -77,7 +77,7 @@ const ThemeController = ({
   }, [theme])
 
   return (
-    <label className="swap swap-rotate">
+    <label className="swap swap-rotate mr-2">
       {/* this hidden checkbox controls the state */}
       <input
         type="checkbox"
