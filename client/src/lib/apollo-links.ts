@@ -8,7 +8,6 @@ const httpLink = new HttpLink({ uri: "http://localhost:4040/graphql" })
 // get the access and refresh tokens from localStorage and use them to set the request headers
 const authLink = setContext(async (_, { headers }) => {
   const tokens = getTokens()
-  console.log({ tokens })
   return {
     headers: {
       ...headers,
@@ -25,17 +24,10 @@ const authLink = setContext(async (_, { headers }) => {
 const afterwareLink = new ApolloLink((operation, forward) => {
   return forward(operation).map((response) => {
     const context = operation.getContext()
-    console.dir({
-      context,
-      values: context.headers.values,
-    })
+
     const accessToken = context.response.headers.get("X-Access-Token")
     const refreshToken = context.response.headers.get("x-refresh-token")
 
-    console.log({
-      accessToken,
-      refreshToken,
-    })
     if (accessToken || refreshToken) setTokens({ accessToken, refreshToken })
 
     if (typeof response !== "object")

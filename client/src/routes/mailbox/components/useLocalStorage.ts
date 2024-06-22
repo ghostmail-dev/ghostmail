@@ -27,7 +27,6 @@ function useLocalStorage<T>(
   // Listen for changes in local storage
   useEffect(() => {
     const handleStorageChange = (event: StorageEvent) => {
-      console.log("Storage event", event)
       if (event.key === key) {
         setStoredValue(
           event.newValue ? JSON.parse(event.newValue) : initialValue

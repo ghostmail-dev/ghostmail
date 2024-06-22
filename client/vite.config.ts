@@ -12,4 +12,9 @@ export default defineConfig({
       process: "rollup-plugin-node-polyfills/polyfills/process-es6",
     },
   },
+  define: {
+    // By default, Vite doesn't include shims for NodeJS/
+    // necessary for segment analytics lib to work
+    global: {},
+  },
 })
