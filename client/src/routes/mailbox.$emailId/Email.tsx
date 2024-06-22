@@ -16,15 +16,19 @@ export const Email = () => {
   const email = data.email
   return (
     email && (
-      <div>
-        {/* <Messages /> */}
-        <EmailHeader email={email} />
-        <div
-          className="bg-white shadow-md rounded-lg px-4 m-4 border border-gray-200"
-          dangerouslySetInnerHTML={{
-            __html: email.html ?? email.textAsHtml ?? email.text ?? "",
-          }}
-        />
+      <div className="flex">
+        <div className="w-1/2">
+          <Messages />
+        </div>
+        <div className="w-1/2">
+          <EmailHeader email={email} />
+          <div
+            className="bg-white shadow-md rounded-lg px-4 m-4 border border-gray-200"
+            dangerouslySetInnerHTML={{
+              __html: email.html ?? email.textAsHtml ?? email.text ?? "",
+            }}
+          />
+        </div>
       </div>
     )
   )
