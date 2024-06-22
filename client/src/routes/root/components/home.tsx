@@ -100,8 +100,8 @@ const NewMailForm = (props: {
 const AccountCreated = (props: { email: EmailAccount }) => {
   const { email } = props
   return (
-    <div className="prose prose-2xl">
-      <h1>Account Created</h1>
+    <div className="prose">
+      <h1 className="prose-lg">Account Created</h1>
       <h2 className="prose">
         Here you can find all the details needed to access your new Ghostmail
         test account. Remember that if sending messages through SMTP then no
@@ -111,17 +111,14 @@ const AccountCreated = (props: { email: EmailAccount }) => {
       <div className="overflow-x-auto">
         <table className="table">
           <tbody>
-            {/* row 1 */}
             <tr>
               <th>Name</th>
               <td>{email.name}</td>
             </tr>
-            {/* row 2 */}
             <tr>
               <th>Username</th>
               <td>{email.username}</td>
             </tr>
-            {/* row 3 */}
             <tr>
               <th>Password</th>
               <td>{email.password}</td>

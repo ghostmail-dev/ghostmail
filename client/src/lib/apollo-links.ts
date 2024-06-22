@@ -11,7 +11,7 @@ const authLink = setContext(async (_, { headers }) => {
   return {
     headers: {
       ...headers,
-      "x-access-token": "breaker", //tokens?.accessToken,
+      "x-access-token": tokens?.accessToken,
       "x-refresh-token": tokens?.refreshToken,
     },
   }

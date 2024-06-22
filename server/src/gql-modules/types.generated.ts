@@ -87,6 +87,7 @@ export type Mutation = {
   __typename?: "Mutation";
   createMailbox?: Maybe<CreateMailboxResponse>;
   login?: Maybe<Scalars["Boolean"]["output"]>;
+  readMail?: Maybe<Scalars["Boolean"]["output"]>;
 };
 
 export type MutationcreateMailboxArgs = {
@@ -96,6 +97,10 @@ export type MutationcreateMailboxArgs = {
 export type MutationloginArgs = {
   password: Scalars["String"]["input"];
   username: Scalars["String"]["input"];
+};
+
+export type MutationreadMailArgs = {
+  mailId: Scalars["ID"]["input"];
 };
 
 export type NewMailbox = {
@@ -388,6 +393,12 @@ export type MutationResolvers<
     ParentType,
     ContextType,
     RequireFields<MutationloginArgs, "password" | "username">
+  >;
+  readMail?: Resolver<
+    Maybe<ResolversTypes["Boolean"]>,
+    ParentType,
+    ContextType,
+    RequireFields<MutationreadMailArgs, "mailId">
   >;
 };
 

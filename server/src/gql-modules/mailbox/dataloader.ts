@@ -9,7 +9,6 @@ export class MailboxLoader {
         username: { $in: usernames },
       }).toArray()
 
-      console.dir(mailboxes, { depth: null })
       return usernames.map((username) => {
         return (
           mailboxes.find((mailbox) => mailbox.username === username) ?? null

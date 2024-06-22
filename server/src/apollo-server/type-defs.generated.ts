@@ -805,12 +805,56 @@ export const typeDefs = {
           directives: [],
           loc: { start: 848, end: 900 },
         },
+        {
+          kind: "FieldDefinition",
+          name: {
+            kind: "Name",
+            value: "readMail",
+            loc: { start: 903, end: 911 },
+          },
+          arguments: [
+            {
+              kind: "InputValueDefinition",
+              name: {
+                kind: "Name",
+                value: "mailId",
+                loc: { start: 912, end: 918 },
+              },
+              type: {
+                kind: "NonNullType",
+                type: {
+                  kind: "NamedType",
+                  name: {
+                    kind: "Name",
+                    value: "ID",
+                    loc: { start: 920, end: 922 },
+                  },
+                  loc: { start: 920, end: 922 },
+                },
+                loc: { start: 920, end: 923 },
+              },
+              directives: [],
+              loc: { start: 912, end: 923 },
+            },
+          ],
+          type: {
+            kind: "NamedType",
+            name: {
+              kind: "Name",
+              value: "Boolean",
+              loc: { start: 926, end: 933 },
+            },
+            loc: { start: 926, end: 933 },
+          },
+          directives: [],
+          loc: { start: 903, end: 933 },
+        },
       ],
-      loc: { start: 771, end: 902 },
+      loc: { start: 771, end: 935 },
     },
     {
       kind: "ObjectTypeExtension",
-      name: { kind: "Name", value: "Query", loc: { start: 915, end: 920 } },
+      name: { kind: "Name", value: "Query", loc: { start: 948, end: 953 } },
       interfaces: [],
       directives: [],
       fields: [
@@ -819,7 +863,7 @@ export const typeDefs = {
           name: {
             kind: "Name",
             value: "mailbox",
-            loc: { start: 925, end: 932 },
+            loc: { start: 958, end: 965 },
           },
           arguments: [
             {
@@ -827,7 +871,7 @@ export const typeDefs = {
               name: {
                 kind: "Name",
                 value: "name",
-                loc: { start: 933, end: 937 },
+                loc: { start: 966, end: 970 },
               },
               type: {
                 kind: "NonNullType",
@@ -836,14 +880,14 @@ export const typeDefs = {
                   name: {
                     kind: "Name",
                     value: "String",
-                    loc: { start: 939, end: 945 },
+                    loc: { start: 972, end: 978 },
                   },
-                  loc: { start: 939, end: 945 },
+                  loc: { start: 972, end: 978 },
                 },
-                loc: { start: 939, end: 946 },
+                loc: { start: 972, end: 979 },
               },
               directives: [],
-              loc: { start: 933, end: 946 },
+              loc: { start: 966, end: 979 },
             },
           ],
           type: {
@@ -851,16 +895,16 @@ export const typeDefs = {
             name: {
               kind: "Name",
               value: "Mailbox",
-              loc: { start: 949, end: 956 },
+              loc: { start: 982, end: 989 },
             },
-            loc: { start: 949, end: 956 },
+            loc: { start: 982, end: 989 },
           },
           directives: [],
-          loc: { start: 925, end: 956 },
+          loc: { start: 958, end: 989 },
         },
       ],
-      loc: { start: 903, end: 958 },
+      loc: { start: 936, end: 991 },
     },
   ],
-  loc: { start: 0, end: 959 },
+  loc: { start: 0, end: 992 },
 } as unknown as DocumentNode;

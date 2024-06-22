@@ -24,6 +24,7 @@ export const validateAccessToken = (token: string) => {
   } catch (error) {
     if (error.message !== "jwt expired")
       console.error(`Access token error: ${error.message}`)
+    else console.error(error)
   }
 }
 

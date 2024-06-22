@@ -4,20 +4,28 @@ export const EmailHeader = (props: {
   email: NonNullable<GetEmailQuery["email"]>
 }) => {
   return (
-    <div className="overflow-x-auto">
-      <table className="table">
+    <div className="prose overflow-x-auto shadow-md rounded-lg  m-4 border border-gray-200">
+      <table className="table mt-0 mb-0">
         <tbody>
           <tr>
-            <td>From: {props.email.fromText}</td>
+            <td className="prose">
+              From: <b>{props.email.fromText}</b>
+            </td>
           </tr>
           <tr>
-            <td>To: {props.email.toText}</td>
+            <td className="prose">
+              To: <b>{props.email.toText}</b>
+            </td>
           </tr>
           <tr>
-            <td>Subject: {props.email.subject}</td>
+            <td className="prose">
+              Subject: <b>{props.email.subject}</b>
+            </td>
           </tr>
           <tr>
-            <td>Date: {props.email.date}</td>
+            <td className="prose">
+              Date: <b>{props.email.date}</b>
+            </td>
           </tr>
         </tbody>
       </table>

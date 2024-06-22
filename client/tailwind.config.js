@@ -8,10 +8,4 @@ export default {
   daisyui: {
     themes: ["light", "dark", "dracula"],
   },
-  resolve: {
-    alias: {
-      buffer: "rollup-plugin-node-polyfills/polyfills/buffer-es6",
-      process: "rollup-plugin-node-polyfills/polyfills/process-es6",
-    },
-  },
 }

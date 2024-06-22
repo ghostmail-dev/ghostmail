@@ -8,7 +8,9 @@ export default function Mailbox() {
   }
   return (
     <div className="prose min-w-full">
-      <h1 className="prose-lg">{username}</h1>
+      <h1 className="prose-lg ml-4">
+        Messages for <a href={`mailto:${username}`}>{username}</a>
+      </h1>
       <Outlet />
     </div>
   )

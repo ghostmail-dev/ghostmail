@@ -4,6 +4,7 @@ import { email as Query_email } from "./../gql-modules/email/resolvers/Query/ema
 import { mailbox as Query_mailbox } from "./../gql-modules/mailbox/resolvers/Query/mailbox";
 import { createMailbox as Mutation_createMailbox } from "./../gql-modules/mailbox/resolvers/Mutation/createMailbox";
 import { login as Mutation_login } from "./../gql-modules/mailbox/resolvers/Mutation/login";
+import { readMail as Mutation_readMail } from "./../gql-modules/mailbox/resolvers/Mutation/readMail";
 import { Email } from "./../gql-modules/email/resolvers/Email";
 import { InvalidApiKeyError } from "./../gql-modules/mailbox/resolvers/InvalidApiKeyError";
 import { Mailbox as mailbox_Mailbox } from "./../gql-modules/mailbox/resolvers/Mailbox";
@@ -17,7 +18,11 @@ import {
 } from "graphql-scalars";
 export const resolvers: Resolvers = {
   Query: { email: Query_email, mailbox: Query_mailbox },
-  Mutation: { createMailbox: Mutation_createMailbox, login: Mutation_login },
+  Mutation: {
+    createMailbox: Mutation_createMailbox,
+    login: Mutation_login,
+    readMail: Mutation_readMail,
+  },
 
   Email: Email,
   InvalidApiKeyError: InvalidApiKeyError,

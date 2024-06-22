@@ -55,7 +55,7 @@ export async function startApolloServer() {
   await new Promise<void>((resolve) =>
     httpServer.listen({ port: 4040 }, resolve)
   )
-  console.log(`🚀 Apollo Server ready at http://localhost:4040/graphql`)
+  console.info(`🚀 Apollo Server ready at http://localhost:4040/graphql`)
 
   return server
 }
