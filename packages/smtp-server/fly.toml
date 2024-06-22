@@ -1,0 +1,29 @@
+# fly.toml app configuration file generated for ghostmail-smtp on 2024-06-22T09:39:23-07:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'ghostmail-smtp'
+primary_region = 'lax'
+
+[build]
+dockerfile = "../../Dockerfile.smtp"
+
+[[services]]
+internal_port = 2525
+protocol = "tcp"
+
+[[services.ports]]
+port = 25
+
+[[services.ports]]
+handlers = ["tls"]
+port = 465
+
+[[services.ports]]
+port = 587
+
+[[vm]]
+memory = '512mb'
+cpu_kind = 'shared'
+cpus = 1

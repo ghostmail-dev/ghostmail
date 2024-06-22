@@ -2,7 +2,7 @@
   "name": "@ghostmail-packages/smtp-server",
   "version": "1.0.0",
   "description": "A simple smtp server",
-  "module": "dist/index.ts",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "private": true,
   "scripts": {
@@ -20,6 +20,7 @@
     "smtp-server": "^3.13.4"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
     "@types/bcrypt": "^5.0.2",
     "@types/smtp-server": "^3.5.10",
     "typescript": "^5.5.2"

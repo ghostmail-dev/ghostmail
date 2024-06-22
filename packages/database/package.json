@@ -1,8 +1,9 @@
 {
   "name": "@ghostmail-packages/database",
   "version": "1.0.0",
-  "module": "dist/index.ts",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "main": "dist/index.js",
   "private": true,
   "scripts": {
     "build": "rm -rf dist && tsc",
@@ -12,11 +13,11 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@types/mailparser": "^3.4.4",
     "dotenv": "^16.4.5",
     "mongodb": "^6.7.0"
   },
   "devDependencies": {
-    "@types/mailparser": "^3.4.4",
     "typescript": "^5.5.2"
   }
 }

@@ -1,7 +1,7 @@
 {
   "name": "@ghostmail-packages/graphql-server",
   "version": "1.0.0",
-  "module": "dist/index.ts",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "private": true,
   "scripts": {
