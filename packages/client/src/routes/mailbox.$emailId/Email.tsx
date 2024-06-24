@@ -1,21 +1,21 @@
-import { useNavigate, useParams } from 'react-router-dom';
-import { EmailHeader } from './components/email-header';
-import { useGetEmailQuery } from './gql/get-email.operation';
-import { ArrowLeftIcon } from '@heroicons/react/20/solid';
-import { Attachments } from './components/attachments';
+import { useNavigate, useParams } from 'react-router-dom'
+import { EmailHeader } from './components/email-header'
+import { useGetEmailQuery } from './gql/get-email.operation'
+import { ArrowLeftIcon } from '@heroicons/react/20/solid'
+import { Attachments } from './components/attachments'
 
 export const Email = () => {
-  const { emailId } = useParams();
-  const navigate = useNavigate();
+  const { emailId } = useParams()
+  const navigate = useNavigate()
   const { data, loading, error } = useGetEmailQuery({
     variables: {
       id: emailId ?? '',
     },
-  });
-  if (loading || data === undefined) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  })
+  if (loading || data === undefined) return <div>Loading...</div>
+  if (error) return <div>Error: {error.message}</div>
 
-  const email = data.email;
+  const email = data.email
   return (
     email && (
       <div>
@@ -34,5 +34,5 @@ export const Email = () => {
         </div>
       </div>
     )
-  );
-};
+  )
+}
