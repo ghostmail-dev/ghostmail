@@ -1,3 +1,14 @@
+type EmailAttachment {
+  filename: String
+  contentType: String
+  contentDisposition: String
+  contentId: String
+  transferEncoding: String
+  generatedFileName: String
+  "The size of the attachment in bytes."
+  size: Int
+}
+
 type Email {
   _id: ID!
   html: String
@@ -8,4 +19,5 @@ type Email {
   messageId: String
   fromText: String
   toText: String
+  attachments: [EmailAttachment]
 }

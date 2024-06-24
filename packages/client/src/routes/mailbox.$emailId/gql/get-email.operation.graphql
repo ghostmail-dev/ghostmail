@@ -9,5 +9,14 @@ query GetEmail($id: ID!) {
     messageId
     fromText
     toText
+    attachments {
+      filename
+      contentType
+      contentDisposition
+      contentId
+      transferEncoding
+      generatedFileName
+      size
+    }
   }
 }

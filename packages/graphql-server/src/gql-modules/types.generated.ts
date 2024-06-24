@@ -4,7 +4,7 @@ import {
   GraphQLScalarType,
   GraphQLScalarTypeConfig,
 } from "graphql";
-import { EmailMapper } from "./email/domain.mappers";
+import { EmailMapper, EmailAttachmentMapper } from "./email/domain.mappers";
 import { MailboxMapper } from "./mailbox/domain.mappers";
 import { ApolloContextType } from "../apollo-server/context";
 export type Maybe<T> = T | null | undefined;
@@ -47,6 +47,7 @@ export type CreateMailboxResponse = InvalidApiKeyError | NewMailbox;
 export type Email = {
   __typename?: "Email";
   _id: Scalars["ID"]["output"];
+  attachments?: Maybe<Array<Maybe<EmailAttachment>>>;
   date: Scalars["Date"]["output"];
   fromText?: Maybe<Scalars["String"]["output"]>;
   html?: Maybe<Scalars["String"]["output"]>;
@@ -55,6 +56,18 @@ export type Email = {
   text?: Maybe<Scalars["String"]["output"]>;
   textAsHtml?: Maybe<Scalars["String"]["output"]>;
   toText?: Maybe<Scalars["String"]["output"]>;
+};
+
+export type EmailAttachment = {
+  __typename?: "EmailAttachment";
+  contentDisposition?: Maybe<Scalars["String"]["output"]>;
+  contentId?: Maybe<Scalars["String"]["output"]>;
+  contentType?: Maybe<Scalars["String"]["output"]>;
+  filename?: Maybe<Scalars["String"]["output"]>;
+  generatedFileName?: Maybe<Scalars["String"]["output"]>;
+  /** The size of the attachment in bytes. */
+  size?: Maybe<Scalars["Int"]["output"]>;
+  transferEncoding?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type Error = {
@@ -252,6 +265,8 @@ export type ResolversTypes = {
   Email: ResolverTypeWrapper<EmailMapper>;
   ID: ResolverTypeWrapper<Scalars["ID"]["output"]>;
   String: ResolverTypeWrapper<Scalars["String"]["output"]>;
+  EmailAttachment: ResolverTypeWrapper<EmailAttachmentMapper>;
+  Int: ResolverTypeWrapper<Scalars["Int"]["output"]>;
   Error: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>["Error"]>;
   InvalidApiKeyError: ResolverTypeWrapper<InvalidApiKeyError>;
   LocalDate: ResolverTypeWrapper<Scalars["LocalDate"]["output"]>;
@@ -271,6 +286,8 @@ export type ResolversParentTypes = {
   Email: EmailMapper;
   ID: Scalars["ID"]["output"];
   String: Scalars["String"]["output"];
+  EmailAttachment: EmailAttachmentMapper;
+  Int: Scalars["Int"]["output"];
   Error: ResolversInterfaceTypes<ResolversParentTypes>["Error"];
   InvalidApiKeyError: InvalidApiKeyError;
   LocalDate: Scalars["LocalDate"]["output"];
@@ -306,6 +323,11 @@ export type EmailResolvers<
     ResolversParentTypes["Email"] = ResolversParentTypes["Email"],
 > = {
   _id?: Resolver<ResolversTypes["ID"], ParentType, ContextType>;
+  attachments?: Resolver<
+    Maybe<Array<Maybe<ResolversTypes["EmailAttachment"]>>>,
+    ParentType,
+    ContextType
+  >;
   date?: Resolver<ResolversTypes["Date"], ParentType, ContextType>;
   fromText?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   html?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
@@ -322,6 +344,41 @@ export type EmailResolvers<
     ContextType
   >;
   toText?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type EmailAttachmentResolvers<
+  ContextType = ApolloContextType,
+  ParentType extends
+    ResolversParentTypes["EmailAttachment"] = ResolversParentTypes["EmailAttachment"],
+> = {
+  contentDisposition?: Resolver<
+    Maybe<ResolversTypes["String"]>,
+    ParentType,
+    ContextType
+  >;
+  contentId?: Resolver<
+    Maybe<ResolversTypes["String"]>,
+    ParentType,
+    ContextType
+  >;
+  contentType?: Resolver<
+    Maybe<ResolversTypes["String"]>,
+    ParentType,
+    ContextType
+  >;
+  filename?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  generatedFileName?: Resolver<
+    Maybe<ResolversTypes["String"]>,
+    ParentType,
+    ContextType
+  >;
+  size?: Resolver<Maybe<ResolversTypes["Int"]>, ParentType, ContextType>;
+  transferEncoding?: Resolver<
+    Maybe<ResolversTypes["String"]>,
+    ParentType,
+    ContextType
+  >;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -442,6 +499,7 @@ export type Resolvers<ContextType = ApolloContextType> = {
   CreateMailboxResponse?: CreateMailboxResponseResolvers<ContextType>;
   Date?: GraphQLScalarType;
   Email?: EmailResolvers<ContextType>;
+  EmailAttachment?: EmailAttachmentResolvers<ContextType>;
   Error?: ErrorResolvers<ContextType>;
   InvalidApiKeyError?: InvalidApiKeyErrorResolvers<ContextType>;
   LocalDate?: GraphQLScalarType;

@@ -1,10 +1,10 @@
-import type { QueryResolvers } from "../../../types.generated"
+import type { QueryResolvers } from "../../../types.generated";
 export const email: NonNullable<QueryResolvers["email"]> = async (
   _parent,
   { _id },
-  { dataSources }
+  { dataSources },
 ) => {
   /* Implement Query.email resolver logic here */
-  const email = await dataSources.EmailsLoader.getEmailById(_id)
-  return email
-}
+  const email = await dataSources.EmailsLoader.getEmailById(_id);
+  return email;
+};

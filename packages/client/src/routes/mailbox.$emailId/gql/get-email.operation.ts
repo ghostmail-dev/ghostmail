@@ -20,6 +20,16 @@ export type GetEmailQuery = {
     messageId: string | null;
     fromText: string | null;
     toText: string | null;
+    attachments: Array<{
+      __typename: "EmailAttachment";
+      filename: string | null;
+      contentType: string | null;
+      contentDisposition: string | null;
+      contentId: string | null;
+      transferEncoding: string | null;
+      generatedFileName: string | null;
+      size: number | null;
+    } | null> | null;
   } | null;
 };
 
@@ -35,6 +45,15 @@ export const GetEmailDocument = gql`
       messageId
       fromText
       toText
+      attachments {
+        filename
+        contentType
+        contentDisposition
+        contentId
+        transferEncoding
+        generatedFileName
+        size
+      }
     }
   }
 `;

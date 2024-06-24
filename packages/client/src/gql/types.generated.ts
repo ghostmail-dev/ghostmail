@@ -35,6 +35,7 @@ export type CreateMailboxResponse = InvalidApiKeyError | NewMailbox;
 export type Email = {
   __typename?: "Email";
   _id: Scalars["ID"]["output"];
+  attachments?: Maybe<Array<Maybe<EmailAttachment>>>;
   date: Scalars["Date"]["output"];
   fromText?: Maybe<Scalars["String"]["output"]>;
   html?: Maybe<Scalars["String"]["output"]>;
@@ -43,6 +44,18 @@ export type Email = {
   text?: Maybe<Scalars["String"]["output"]>;
   textAsHtml?: Maybe<Scalars["String"]["output"]>;
   toText?: Maybe<Scalars["String"]["output"]>;
+};
+
+export type EmailAttachment = {
+  __typename?: "EmailAttachment";
+  contentDisposition?: Maybe<Scalars["String"]["output"]>;
+  contentId?: Maybe<Scalars["String"]["output"]>;
+  contentType?: Maybe<Scalars["String"]["output"]>;
+  filename?: Maybe<Scalars["String"]["output"]>;
+  generatedFileName?: Maybe<Scalars["String"]["output"]>;
+  /** The size of the attachment in bytes. */
+  size?: Maybe<Scalars["Int"]["output"]>;
+  transferEncoding?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type Error = {

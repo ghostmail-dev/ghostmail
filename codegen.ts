@@ -8,17 +8,17 @@ const scalars = {
 
 const config: CodegenConfig = {
   schema: [
-    "./server/src/gql-modules/**/schema.graphql",
-    "./server/src/gql-modules/**/domain.graphql",
-    "./server/src/gql-modules/**/queries.graphql",
-    "./server/src/gql-modules/**/mutations.graphql",
+    "./packages/graphql-server/src/gql-modules/**/schema.graphql",
+    "./packages/graphql-server/src/gql-modules/**/domain.graphql",
+    "./packages/graphql-server/src/gql-modules/**/queries.graphql",
+    "./packages/graphql-server/src/gql-modules/**/mutations.graphql",
   ],
   hooks: {
     afterAllFileWrite: ["npx prettier --write"],
   },
   ignoreNoDocuments: true, // for better experience with the watcher
   generates: {
-    "server/src/gql-modules": defineConfig({
+    "packages/graphql-server/src/gql-modules": defineConfig({
       resolverMainFile: "../apollo-server/resolvers.generated.ts",
       typeDefsFilePath: "../apollo-server/type-defs.generated.ts",
       typesPluginsConfig: {
@@ -32,7 +32,7 @@ const config: CodegenConfig = {
       },
     }),
 
-    "./client/src/gql/types.generated.ts": {
+    "./packages/client/src/gql/types.generated.ts": {
       plugins: ["typescript"],
       config: {
         scalars,
@@ -41,7 +41,7 @@ const config: CodegenConfig = {
         },
       },
     },
-    "client/src/routes": {
+    "./packages/client/src/routes": {
       documents: ["**/*operation.graphql"],
       overwrite: true,
       plugins: ["typescript-operations", "typescript-react-apollo"],

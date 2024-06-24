@@ -1,9 +1,9 @@
-import type { QueryResolvers } from "../../../types.generated"
+import type { QueryResolvers } from "../../../types.generated";
 export const mailbox: NonNullable<QueryResolvers["mailbox"]> = async (
   _parent,
   { name },
-  { dataSources }
+  { dataSources },
 ) => {
-  const mailbox = dataSources.MailboxLoader.getMailboxByName(name)
-  return mailbox
-}
+  const mailbox = dataSources.MailboxLoader.getMailboxByName(name);
+  return mailbox;
+};
