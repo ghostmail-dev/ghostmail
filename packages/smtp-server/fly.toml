@@ -17,7 +17,6 @@ protocol = "tcp"
 port = 25
 
 [[services.ports]]
-handlers = ["tls"]
 port = 465
 
 [[services.ports]]

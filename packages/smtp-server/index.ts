@@ -6,20 +6,25 @@ import { ObjectId } from "mongodb"
 import * as bcrypt from "bcrypt"
 
 const smtpServer = new SMTPServer({
-  logger: false,
+  logger: true,
   authOptional: true,
+  authMethods: ["LOGIN"],
   disableReverseLookup: true,
   maxClients: 5,
   onAuth(auth, _session, callback) {
     console.info("SMTP Auth:", auth)
     if (!auth.username || !auth.password) {
-      return callback(new Error("Invalid authentication"))
+      return callback(
+        new Error("Invalid authentication: missing username or password")
+      )
     }
     const username = `${auth.username}@${process.env.MAIL_DOMAIN}`.toLowerCase()
     Mailboxes.findOne({ username })
       .then((mailbox) => {
         if (!mailbox) {
-          return callback(new Error("Invalid authentication"))
+          return callback(
+            new Error("Invalid authentication: mailbox not found")
+          )
         }
 
         // already checked this above, but doing it again for TypeScript
@@ -164,8 +169,14 @@ const smtpServer = new SMTPServer({
           }
         }
       }
+      console.info("SMTP DATA end")
+      return callback()
     })
   },
+})
+
+smtpServer.on("error", (error) => {
+  console.error("SMTP Server Error:", error)
 })
 
 smtpServer.listen(process.env.SMTP_PORT, () => {
