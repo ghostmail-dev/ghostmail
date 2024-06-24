@@ -1,8 +1,4 @@
-import {
-  ArrowDownIcon,
-  ArrowDownOnSquareIcon,
-  DocumentIcon,
-} from '@heroicons/react/20/solid';
+import { ArrowDownIcon, DocumentIcon } from '@heroicons/react/20/solid';
 import { GetEmailQuery } from '../gql/get-email.operation';
 
 export const Attachments = ({
