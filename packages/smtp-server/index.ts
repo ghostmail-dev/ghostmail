@@ -4,12 +4,23 @@ import { HeaderValue, simpleParser } from "mailparser"
 import { Emails, Mailboxes } from "@ghostmail-packages/database"
 import { ObjectId } from "mongodb"
 import * as bcrypt from "bcrypt"
+import { readFileSync } from "fs"
+
+const isProduction = process.env.NODE_ENV === "production"
+const keyFile = isProduction
+  ? "./.certs/_.ghostmail.dev.key"
+  : "./sample.certs/localhost.key"
+const certFile = isProduction
+  ? "./.certs/_.ghostmail.dev.crt"
+  : "./sample.certs/localhost.crt"
 
 const smtpServer = new SMTPServer({
   logger: true,
   authOptional: true,
   authMethods: ["LOGIN"],
   disableReverseLookup: true,
+  key: readFileSync(keyFile),
+  cert: readFileSync(certFile),
   maxClients: 5,
   onAuth(auth, _session, callback) {
     console.info("SMTP Auth:", auth)
