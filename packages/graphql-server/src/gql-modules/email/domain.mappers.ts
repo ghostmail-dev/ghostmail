@@ -5,4 +5,7 @@ export interface EmailMapper extends ParsedMail {
   _id: ObjectId
 }
 
-export type EmailAttachmentMapper = Attachment
+export interface EmailAttachmentMapper extends Omit<Attachment, "headers"> {
+  filename: string
+  headers: Record<string, string>
+}
