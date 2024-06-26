@@ -10,7 +10,6 @@ export const loader: LoaderFunction = async ({ request }) => {
     successRedirect: "/mailbox",
   })
 
-  console.log({ loggedInUser: user })
   return null
 }
 

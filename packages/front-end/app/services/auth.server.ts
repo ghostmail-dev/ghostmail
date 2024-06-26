@@ -15,7 +15,6 @@ authenticator.use(
     const loader = new MailboxLoader()
     const email = form.get("email")
     const password = form.get("password")
-    console.log({ email, password })
     if (!email || !password) {
       throw new Error("Email and password are required")
     }
@@ -23,7 +22,6 @@ authenticator.use(
       email as string,
       password as string
     )
-    console.log({ isLoginValid })
     // the type of this user must match the type you pass to the Authenticator
     // the strategy will automatically inherit the type if you instantiate
     // directly inside the `use` method

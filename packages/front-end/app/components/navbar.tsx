@@ -6,7 +6,7 @@ import lightGhostmail from "~/images/ghostmail-light.png"
 
 export const Navbar = ({ username }: { username: string | null }) => {
   const { theme } = useTheme()
-  console.log({ username })
+
   return (
     <div className="navbar bg-base-100">
       <div className="flex-1">

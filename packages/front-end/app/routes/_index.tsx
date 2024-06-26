@@ -32,6 +32,7 @@ type ActionResponse = EmailAccount | NewMailboxError
 export const action: ActionFunction = async ({
   request,
 }): Promise<TypedResponse<ActionResponse>> => {
+  const req = request.clone()
   const formData = await request.formData()
   const apiKey = formData.get("api-key") as string
   if (!apiKey) {
@@ -60,25 +61,37 @@ export const action: ActionFunction = async ({
 
   const mailbox = await createMailbox()
 
-  // TODO: handle logging in the user when creating the account
-  formData.append("email", mailbox.username)
-  formData.append("password", mailbox.password)
-
-  // const session = await sessionStorage.getSession(request.headers.get("Cookie"))
-  // await sessionStorage.destroySession(session)
-  await authenticator.authenticate("user-pass", request)
-  return json({
-    __typename: "NewMailbox",
-    _id: mailbox._id.toHexString(),
-    name: mailbox.name,
-    username: mailbox.username,
-    password: mailbox.password,
+  const _request = new Request(req.url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: `email=${mailbox.username}&password=${mailbox.password}`,
   })
+
+  const user = await authenticator.authenticate("user-pass", _request)
+  const session = await sessionStorage.getSession(request.headers.get("Cookie"))
+  session.set("user", user)
+  const userCookie = await sessionStorage.commitSession(session)
+  return json(
+    {
+      __typename: "NewMailbox",
+      _id: mailbox._id.toHexString(),
+      name: mailbox.name,
+      username: mailbox.username,
+      password: mailbox.password,
+    },
+    {
+      headers: {
+        "Set-Cookie": userCookie,
+      },
+    }
+  )
 }
 
 export default function Home() {
   const actionData = useActionData<ActionResponse>()
-  console.log({ actionData })
+
   return (
     <div className="container mx-auto max-w-lg sm:px-6 lg:px-8 shadow-md rounded-lg border-solid border-2 border-grey-500 p-5">
       {actionData?.__typename === "NewMailbox" ? (
@@ -182,7 +195,7 @@ const AccountCreated = (props: { email: EmailAccount }) => {
           </tbody>
         </table>
       </div>
-      <Link to="/login" className="text-blue-500">
+      <Link to="/mailbox" className="text-blue-500">
         Open Mailbox
       </Link>
     </div>
