@@ -20,7 +20,7 @@
     "@parcel/watcher": "^2.4.1"
   },
   "dependencies": {
-    "graphql": "^16.8.2",
+    "graphql": "^16.9.0",
     "graphql-scalars": "^1.23.0",
     "typescript": "^5.5.2"
   },

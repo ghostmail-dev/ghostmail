@@ -1,7 +1,4 @@
-import {
-  vitePlugin as remix,
-  cloudflareDevProxyVitePlugin as remixCloudflareDevProxy,
-} from "@remix-run/dev"
+import { vitePlugin as remix } from "@remix-run/dev"
 import { defineConfig } from "vite"
 import tsconfigPaths from "vite-tsconfig-paths"
 import path from "node:path"
@@ -16,7 +13,6 @@ export default defineConfig({
   //   exclude: ["aws-sdk", "nock", "mock-aws-s3", "@mapbox/node-pre-gyp"],
   // },
   plugins: [
-    remixCloudflareDevProxy(),
     remix({
       future: {
         v3_fetcherPersist: true,
