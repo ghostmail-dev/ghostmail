@@ -4,7 +4,7 @@ import {
 } from "@remix-run/dev"
 import { defineConfig } from "vite"
 import tsconfigPaths from "vite-tsconfig-paths"
-import path from "path"
+import path from "node:path"
 
 export default defineConfig({
   resolve: {
