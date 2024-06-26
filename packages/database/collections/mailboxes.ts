@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb"
 import { MongoCollection } from "../connection"
-import * as bcrypt from "bcrypt"
+import * as bcrypt from "bcryptjs"
 
 /** A simple collection that keeps track of all the email accounts */
 type MailboxDocument = {

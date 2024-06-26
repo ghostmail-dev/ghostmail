@@ -12,7 +12,6 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@faker-js/faker": "^8.4.1",
     "@ghostmail-packages/database": "^1.0.0",
     "@heroicons/react": "^2.1.4",
     "@remix-run/cloudflare": "^2.10.0",

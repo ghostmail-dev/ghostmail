@@ -1,15 +1,8 @@
 import { useState } from "react"
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/20/solid"
 import { Link } from "react-router-dom"
-import {
-  ActionFunction,
-  json,
-  LinksFunction,
-  TypedResponse,
-} from "@remix-run/node"
+import { ActionFunction, json, TypedResponse } from "@remix-run/node"
 import { createMailbox } from "@ghostmail-packages/database"
-import { faker } from "@faker-js/faker"
-import * as bcrypt from "bcrypt"
 import { Form, useActionData } from "@remix-run/react"
 import { authenticator } from "~/services/auth.server"
 import { sessionStorage } from "~/services/session.server"
