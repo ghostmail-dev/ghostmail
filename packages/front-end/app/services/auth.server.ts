@@ -3,8 +3,6 @@ import { sessionStorage } from "./session.server"
 import { FormStrategy } from "remix-auth-form"
 import { MailboxLoader } from "@ghostmail-packages/database"
 
-// Create an instance of the authenticator, pass a generic with what
-// strategies will return and will store in the session
 export const authenticator = new Authenticator<{ username: string }>(
   sessionStorage
 )
