@@ -14,6 +14,7 @@
   "dependencies": {
     "@ghostmail-packages/database": "^1.0.0",
     "@heroicons/react": "^2.1.4",
+    "@remix-run/dev": "^2.10.0",
     "@remix-run/node": "^2.10.0",
     "@remix-run/react": "^2.10.0",
     "@remix-run/serve": "^2.10.0",
@@ -27,7 +28,6 @@
     "remove": "^0.1.5"
   },
   "devDependencies": {
-    "@remix-run/dev": "^2.10.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^6.7.4",
@@ -43,8 +43,7 @@
     "tailwindcss": "^3.4.4",
     "typescript": "^5.5.2",
     "vite": "^5.3.1",
-    "vite-tsconfig-paths": "^4.3.2",
-    "wrangler": "^3.62.0"
+    "vite-tsconfig-paths": "^4.3.2"
   },
   "engines": {
     "node": ">=20.0.0"

@@ -9,8 +9,7 @@ LABEL fly_launch_runtime="Node.js"
 # Node.js app lives here
 WORKDIR /app
 
-# Set production environment
-ENV NODE_ENV="production"
+
 
 
 # Throw-away build stage to reduce size of final image
@@ -22,11 +21,13 @@ RUN apt-get update -qq && \
 
 # Install node modules
 COPY --link . .
-RUN npm ci -w packages/graphql-server
+RUN npm ci -w packages/client
 
+# Set production environment
+ENV NODE_ENV="production"
 # Build the application (run the typescript compiler)
 RUN npm run build -w packages/database
-RUN npm run build -w packages/graphql-server
+RUN npm run build -w packages/client
 # Copy application code
 
 
@@ -36,12 +37,11 @@ FROM base
 # Copy built application
 COPY --from=build /app/node_modules /app/node_modules
 COPY --from=build /app/package.json /app/package.json
-COPY --from=build /app/packages/graphql-server/ /app/packages/graphql-server/
-COPY --from=build /app/packages/graphql-server/package.json /app/packages/graphql-server/package.json
+COPY --from=build /app/packages/client/ /app/packages/client/
 COPY --from=build /app/packages/database/dist /app/packages/database/dist
 COPY --from=build /app/packages/database/package.json /app/packages/database/package.json
 
 
 # Start the server by default, this can be overwritten at runtime
-EXPOSE 4040
-CMD ["npm", "run", "start", "-w", "packages/graphql-server"]
+EXPOSE 3000
+CMD ["npm", "run", "start", "-w", "packages/client"]
