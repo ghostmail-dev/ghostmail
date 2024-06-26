@@ -12,9 +12,9 @@ export default defineConfig({
       "~": path.resolve(__dirname, "./app"),
     },
   },
-  optimizeDeps: {
-    exclude: ["aws-sdk", "nock", "mock-aws-s3", "@mapbox/node-pre-gyp"],
-  },
+  // optimizeDeps: {
+  //   exclude: ["aws-sdk", "nock", "mock-aws-s3", "@mapbox/node-pre-gyp"],
+  // },
   plugins: [
     remixCloudflareDevProxy(),
     remix({
