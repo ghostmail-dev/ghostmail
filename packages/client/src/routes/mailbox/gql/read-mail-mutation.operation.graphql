@@ -1,3 +1,0 @@
-mutation ReadMail($mailId: ID!) {
-  readMail(mailId: $mailId)
-}
