@@ -1,0 +1,60 @@
+scalar LocalDate
+scalar Date
+scalar ObjectID
+
+interface Error {
+  message: String!
+}
+
+type EmailAttachment {
+  filename: String
+  contentType: String
+  contentDisposition: String
+  contentId: String
+  transferEncoding: String
+  generatedFileName: String
+  "The size of the attachment in bytes."
+  size: Int
+}
+
+type Email {
+  _id: ID!
+  html: String
+  text: String
+  textAsHtml: String
+  subject: String
+  date: Date!
+  messageId: String
+  fromText: String
+  toText: String
+  attachments: [EmailAttachment]
+}
+
+type Mailbox {
+  _id: ObjectID!
+  name: String!
+  username: String!
+}
+
+type Query {
+  email(_id: ID!): Email
+  mailbox(name: String!): Mailbox
+}
+type InvalidApiKeyError implements Error {
+  message: String!
+}
+
+type NewMailbox {
+  _id: ObjectID!
+  name: String!
+  username: String!
+  password: String!
+}
+
+union CreateMailboxResponse = NewMailbox | InvalidApiKeyError
+
+type Mutation {
+  createMailbox(apiKey: ID!): CreateMailboxResponse
+  login(username: String!, password: String!): Boolean
+  readMail(mailId: ID!): Boolean
+}

@@ -2,25 +2,69 @@
 
 package model
 
+import (
+	"time"
+)
+
+type CreateMailboxResponse interface {
+	IsCreateMailboxResponse()
+}
+
+type Error interface {
+	IsError()
+	GetMessage() string
+}
+
+type Email struct {
+	ID          string             `json:"_id"`
+	HTML        *string            `json:"html,omitempty"`
+	Text        *string            `json:"text,omitempty"`
+	TextAsHTML  *string            `json:"textAsHtml,omitempty"`
+	Subject     *string            `json:"subject,omitempty"`
+	Date        time.Time          `json:"date"`
+	MessageID   *string            `json:"messageId,omitempty"`
+	FromText    *string            `json:"fromText,omitempty"`
+	ToText      *string            `json:"toText,omitempty"`
+	Attachments []*EmailAttachment `json:"attachments,omitempty"`
+}
+
+type EmailAttachment struct {
+	Filename           *string `json:"filename,omitempty"`
+	ContentType        *string `json:"contentType,omitempty"`
+	ContentDisposition *string `json:"contentDisposition,omitempty"`
+	ContentID          *string `json:"contentId,omitempty"`
+	TransferEncoding   *string `json:"transferEncoding,omitempty"`
+	GeneratedFileName  *string `json:"generatedFileName,omitempty"`
+	// The size of the attachment in bytes.
+	Size *int `json:"size,omitempty"`
+}
+
+type InvalidAPIKeyError struct {
+	Message string `json:"message"`
+}
+
+func (InvalidAPIKeyError) IsError()                {}
+func (this InvalidAPIKeyError) GetMessage() string { return this.Message }
+
+func (InvalidAPIKeyError) IsCreateMailboxResponse() {}
+
+type Mailbox struct {
+	ID       string `json:"_id"`
+	Name     string `json:"name"`
+	Username string `json:"username"`
+}
+
 type Mutation struct {
 }
 
-type NewTodo struct {
-	Text   string `json:"text"`
-	UserID string `json:"userId"`
+type NewMailbox struct {
+	ID       string `json:"_id"`
+	Name     string `json:"name"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
+
+func (NewMailbox) IsCreateMailboxResponse() {}
 
 type Query struct {
-}
-
-type Todo struct {
-	ID   string `json:"id"`
-	Text string `json:"text"`
-	Done bool   `json:"done"`
-	User *User  `json:"user"`
-}
-
-type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
 }

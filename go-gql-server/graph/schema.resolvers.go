@@ -7,17 +7,73 @@ package graph
 import (
 	"context"
 	"fmt"
-	"jb-1980/ghostmail/go-gql-server/graph/model"
+
+	"github.com/jb-1980/ghostmail/go-gql-server/configs"
+	mongodb "github.com/jb-1980/ghostmail/go-gql-server/database"
+	"github.com/jb-1980/ghostmail/go-gql-server/graph/model"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// CreateTodo is the resolver for the createTodo field.
-func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: CreateTodo - createTodo"))
+// CreateMailbox is the resolver for the createMailbox field.
+func (r *mutationResolver) CreateMailbox(ctx context.Context, apiKey string) (model.CreateMailboxResponse, error) {
+	panic(fmt.Errorf("not implemented: CreateMailbox - createMailbox"))
 }
 
-// Todos is the resolver for the todos field.
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: Todos - todos"))
+// Login is the resolver for the login field.
+func (r *mutationResolver) Login(ctx context.Context, username string, password string) (*bool, error) {
+	panic(fmt.Errorf("not implemented: Login - login"))
+}
+
+// ReadMail is the resolver for the readMail field.
+func (r *mutationResolver) ReadMail(ctx context.Context, mailID string) (*bool, error) {
+	panic(fmt.Errorf("not implemented: ReadMail - readMail"))
+}
+
+// Email is the resolver for the email field.
+func (r *queryResolver) Email(ctx context.Context, id string) (*model.Email, error) {
+	fmt.Println("Email ID: ", id)
+	cs := configs.EnvMongoURI()
+	db := mongodb.ConnectDB(cs.Original)
+
+	emailData, err := db.GetEmailById(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var email model.Email
+	email.ID = id
+	htmlType, ok := emailData.HTML.(string)
+	if !ok {
+		email.HTML = nil
+	} else {
+		email.HTML = &htmlType
+	}
+
+	email.Text = emailData.Text
+	email.TextAsHTML = emailData.TextAsHTML
+	email.Subject = emailData.Subject
+	email.Date = *emailData.Date
+	email.MessageID = emailData.MessageID
+	email.FromText = &emailData.From.Text
+
+	if to, ok := emailData.To.(primitive.D); ok {
+		toMap := to.Map()
+
+		if text, exists := toMap["text"]; exists {
+			if textType, ok := text.(string); ok {
+				email.ToText = &textType
+			}
+		}
+
+	}
+
+	return &email, nil
+}
+
+// Mailbox is the resolver for the mailbox field.
+func (r *queryResolver) Mailbox(ctx context.Context, name string) (*model.Mailbox, error) {
+	panic(fmt.Errorf("not implemented: Mailbox - mailbox"))
 }
 
 // Mutation returns MutationResolver implementation.
