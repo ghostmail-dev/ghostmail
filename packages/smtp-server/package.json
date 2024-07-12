@@ -9,7 +9,9 @@
     "build": "rm -rf dist && tsc",
     "dev": "npx tsx watch index.ts",
     "start": "npx tsx dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
+    "typecheck": "tsc --noEmit"
   },
   "author": "joseph",
   "license": "MIT",

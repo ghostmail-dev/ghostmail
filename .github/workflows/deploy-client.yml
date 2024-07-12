@@ -35,7 +35,7 @@ jobs:
         run: npm install
 
       - name: 🔬 Lint
-        run: npm run lint:client
+        run: npm run lint:client && npm run lint:database
 
   typecheck:
     name: ʦ TypeScript
@@ -55,7 +55,7 @@ jobs:
         run: npm install
 
       - name: 🔎 Type check
-        run: npm run typecheck --if-present
+        run: npm run typecheck:client && npm run typecheck:database
 
   deploy:
     name: 🚀 Deploy
@@ -72,7 +72,7 @@ jobs:
         uses: SebRollen/toml-action@v1.0.2
         id: app_name
         with:
-          file: fly.toml
+          file: packages/client/fly.toml
           field: app
 
       - name: 🎈 Setup Fly

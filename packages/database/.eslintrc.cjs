@@ -16,6 +16,8 @@ module.exports = {
     es6: true,
   },
 
+  ignorePatterns: ["dist/*"],
+
   // Base config
   extends: ["eslint:recommended"],
 
