@@ -1,6 +1,8 @@
 import { ObjectId } from "mongodb"
 import { MongoCollection } from "../connection"
 import * as bcrypt from "bcrypt"
+import DataLoader from "dataloader"
+import { faker } from "@faker-js/faker"
 
 /** A simple collection that keeps track of all the email accounts */
 type MailboxDocument = {
@@ -21,12 +23,10 @@ type MailboxDocument = {
     date: Date
     isRead: boolean
   }[]
+  createdAt: Date
 }
 
 const Mailboxes = MongoCollection<MailboxDocument>("mailboxes")
-
-import DataLoader from "dataloader"
-import { faker } from "@faker-js/faker"
 
 export type MailboxMapper = MailboxDocument
 export class MailboxLoader {
@@ -91,6 +91,7 @@ export const createMailbox = async () => {
     username,
     password: passwordHash,
     emails: [],
+    createdAt: new Date(),
   })
 
   return {

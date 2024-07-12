@@ -1,5 +1,3 @@
-const path = require("node:path")
-
 /**
  * This is intended to be a basic starting point for linting in your app.
  * It relies on recommended configs out of the box for simplicity, but you can
@@ -12,48 +10,16 @@ module.exports = {
   parserOptions: {
     ecmaVersion: "latest",
     sourceType: "module",
-    ecmaFeatures: {
-      jsx: true,
-    },
   },
   env: {
-    browser: true,
     commonjs: true,
     es6: true,
   },
-  ignorePatterns: ["!**/.server", "!**/.client"],
 
   // Base config
   extends: ["eslint:recommended"],
 
-  plugins: ["unused-imports"],
-
   overrides: [
-    // React
-    {
-      files: ["**/*.{js,jsx,ts,tsx}"],
-      plugins: ["react", "jsx-a11y"],
-      extends: [
-        "plugin:react/recommended",
-        "plugin:react/jsx-runtime",
-        "plugin:react-hooks/recommended",
-        "plugin:jsx-a11y/recommended",
-      ],
-      settings: {
-        react: {
-          version: "detect",
-        },
-        formComponents: ["Form"],
-        linkComponents: [
-          { name: "Link", linkAttribute: "to" },
-          { name: "NavLink", linkAttribute: "to" },
-        ],
-        "import/resolver": {
-          typescript: {},
-        },
-      },
-    },
-
     // Typescript
     {
       files: ["**/*.{ts,tsx}"],
@@ -67,10 +33,6 @@ module.exports = {
           },
           typescript: {
             alwaysTryTypes: true,
-          },
-          alias: {
-            map: [["~", path.resolve(__dirname, "./app")]],
-            extensions: [".ts", ".tsx"],
           },
         },
       },

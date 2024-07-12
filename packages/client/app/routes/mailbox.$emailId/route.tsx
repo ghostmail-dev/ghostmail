@@ -29,7 +29,7 @@ export type EmailLoaderData = {
 } | null
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const user = await authenticator.isAuthenticated(request, {
+  await authenticator.isAuthenticated(request, {
     failureRedirect: "/login",
   })
   const emailId = params.emailId

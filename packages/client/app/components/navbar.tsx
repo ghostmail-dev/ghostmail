@@ -1,4 +1,3 @@
-import { useEffect } from "react"
 import { Link, NavLink } from "react-router-dom"
 import { useTheme } from "~/contexts/useTheme"
 import darkGhostmail from "~/images/ghostmail-dark.png"

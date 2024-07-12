@@ -1,7 +1,6 @@
-import { MailboxLoader } from "@ghostmail-packages/database"
-import { json, LoaderFunction, redirect } from "@remix-run/node"
+import { json, LoaderFunction } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
-import { Navigate, Outlet } from "react-router-dom"
+import { Outlet } from "react-router-dom"
 import { authenticator } from "~/services/auth.server"
 
 type LoaderData = string

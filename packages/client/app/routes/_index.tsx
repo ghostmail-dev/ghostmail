@@ -2,7 +2,11 @@ import { useState } from "react"
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/20/solid"
 import { Link } from "react-router-dom"
 import { ActionFunction, json, TypedResponse } from "@remix-run/node"
-import { createMailbox } from "@ghostmail-packages/database"
+import {
+  createMailbox,
+  spendToken,
+  UserLoader,
+} from "@ghostmail-packages/database"
 import { Form, useActionData } from "@remix-run/react"
 import { authenticator } from "~/services/auth.server"
 import { sessionStorage } from "~/services/session.server"
@@ -40,7 +44,9 @@ export const action: ActionFunction = async ({
     )
   }
 
-  if (apiKey !== process.env.API_KEY) {
+  const userLoader = new UserLoader()
+  const apiUser = await userLoader.getUserByApiKey(apiKey)
+  if (!apiUser) {
     return json(
       {
         __typename: "InvalidApiKeyError",
@@ -52,8 +58,20 @@ export const action: ActionFunction = async ({
     )
   }
 
-  const mailbox = await createMailbox()
+  if (apiUser.tokens <= 0) {
+    return json(
+      {
+        __typename: "InvalidApiKeyError",
+        error: "No tokens left",
+      },
+      {
+        status: 403,
+      }
+    )
+  }
 
+  const mailbox = await createMailbox()
+  await spendToken(apiUser.apiKey.key)
   const _request = new Request(req.url, {
     method: "POST",
     headers: {
