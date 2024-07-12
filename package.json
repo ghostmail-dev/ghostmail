@@ -5,6 +5,7 @@
   "scripts": {
     "gql:generate": "graphql-codegen",
     "gql:generate:watch": "graphql-codegen --watch",
+    "lint:client": "npm run lint -w ./packages/client",
     "start:client": "npm run dev -w ./packages/client",
     "start:gql-server": "npm run dev -w ./packages/graphql-server",
     "start:smtp-server": "npm run dev -w ./packages/smtp-server"
