@@ -1,13 +1,13 @@
 name: 🚀 Deploy Client
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
-    paths:
-      - "packages/client/**"
-      - "packages/database/**"
+      paths:
+        - "packages/client/**"
+        - "packages/database/**"
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
