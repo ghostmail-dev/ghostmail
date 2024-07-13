@@ -4,9 +4,8 @@ on:
   push:
     branches:
       - main
-    # paths:
-    #   - "packages/client/**"
-    #   - "packages/database/**"
+    paths:
+      - "packages/client/**"
   workflow_dispatch:
 
 concurrency:
