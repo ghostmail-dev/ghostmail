@@ -51,15 +51,21 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     messageId: email.messageId || null,
     fromText: email.from ? email.from.text : null,
     toText: null,
-    attachments: email.attachments.map((attachment) => ({
-      filename: attachment.filename || null,
-      contentType: attachment.contentType || null,
-      contentDisposition: attachment.contentDisposition || null,
-      contentId: attachment.contentId || null,
-      transferEncoding: attachment.headers["content-transfer-encoding"] ?? null,
-      generatedFileName: attachment.filename || null,
-      size: attachment.size || null,
-    })),
+    attachments: email.attachments.map((attachment) => {
+      const transferEncoding = attachment.headers[
+        "content-transfer-encoding"
+      ] as string
+
+      return {
+        filename: attachment.filename || null,
+        contentType: attachment.contentType || null,
+        contentDisposition: attachment.contentDisposition || null,
+        contentId: attachment.contentId || null,
+        transferEncoding: transferEncoding || null,
+        generatedFileName: attachment.filename || null,
+        size: attachment.size || null,
+      }
+    }),
   })
 }
 
