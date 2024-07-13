@@ -4,6 +4,14 @@ import * as bcrypt from "bcrypt"
 import DataLoader from "dataloader"
 import { faker } from "@faker-js/faker"
 
+type EmailDetails = {
+  emailId: ObjectId
+  sender: string | null
+  subject: string | null
+  date: Date
+  isRead: boolean
+}
+
 /** A simple collection that keeps track of all the email accounts */
 type MailboxDocument = {
   _id: ObjectId
@@ -16,13 +24,7 @@ type MailboxDocument = {
   /** password */
   password: string
   /** The emails in the mailbox */
-  emails: {
-    emailId: ObjectId
-    sender: string | null
-    subject: string | null
-    date: Date
-    isRead: boolean
-  }[]
+  emails: EmailDetails[]
   createdAt: Date
 }
 
@@ -141,4 +143,27 @@ export const readMail = async (
       },
     ]
   )
+}
+
+export const deliverMail = async (
+  args: EmailDetails & { username: string }
+) => {
+  const { username, ...email } = args
+  try {
+    await Mailboxes.updateOne(
+      {
+        username: username,
+      },
+      {
+        $push: {
+          emails: email,
+        },
+      },
+      {
+        upsert: true,
+      }
+    )
+  } catch (e) {
+    console.error(e)
+  }
 }

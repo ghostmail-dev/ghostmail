@@ -8,12 +8,13 @@
     "lint:client": "npm run lint -w ./packages/client",
     "lint:database": "npm run lint -w ./packages/database",
     "lint:smtp-server": "npm run lint -w ./packages/smtp-server",
-    "typecheck:client": "npm run typecheck -w ./packages/client",
-    "typecheck:database": "npm run typecheck -w ./packages/database",
-    "typecheck:smtp-server": "npm run typecheck -w ./packages/smtp-server",
     "start:client": "npm run dev -w ./packages/client",
     "start:gql-server": "npm run dev -w ./packages/graphql-server",
-    "start:smtp-server": "npm run dev -w ./packages/smtp-server"
+    "start:smtp-server": "npm run dev -w ./packages/smtp-server",
+    "test:smtp-server": "npm run test -w ./packages/smtp-server",
+    "typecheck:client": "npm run typecheck -w ./packages/client",
+    "typecheck:database": "npm run typecheck -w ./packages/database",
+    "typecheck:smtp-server": "npm run typecheck -w ./packages/smtp-server"
   },
   "author": "joseph",
   "license": "ISC",
@@ -23,7 +24,8 @@
     "@graphql-codegen/cli": "^5.0.2",
     "@graphql-codegen/near-operation-file-preset": "^3.0.0",
     "@graphql-codegen/typescript-react-apollo": "^4.3.0",
-    "@parcel/watcher": "^2.4.1"
+    "@parcel/watcher": "^2.4.1",
+    "ts-node": "^10.9.2"
   },
   "dependencies": {
     "graphql": "^16.9.0",
