@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "packages/smtp-server/**"
+      - ".github/workflows/deploy-smtp-server.yml"
   workflow_dispatch:
 
 concurrency:
