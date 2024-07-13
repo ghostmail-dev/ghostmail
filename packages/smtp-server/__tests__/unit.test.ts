@@ -123,7 +123,7 @@ const sendEmail = async (
     secure: false,
     ...(withAuth ? { auth: withAuth } : {}),
     // useful because in testing we have a self-signed certificate
-    // @ts-expect-error
+    // @ts-expect-error, i don't know why this is not working
     tls: {
       rejectUnauthorized: false,
     },
