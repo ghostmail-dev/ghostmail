@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "build:client": "npm run build -w ./packages/client",
+    "build:database": "npm run build -w ./packages/database",
+    "build:smtp-server": "npm run build -w ./packages/smtp-server",
     "gql:generate": "graphql-codegen",
     "gql:generate:watch": "graphql-codegen --watch",
     "lint:client": "npm run lint -w ./packages/client",

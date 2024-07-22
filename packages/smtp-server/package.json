@@ -7,6 +7,7 @@
   "private": true,
   "scripts": {
     "build": "rm -rf dist && tsc",
+    "postinstall": "npm run build -w @ghostmail-packages/database",
     "dev": "npx tsx watch index.ts",
     "start": "npx tsx dist/index.js",
     "test": "jest",
