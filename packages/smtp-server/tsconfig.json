@@ -7,8 +7,42 @@
     "module": "esnext",
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "types": ["node"],
-    "declaration": true
+    "types": ["node", "bun"],
+    "declaration": true,
+
+    // Best practices
+    "strict": true,
+    "skipLibCheck": true,
+    "noFallthroughCasesInSwitch": true
   },
   "include": ["index.ts"]
 }
+
+// {
+//   "compilerOptions": {
+//     // Enable latest features
+//     "lib": ["ESNext", "DOM"],
+//     "target": "ESNext",
+//     "module": "ESNext",
+//     "moduleDetection": "force",
+//     "jsx": "react-jsx",
+//     "allowJs": true,
+//     "types": ["node", "bun"],
+
+//     // Bundler mode
+//     "moduleResolution": "bundler",
+//     "allowImportingTsExtensions": true,
+//     "verbatimModuleSyntax": true,
+//     "noEmit": true,
+
+//     // Best practices
+//     "strict": true,
+//     "skipLibCheck": true,
+//     "noFallthroughCasesInSwitch": true,
+
+//     // Some stricter flags (disabled by default)
+//     "noUnusedLocals": false,
+//     "noUnusedParameters": false,
+//     "noPropertyAccessFromIndexSignature": false
+//   }
+// }

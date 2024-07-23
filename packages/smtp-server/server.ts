@@ -144,7 +144,7 @@ export const smtpServer = new SMTPServer({
           for (const email of emails) {
             const username = email.address
             // already pushed to user's mailbox
-            if (username === user) {
+            if (!username || username === user) {
               continue
             }
             try {
@@ -166,7 +166,7 @@ export const smtpServer = new SMTPServer({
         for (const address of emailAddresses) {
           const username = address.address
           // already pushed to user's mailbox
-          if (username === user) {
+          if (!username || username === user) {
             continue
           }
           try {

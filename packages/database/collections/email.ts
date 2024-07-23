@@ -18,7 +18,7 @@ export interface EmailAttachmentMapper extends Omit<Attachment, "headers"> {
 }
 export class EmailsLoader {
   private batchEmails = new DataLoader<ObjectId, EmailMapper | null>(
-    async (ids: ObjectId[]) => {
+    async (ids: readonly ObjectId[]) => {
       const mailboxes = await Emails.find({
         _id: { $in: ids },
       }).toArray()
@@ -33,7 +33,7 @@ export class EmailsLoader {
   )
 
   private bachEmailsByMessageId = new DataLoader<string, EmailMapper | null>(
-    async (messageIds: string[]) => {
+    async (messageIds: readonly string[]) => {
       const emails = await Emails.find({
         messageId: { $in: messageIds },
       }).toArray()
