@@ -1,11 +1,10 @@
 {
   "name": "ghost-mail",
   "version": "1.0.0",
-  "main": "index.js",
   "scripts": {
     "build:client": "npm run build -w ./packages/client",
     "build:database": "npm run build -w ./packages/database",
-    "build:smtp-server": "npm run build -w ./packages/smtp-server",
+    "build:smtp-server": "bun run build --filter ./packages/smtp-server",
     "gql:generate": "graphql-codegen",
     "gql:generate:watch": "graphql-codegen --watch",
     "lint:client": "npm run lint -w ./packages/client",
@@ -13,7 +12,7 @@
     "lint:smtp-server": "npm run lint -w ./packages/smtp-server",
     "start:client": "npm run dev -w ./packages/client",
     "start:gql-server": "npm run dev -w ./packages/graphql-server",
-    "start:smtp-server": "npm run dev -w ./packages/smtp-server",
+    "start:smtp-server": "bun run --filter ./packages/smtp-server start",
     "test:smtp-server": "npm run test -w ./packages/smtp-server",
     "typecheck:client": "npm run typecheck -w ./packages/client",
     "typecheck:database": "npm run typecheck -w ./packages/database",
@@ -28,7 +27,8 @@
     "@graphql-codegen/near-operation-file-preset": "^3.0.0",
     "@graphql-codegen/typescript-react-apollo": "^4.3.0",
     "@parcel/watcher": "^2.4.1",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "@types/bun": "latest"
   },
   "dependencies": {
     "graphql": "^16.9.0",
@@ -37,5 +37,10 @@
   },
   "workspaces": [
     "./packages/*"
-  ]
+  ],
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "module": "index.ts",
+  "type": "module"
 }

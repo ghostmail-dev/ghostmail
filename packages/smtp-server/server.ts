@@ -7,7 +7,6 @@ import {
   MailboxLoader,
 } from "@ghostmail-packages/database"
 import { ObjectId } from "mongodb"
-import * as bcrypt from "bcrypt"
 import { readFileSync } from "fs"
 import path from "node:path"
 
@@ -48,8 +47,8 @@ export const smtpServer = new SMTPServer({
           return callback(new Error("Invalid authentication"))
         }
 
-        bcrypt
-          .compare(auth.password, mailbox.password)
+        mailBoxLoader
+          .validateMailboxCredentials(username, auth.password)
           .then((isPasswordValid) => {
             if (!isPasswordValid) {
               return callback(new Error("Invalid authentication"))

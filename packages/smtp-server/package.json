@@ -6,10 +6,10 @@
   "types": "dist/index.d.ts",
   "private": true,
   "scripts": {
-    "build": "rm -rf dist && tsc",
+    "build": "rm -rf dist && bun build --target node ./index.ts --outdir dist && cp -r ./.certs ./dist/ && cp -r ./sample.certs ./dist",
     "postinstall": "npm run build -w @ghostmail-packages/database",
     "dev": "npx tsx watch index.ts",
-    "start": "npx tsx dist/index.js",
+    "start": "bun run dist/index.js",
     "test": "jest",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "typecheck": "tsc --noEmit"
@@ -18,7 +18,6 @@
   "license": "MIT",
   "dependencies": {
     "@ghostmail-packages/database": "^1.0.0",
-    "bcrypt": "^5.1.1",
     "mailparser": "^3.7.1",
     "smtp-server": "^3.13.4"
   },
@@ -27,7 +26,7 @@
     "@babel/preset-env": "^7.24.8",
     "@babel/preset-typescript": "^7.24.7",
     "@faker-js/faker": "^8.4.1",
-    "@types/bcrypt": "^5.0.2",
+    "@types/bun": "latest",
     "@types/jest": "^29.5.12",
     "@types/smtp-server": "^3.5.10",
     "@typescript-eslint/eslint-plugin": "^7.16.0",
@@ -39,5 +38,6 @@
     "eslint-plugin-import": "^2.29.1",
     "jest": "^29.7.0",
     "typescript": "^5.5.2"
-  }
+  },
+  "type": "module"
 }

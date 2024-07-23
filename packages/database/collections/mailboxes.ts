@@ -1,6 +1,5 @@
 import { ObjectId } from "mongodb"
 import { MongoCollection } from "../connection"
-import * as bcrypt from "bcrypt"
 import DataLoader from "dataloader"
 import { faker } from "@faker-js/faker"
 
@@ -58,7 +57,10 @@ export class MailboxLoader {
     if (!mailbox) {
       return false
     }
-    const isPasswordValid = await bcrypt.compare(password, mailbox.password)
+    const isPasswordValid = await Bun.password.verify(
+      password,
+      mailbox.password
+    )
     if (!isPasswordValid) {
       return false
     }
@@ -71,7 +73,10 @@ export const createMailbox = async () => {
   const password = faker.internet.password()
 
   // generate a password hash
-  const passwordHash = await bcrypt.hash(password, 10)
+  const passwordHash = await Bun.password.hash(password, {
+    algorithm: "bcrypt",
+    cost: 10,
+  })
   const firstName = faker.person.firstName()
   const lastName = faker.person.lastName()
 

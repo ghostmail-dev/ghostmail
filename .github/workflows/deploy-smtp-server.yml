@@ -99,18 +99,45 @@ jobs:
     steps:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v4
+      #   - name: 👀 Read app name
+      #     uses: SebRollen/toml-action@v1.0.2
+      #     id: app_name
+      #     with:
+      #       file: packages/client/fly.toml
+      #       field: app
 
-      - name: 👀 Read app name
-        uses: SebRollen/toml-action@v1.0.2
-        id: app_name
+      #   - name: 🎈 Setup Fly
+      #     uses: superfly/flyctl-actions/setup-flyctl@master
+
+      #   - name: 🚀 Deploy Production
+      #     run: flyctl deploy --remote-only --build-arg COMMIT_SHA=${{ github.sha }} --app ${{ steps.app_name.outputs.value }} --config ./packages/smtp-server/fly.toml
+      #     env:
+      #       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install Dependencies
+        run: bun install
+
+      - name: Build
+        run: cd packages/smtp-server && bun run build
+
+      - name: Deploy to server
+        uses: easingthemes/ssh-deploy@main
+
         with:
-          file: packages/client/fly.toml
-          field: app
-
-      - name: 🎈 Setup Fly
-        uses: superfly/flyctl-actions/setup-flyctl@master
-
-      - name: 🚀 Deploy Production
-        run: flyctl deploy --remote-only --build-arg COMMIT_SHA=${{ github.sha }} --app ${{ steps.app_name.outputs.value }} --config ./packages/smtp-server/fly.toml
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          SSH_PRIVATE_KEY: ${{ secrets.GHOSTMAIL_SSH_PRIVATE_KEY }}
+          ARGS: "-avz"
+          SOURCE: "dist/"
+          REMOTE_HOST: ${{ secrets.GHOSTMAIL_REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.GHOSTMAIL_REMOTE_USER }}
+          TARGET: ${{ secrets.GREMOTE_TARGET }}/smtp-server/
+          # EXCLUDE: "/dist/, /node_modules/"
+          # SCRIPT_BEFORE: |
+          #   whoami
+          #   ls -al
+          # SCRIPT_AFTER: |
+          #   whoami
+          #   ls -al
+          #   echo $RSYNC_STDOUT

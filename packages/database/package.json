@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "private": true,
   "scripts": {
-    "build": "rm -rf dist && tsc",
+    "build": "rm -rf dist && bun build --target node index.ts --outdir dist",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "test": "echo \"Error: no test specified\" && exit 1",
     "typecheck": "tsc --noEmit"
@@ -17,13 +17,12 @@
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
     "@types/mailparser": "^3.4.4",
-    "bcrypt": "^5.1.1",
     "dataloader": "^2.2.2",
     "dotenv": "^16.4.5",
     "mongodb": "^6.7.0"
   },
   "devDependencies": {
-    "@types/bcrypt": "^5.0.2",
+    "@types/bun": "latest",
     "@typescript-eslint/eslint-plugin": "^7.16.0",
     "@typescript-eslint/parser": "^7.16.0",
     "eslint": "^8.57.0",
@@ -31,5 +30,6 @@
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-import": "^2.29.1",
     "typescript": "^5.5.2"
-  }
+  },
+  "type": "module"
 }
