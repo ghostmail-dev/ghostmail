@@ -9,15 +9,9 @@ import {
 import { ObjectId } from "mongodb"
 import * as bcrypt from "bcrypt"
 import { readFileSync } from "fs"
-import path from "node:path"
 
-const isProduction = process.env.NODE_ENV === "production"
-const keyFile = isProduction
-  ? path.join(__dirname, "/.certs/_.ghostmail.dev.key")
-  : path.join(__dirname, "/sample.certs/localhost.key")
-const certFile = isProduction
-  ? path.join(__dirname, "/.certs/_.ghostmail.dev.crt")
-  : path.join(__dirname, "/sample.certs/localhost.crt")
+const keyFile = process.env.KEY_FILE_PATH
+const certFile = process.env.CERT_FILE_PATH
 
 export const smtpServer = new SMTPServer({
   authOptional: true,
