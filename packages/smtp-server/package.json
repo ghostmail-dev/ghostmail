@@ -11,13 +11,23 @@
   },
   "dependencies": {
     "@ghostmail/database": "workspace:*",
-    "mailparser": "^3.9.8"
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.4.2",
+    "mailparser": "^3.9.8",
+    "mongodb": "^7.1.1",
+    "smtp-server": "^3.18.4"
   },
   "devDependencies": {
-    "typescript": "^6.0.3",
-    "ts-node": "latest",
-    "@types/node": "latest",
+    "@faker-js/faker": "^10.4.0",
+    "@types/bcrypt": "^6.0.0",
     "@types/mailparser": "latest",
-    "vitest": "^4.1.4"
+    "@types/node": "latest",
+    "@types/nodemailer": "^8.0.0",
+    "@types/smtp-server": "^3.5.13",
+    "nodemailer": "^8.0.5",
+    "ts-node": "latest",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.4",
+    "vitest-environment-mongodb": "^2.0.0"
   }
 }

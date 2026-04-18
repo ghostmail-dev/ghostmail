@@ -13,7 +13,7 @@ const connectionString = !MONGODB_URI.includes("appName")
   ? MONGODB_URI.includes("?")
     ? `${MONGODB_URI}&appName=<app-name>`
     : `${MONGODB_URI}?appName=<app-name>`
-  : MONGODB_URI.replace(/appName=([a-z0-9]*)/i, (m, p) => `appName=<app-name>`)
+  : MONGODB_URI.replace(/appName=([a-z0-9]*)/i, () => `appName=<app-name>`)
 
 // Features like watch mode or hot reloading in development can create multiple instances of the client, with multiple
 // connections. This will inevitably overwhelm the database. So we need to ensure that only one instance exists at a time.
