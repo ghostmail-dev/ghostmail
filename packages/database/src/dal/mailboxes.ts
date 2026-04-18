@@ -30,7 +30,9 @@ export class MailboxesLoader {
 }
 
 export class MailboxesMutator {
-  async createMailbox(): Promise<MailboxDocument> {
+  async createMailbox(
+    overrides?: Partial<MailboxDocument>
+  ): Promise<MailboxDocument> {
     const doc: MailboxDocument = {
       _id: new ObjectId(),
       firstName: faker.person.firstName(),
@@ -39,6 +41,7 @@ export class MailboxesMutator {
       password: faker.internet.password(),
       emails: [],
       createdAt: new Date(),
+      ...overrides,
     }
     await mailboxesCollection.insertOne(doc)
     return doc
