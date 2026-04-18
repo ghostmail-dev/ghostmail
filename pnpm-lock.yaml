@@ -70,6 +70,9 @@ importers:
       '@faker-js/faker':
         specifier: latest
         version: 10.4.0
+      '@types/mailparser':
+        specifier: ^3.4.0
+        version: 3.4.6
       '@types/node':
         specifier: latest
         version: 25.6.0

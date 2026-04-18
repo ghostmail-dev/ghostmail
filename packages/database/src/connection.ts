@@ -26,8 +26,8 @@ declare global {
   var __db: MongoClient | undefined
 }
 
-if (process.env.NODE_ENV === "production") {
-  // in production, we are fine setting it up once because the server won't "reload"
+if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "test") {
+  // in production or test, we are fine setting it up once without globals
   mongoClient = new MongoClient(connectionString)
   const dbName = mongoClient.options.dbName
   if (!dbName) {
@@ -56,10 +56,12 @@ if (process.env.NODE_ENV === "production") {
 }
 
 // Ensure that if the server process is killed, mongo gracefully closes the connection.
-process.on("exit", () => {
-  console.info("EXIT - MongoDB Client disconnecting")
-  mongoClient.close()
-})
+if (process.env.NODE_ENV !== "test") {
+  process.on("exit", () => {
+    console.info("EXIT - MongoDB Client disconnecting")
+    mongoClient.close()
+  })
+}
 
 // Most features can be accessed from the database instance,
 export const mongoDB = mongoClient.db()
