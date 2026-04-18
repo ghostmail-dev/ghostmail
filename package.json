@@ -1,0 +1,24 @@
+{
+  "name": "ghostmail",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm -r dev",
+    "build": "pnpm -r build",
+    "lint": "oxlint .",
+    "format": "oxfmt .",
+    "test": "pnpm -r test"
+  },
+  "devDependencies": {
+    "oxlint": "latest",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.4",
+    "vite": "^8.0.8"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "mongodb-memory-server"
+    ]
+  }
+}

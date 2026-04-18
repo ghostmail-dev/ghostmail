@@ -1,0 +1,23 @@
+{
+  "name": "@ghostmail/smtp-server",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "src/index.ts",
+  "scripts": {
+    "dev": "node --watch --require ts-node/register src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ghostmail/database": "workspace:*",
+    "mailparser": "^3.9.8"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "ts-node": "latest",
+    "@types/node": "latest",
+    "@types/mailparser": "latest",
+    "vitest": "^4.1.4"
+  }
+}
