@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from "vitest"
 import { EmailsLoader, EmailsMutator } from "../dal/emails.js"
 import { emailsCollection } from "../collections/email.js"
-import { seedEmail, spawnEmail } from "../test-utils/spawnEmail.js"
-import { ObjectId } from "mongodb"
+import { seedEmail } from "../test-utils/seedEmail.js"
+import { spawnEmail } from "../models/email.js"
 
 describe("Emails DAL", () => {
   beforeEach(async () => {
@@ -16,7 +16,7 @@ describe("Emails DAL", () => {
       const found = await loader.getEmailById(seeded._id)
 
       expect(found).not.toBeNull()
-      expect(found?._id.toHexString()).toBe(seeded._id.toHexString())
+      expect(found?._id).toBe(seeded._id)
     })
 
     it("can fetch email by message id", async () => {
@@ -25,7 +25,7 @@ describe("Emails DAL", () => {
       const found = await loader.getEmailByMessageId("testing-msg-id")
 
       expect(found).not.toBeNull()
-      expect(found?._id.toHexString()).toBe(seeded._id.toHexString())
+      expect(found?._id).toBe(seeded._id)
     })
   })
 
@@ -63,10 +63,10 @@ describe("Emails DAL", () => {
       }
 
       // @ts-ignore - simulating a ParsedMail payload structurally similar
-      const created = await mutator.createEmail(mockedParsedMailPayload)
+      const created = await mutator.createEmail(mockedParsedMailPayload, [])
 
       expect(created).toBeDefined()
-      expect(created._id).toBeInstanceOf(ObjectId)
+      expect(typeof created._id).toBe("string")
       expect(created.attachments).toHaveLength(2)
 
       // Validate mapping logic for filename and Map to Object conversion
@@ -82,7 +82,9 @@ describe("Emails DAL", () => {
         "content-type": "image/png",
       })
 
-      const found = await emailsCollection.findOne({ _id: created._id })
+      const found = await emailsCollection.findOne({
+        _id: created._id,
+      })
       expect(found).not.toBeNull()
       expect(found?.attachments).toHaveLength(2)
       expect(found?.attachments[0].fileName).toBe("invoice.pdf")
@@ -93,7 +95,9 @@ describe("Emails DAL", () => {
       const mutator = new EmailsMutator()
 
       await mutator.deleteEmail(seeded._id)
-      const found = await emailsCollection.findOne({ _id: seeded._id })
+      const found = await emailsCollection.findOne({
+        _id: seeded._id,
+      })
       expect(found).toBeNull()
     })
   })

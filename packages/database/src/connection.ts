@@ -3,7 +3,7 @@ import { MongoClient } from "mongodb"
 const { MONGODB_URI } = process.env
 if (!MONGODB_URI) {
   throw new Error(
-    "Please define the MONGODB_URI environment variable inside .env"
+    "Please define the MONGODB_URI environment variable inside .env",
   )
 }
 
@@ -32,7 +32,7 @@ if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "test") {
   const dbName = mongoClient.options.dbName
   if (!dbName) {
     console.error(
-      `Database name not found in connection string: ${connectionString}`
+      `Database name not found in connection string: ${connectionString}`,
     )
     process.exit(1)
   }
@@ -44,7 +44,7 @@ if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "test") {
     const dbName = mongoClient.options.dbName
     if (!dbName) {
       console.error(
-        `Database name not found in read connection string: ${connectionString}`
+        `Database name not found in read connection string: ${connectionString}`,
       )
       process.exit(1)
     }

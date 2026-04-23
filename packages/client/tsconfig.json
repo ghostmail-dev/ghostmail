@@ -2,6 +2,9 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "noEmit": true
-  }
+    "noEmit": true,
+    "verbatimModuleSyntax": true,
+    "rootDirs": [".", ".react-router/types"]
+  },
+  "include": [".react-router/types/**/*", "."]
 }

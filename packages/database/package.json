@@ -1,23 +1,42 @@
 {
   "name": "@ghostmail/database",
   "version": "1.0.0",
+  "type": "module",
   "main": "dist/index.js",
   "types": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./mock": {
+      "types": "./src/mock.ts",
+      "default": "./dist/mock.js"
+    },
+    "./sync-indexes": {
+      "types": "./src/create-indexes.ts",
+      "default": "./dist/create-indexes.js"
+    }
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "sync-indexes": "node --env-file=../../.env dist/create-indexes.js"
   },
   "dependencies": {
-    "mongodb": "^7.1.1",
-    "dataloader": "^2.2.3"
+    "bcryptjs": "^3.0.3",
+    "dataloader": "^2.2.3",
+    "fast-equals": "^6.0.0",
+    "mongodb": "^7.1.1"
   },
   "devDependencies": {
+    "@faker-js/faker": "latest",
+    "@types/bcryptjs": "^3.0.0",
+    "@types/mailparser": "^3.4.0",
+    "@types/node": "latest",
+    "@vitest/coverage-v8": "^4.1.4",
     "typescript": "^6.0.3",
     "vitest": "^4.1.4",
-    "@vitest/coverage-v8": "^4.1.4",
-    "vitest-environment-mongodb": "latest",
-    "@types/mailparser": "^3.4.0",
-    "@faker-js/faker": "latest",
-    "@types/node": "latest"
+    "vitest-environment-mongodb": "latest"
   }
 }

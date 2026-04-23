@@ -1,0 +1,78 @@
+@plugin "daisyui" {
+  themes:
+    ghostmail,
+    ghostmail-dark --default;
+}
+@import "tailwindcss";
+@plugin "daisyui";
+
+/* ghostmail-dark (default) */
+@plugin "daisyui/theme" {
+  name: "ghostmail-dark";
+  default: true;
+  prefersdark: true;
+  color-scheme: dark; /* surfaces */
+  --color-base-100: oklch(12% 0.01 260);
+  --color-base-200: oklch(16% 0.012 258);
+  --color-base-300: oklch(22% 0.015 256);
+  --color-base-content: oklch(91% 0.012 254);
+  --color-primary: oklch(95% 0.04 295);
+  --color-primary-content: oklch(15% 0.04 188);
+  /* secondary: ghost teal */
+  --color-accent: oklch(74% 0.22 188);
+  --color-accent-content: oklch(15% 0.04 188);
+  /* accent: matches primary */
+  --color-secondary: oklch(72% 0.28 295);
+  --color-secondary-content: oklch(95% 0.04 295);
+  --color-neutral: oklch(30% 0.018 254);
+  --color-neutral-content: oklch(82% 0.018 256);
+  --color-info: oklch(70% 0.2 230);
+  --color-info-content: oklch(98% 0.01 230);
+  --color-success: oklch(72% 0.22 145);
+  --color-success-content: oklch(15% 0.04 145);
+  --color-warning: oklch(80% 0.22 80);
+  --color-warning-content: oklch(20% 0.06 80);
+  --color-error: oklch(68% 0.26 30);
+  --color-error-content: oklch(98% 0.01 30); /* shape */
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+} /* ghostmail (light) */
+@plugin "daisyui/theme" {
+  name: "ghostmail";
+  default: false;
+  color-scheme: light;
+  --color-base-100: oklch(0.943 0 0);
+  --color-base-200: oklch(0.882 0 0);
+  --color-base-300: oklch(0.821 0 0);
+  --color-base-400: oklch(0.759 0 0);
+  --color-base-500: oklch(0.698 0 0);
+  --color-base-content: oklch(22% 0.015 256);
+  --color-primary: oklch(22% 0.015 256);
+  --color-primary-content: oklch(97% 0.005 250);
+  --color-accent: oklch(74% 0.22 188);
+  --color-accent-content: oklch(15% 0.04 188);
+  --color-secondary: oklch(62% 0.24 295);
+  --color-secondary-content: oklch(97% 0.03 295);
+  --color-neutral: oklch(82% 0.018 256);
+  --color-neutral-content: oklch(28% 0.018 254);
+  --color-info: oklch(60% 0.2 230);
+  --color-info-content: oklch(98% 0.01 230);
+  --color-success: oklch(58% 0.22 145);
+  --color-success-content: oklch(98% 0.01 145);
+  --color-warning: oklch(72% 0.22 80);
+  --color-warning-content: oklch(20% 0.06 80);
+  --color-error: oklch(58% 0.26 30);
+  --color-error-content: oklch(98% 0.01 30);
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@custom-variant dark (&:where([data-theme=ghostmail-dark], [data-theme=ghostmail-dark] *));

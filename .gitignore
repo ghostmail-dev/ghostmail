@@ -117,3 +117,5 @@ dist
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+send-email.ts

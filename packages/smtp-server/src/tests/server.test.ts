@@ -1,27 +1,27 @@
 import nodemailer from "nodemailer"
 import Mail from "nodemailer/lib/mailer"
 import SMTPTransport from "nodemailer/lib/smtp-transport"
-import {
-  EmailsLoader,
-  MailboxesLoader,
-  resetDatabase,
-  seedMailbox,
-} from "@ghostmail/database"
 import { faker } from "@faker-js/faker"
 import { smtpServer } from "../server.js"
 import { describe, it, expect, beforeAll, afterEach, afterAll } from "vitest"
-import bcrypt from "bcrypt"
+
+import {
+  resetDatabase,
+  seedMailbox,
+  EmailsLoader,
+  MailboxesLoader,
+} from "@ghostmail/database"
 
 describe("SMTP Server", () => {
   beforeAll(async () => {
     smtpServer.listen(
-      process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 2525
+      process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 2525,
     )
-    await resetDatabase()
+    resetDatabase()
   })
 
   afterEach(async () => {
-    await resetDatabase()
+    resetDatabase()
   })
 
   afterAll(() => {
@@ -31,21 +31,17 @@ describe("SMTP Server", () => {
   it("should correctly authenticate a user, store the email, and drop a reference into the users mailbox", async () => {
     // arrange
     const rawPass = "mysecurepassword123"
-    const hashed = await bcrypt.hash(rawPass, 10)
-    process.env.MAIL_DOMAIN = process.env.MAIL_DOMAIN || "ghostmail.localhost"
-    const username = `testuser@${process.env.MAIL_DOMAIN}`
+    const username = `testuser@testmail.dev`
 
-    const mailbox = await seedMailbox({ username, password: hashed })
+    const mailbox = seedMailbox({ username, password: rawPass })
 
-    const userAlias = mailbox.username.split("@")[0]
     const message = makeMessage({ to: mailbox.username, subject: "Test email" })
 
     // act
     const result = await sendEmail(message, {
-      user: userAlias,
+      user: username,
       pass: rawPass,
     })
-
     // assert
     expect(result).not.toBeInstanceOf(String)
     const messageId = (result as SMTPTransport.SentMessageInfo).messageId
@@ -55,13 +51,13 @@ describe("SMTP Server", () => {
 
     const mailboxLoader = new MailboxesLoader()
     const mailboxDocument = await mailboxLoader.getMailboxByName(
-      mailbox.username
+      mailbox.username,
     )
 
     expect(mailboxDocument).toBeDefined()
     const emailFound = mailboxDocument?.emails.some((emailDetail) => {
       if (!email) return false
-      return emailDetail.emailId.equals(email._id)
+      return emailDetail.emailId === email._id
     })
     expect(emailFound).toBe(true)
   })
@@ -74,7 +70,7 @@ describe("SMTP Server", () => {
     })
 
     expect(result).toBe(
-      "Invalid login: 535 Invalid authentication: mailbox not found"
+      "Invalid login: 535 Invalid authentication: mailbox not found",
     )
   })
 
@@ -85,14 +81,14 @@ describe("SMTP Server", () => {
     })
     const result = await sendEmail(message)
     expect(result).toBe(
-      "Can't send mail - all recipients were rejected: 550 Invalid recipient"
+      "Can't send mail - all recipients were rejected: 550 Invalid recipient",
     )
   })
 
   it("should store an email if no auth use but 'to' is a valid address", async () => {
     process.env.MAIL_DOMAIN = process.env.MAIL_DOMAIN || "ghostmail.localhost"
     const username = `testdest@${process.env.MAIL_DOMAIN}`
-    const mailbox = await seedMailbox({ username })
+    const mailbox = seedMailbox({ username })
 
     const message = makeMessage({ to: mailbox.username })
     const result = await sendEmail(message)
@@ -107,22 +103,20 @@ describe("SMTP Server", () => {
 
     const mailboxesLoader = new MailboxesLoader()
     const mailboxDocument = await mailboxesLoader.getMailboxByName(
-      mailbox.username
+      mailbox.username,
     )
 
     expect(mailboxDocument).not.toBeNull()
     expect(mailboxDocument?.emails.length).toBe(1)
     if (emailId) {
-      expect(mailboxDocument?.emails[0].emailId.toHexString()).toStrictEqual(
-        emailId.toHexString()
-      )
+      expect(mailboxDocument?.emails[0].emailId).toStrictEqual(emailId)
     }
   })
 })
 
 const sendEmail = async (
   args: Mail.Options,
-  withAuth?: { user: string; pass: string }
+  withAuth?: { user: string; pass: string },
 ): Promise<SMTPTransport.SentMessageInfo | string> => {
   const transporter = nodemailer.createTransport({
     port: process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 2525,

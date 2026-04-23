@@ -1,16 +1,22 @@
 import DataLoader from "dataloader"
-import { ObjectId } from "mongodb"
-import { UserDocument } from "../models/users.js"
+import {
+  type SerializableUserDocument,
+  toUserDTO,
+  type UserDocument,
+} from "../models/users.js"
 import { usersCollection } from "../collections/users.js"
+import { hashSync } from "bcryptjs"
+import type {
+  AbstractUsersLoader,
+  AbstractUsersMutator,
+} from "../definitions.js"
 import { faker } from "@faker-js/faker"
 
-export class UsersLoader {
-  private batchUsersByApiKey = new DataLoader<string, UserDocument | null>(
+export class UsersLoader implements AbstractUsersLoader {
+  private batchUsersById = new DataLoader<string, UserDocument | null>(
     async (keys) => {
-      const users = await usersCollection
-        .find({ "apiKey.key": { $in: keys as string[] } })
-        .toArray()
-      const userMap = new Map(users.map((u) => [u.apiKey.key, u]))
+      const users = await usersCollection.find({ _id: { $in: keys } }).toArray()
+      const userMap = new Map(users.map((u) => [u._id, u]))
       return keys.map((k) => userMap.get(k) || null)
     }
   )
@@ -25,97 +31,43 @@ export class UsersLoader {
     }
   )
 
-  async getUserByApiKey(apiKey: string): Promise<UserDocument | null> {
-    return this.batchUsersByApiKey.load(apiKey)
+  async getUserById(id: string): Promise<SerializableUserDocument | null> {
+    const user = await this.batchUsersById.load(id)
+    return user ? toUserDTO(user) : null
   }
 
-  async getUserByName(name: string): Promise<UserDocument | null> {
-    return this.batchUsersByUsername.load(name)
+  async getUserByName(name: string): Promise<SerializableUserDocument | null> {
+    const user = await this.batchUsersByUsername.load(name)
+    return user ? toUserDTO(user) : null
   }
 }
 
-export class UsersMutator {
-  async createUser(): Promise<UserDocument> {
+export class UsersMutator implements AbstractUsersMutator {
+  async createUser(
+    username: string,
+    password: string
+  ): Promise<SerializableUserDocument> {
     const doc: UserDocument = {
-      _id: new ObjectId(),
-      username: faker.internet.username(),
-      password: faker.internet.password(),
-      apiKey: {
-        key: faker.string.uuid(),
-        createdAt: new Date(),
-        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-        tokens: 100,
-      },
+      _id: faker.database.mongodbObjectId(),
+      username,
+      password: hashSync(password, 10),
+      maxPersistentMailboxes: 0,
     }
     await usersCollection.insertOne(doc)
-    return doc
+    return toUserDTO(doc)
   }
 
-  async deleteUser(id: ObjectId | string): Promise<void> {
-    await usersCollection.deleteOne({
-      _id: typeof id === "string" ? new ObjectId(id) : id,
-    })
-  }
-
-  async createApiKey(username: string): Promise<UserDocument> {
-    const user = await usersCollection.findOneAndUpdate(
-      { username },
-      {
-        $set: {
-          "apiKey.key": new ObjectId().toHexString(),
-          "apiKey.createdAt": new Date(),
-          "apiKey.expiresAt": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        },
-      },
-      { returnDocument: "after" }
-    )
-    if (!user) throw new Error("User not found")
-    return user
-  }
-
-  async deleteApiKey(username: string): Promise<void> {
+  async changePersistentMailboxLimit(
+    id: string,
+    newLimit: number
+  ): Promise<void> {
     await usersCollection.updateOne(
-      { username },
-      { $set: { "apiKey.expiresAt": new Date(0), "apiKey.tokens": 0 } }
+      { _id: id },
+      { $set: { maxPersistentMailboxes: newLimit } }
     )
   }
 
-  async rotateApiKey(
-    oldApiKey: string,
-    newApiKey: string
-  ): Promise<UserDocument> {
-    const user = await usersCollection.findOneAndUpdate(
-      { "apiKey.key": oldApiKey },
-      {
-        $set: {
-          "apiKey.key": newApiKey,
-          "apiKey.createdAt": new Date(),
-          "apiKey.expiresAt": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        },
-      },
-      { returnDocument: "after" }
-    )
-    if (!user) throw new Error("User not found or invalid old ApiKey")
-    return user
-  }
-
-  async spendToken(apiKey: string): Promise<UserDocument> {
-    const user = await usersCollection.findOneAndUpdate(
-      { "apiKey.key": apiKey, "apiKey.tokens": { $gt: 0 } },
-      { $inc: { "apiKey.tokens": -1 } },
-      { returnDocument: "after" }
-    )
-    if (!user) throw new Error("Insufficient tokens or invalid key")
-    return user
-  }
-
-  async refillTokens(apiKey: string, amount: number): Promise<UserDocument> {
-    const user = await usersCollection.findOneAndUpdate(
-      { "apiKey.key": apiKey },
-      { $inc: { "apiKey.tokens": amount } },
-      { returnDocument: "after" }
-    )
-    if (!user) throw new Error("Invalid ApiKey")
-    return user
+  async deleteUser(id: string): Promise<void> {
+    await usersCollection.deleteOne({ _id: id })
   }
 }

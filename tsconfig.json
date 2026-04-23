@@ -6,6 +6,10 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@ghostmail/database": ["./packages/database/src/index.ts"],
+      "@ghostmail/database/*": ["./packages/database/src/*"]
+    }
   }
 }

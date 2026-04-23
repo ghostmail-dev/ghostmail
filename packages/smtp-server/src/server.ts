@@ -1,13 +1,7 @@
 import "dotenv/config"
 import { SMTPServer } from "smtp-server"
 import { HeaderValue, simpleParser } from "mailparser"
-import {
-  EmailsMutator,
-  MailboxesLoader,
-  MailboxesMutator,
-} from "@ghostmail/database"
-import { ObjectId } from "mongodb"
-import * as bcrypt from "bcrypt"
+import { EmailsMutator, MailboxesLoader } from "@ghostmail/database"
 import { readFileSync, existsSync } from "fs"
 
 const keyFile = process.env.KEY_FILE_PATH
@@ -24,22 +18,21 @@ export const smtpServer = new SMTPServer({
   onAuth(
     auth: { username?: string; password?: string },
     _session: { id: string; user?: string },
-    callback: (err: Error | null, response?: { user: string }) => void
+    callback: (err: Error | null, response?: { user: string }) => void,
   ) {
     if (!auth.username || !auth.password) {
       return callback(
-        new Error("Invalid authentication: missing username or password")
+        new Error("Invalid authentication: missing username or password"),
       )
     }
-    const username =
-      `${auth.username}@${process.env.MAIL_DOMAIN || "ghostmail.localhost"}`.toLowerCase()
+    const username = auth.username.toLowerCase()
     const mailboxesLoader = new MailboxesLoader()
     mailboxesLoader
       .getMailboxByName(username)
       .then((mailbox) => {
         if (!mailbox) {
           return callback(
-            new Error("Invalid authentication: mailbox not found")
+            new Error("Invalid authentication: mailbox not found"),
           )
         }
 
@@ -47,21 +40,14 @@ export const smtpServer = new SMTPServer({
           return callback(new Error("Invalid authentication"))
         }
 
-        bcrypt
-          .compare(auth.password, mailbox.password)
-          .then((isPasswordValid) => {
-            if (!isPasswordValid) {
-              return callback(new Error("Invalid authentication"))
-            }
+        const isPasswordValid = mailbox.password === auth.password
+        if (!isPasswordValid) {
+          return callback(new Error("Invalid authentication"))
+        }
 
-            return callback(null, {
-              user: username,
-            })
-          })
-          .catch((error) => {
-            console.error("Error comparing passwords", error)
-            return callback(new Error("Error comparing passwords"))
-          })
+        return callback(null, {
+          user: username,
+        })
       })
       .catch((error) => {
         console.error("Error finding mailbox", error)
@@ -71,7 +57,7 @@ export const smtpServer = new SMTPServer({
   onRcptTo(
     address: { address: string },
     { user }: { user?: string },
-    callback: (err?: Error | null) => void
+    callback: (err?: Error | null) => void,
   ) {
     if (user) {
       return callback()
@@ -95,7 +81,7 @@ export const smtpServer = new SMTPServer({
   onData(
     stream: NodeJS.ReadableStream,
     { user }: { user?: string },
-    callback: (err?: Error | null) => void
+    callback: (err?: Error | null) => void,
   ) {
     simpleParser(stream).then(async (mail) => {
       mail.date = mail.date ?? new Date()
@@ -116,76 +102,41 @@ export const smtpServer = new SMTPServer({
         })
       }
 
-      let emailId: ObjectId
-      try {
-        // Use proper DAL
-        const mutator = new EmailsMutator()
-        const email = await mutator.createEmail(mail)
-        emailId = email._id
-      } catch (error) {
-        console.error("Error inserting email", error)
-        return callback(new Error("Error inserting email"))
+      const mailboxNames: string[] = user ? [user] : []
+      if (Array.isArray(to)) {
+        for (const address of to) {
+          const emails = address.value
+          for (const email of emails) {
+            if (email.address) mailboxNames.push(email.address)
+          }
+        }
+      } else {
+        const emails = to.value
+        for (const email of emails) {
+          if (email.address) mailboxNames.push(email.address)
+        }
       }
 
-      const mutator = new MailboxesMutator()
-
-      if (user) {
+      const mailboxIds = new Set<string>()
+      const mailboxesLoader = new MailboxesLoader()
+      for (const mailboxName of mailboxNames) {
         try {
-          await mutator.deliverMail({
-            username: user as string,
-            emailId: emailId,
-            sender: mail.from?.value[0].address ?? null,
-            subject: mail.subject ?? null,
-            date: mail.date ?? new Date(),
-            isRead: false,
-          })
+          const mailbox = await mailboxesLoader.getMailboxByName(mailboxName)
+          if (!mailbox) {
+            continue
+          }
+          mailboxIds.add(mailbox._id)
         } catch (e) {
           console.error(e)
         }
       }
 
-      if (Array.isArray(to)) {
-        for (const address of to) {
-          const emails = address.value
-          for (const email of emails) {
-            const username = email.address
-            if (username === user) {
-              continue
-            }
-            try {
-              await mutator.deliverMail({
-                username: username as string,
-                emailId: emailId,
-                sender: mail.from?.value[0].address ?? null,
-                subject: mail.subject ?? null,
-                date: mail.date ?? new Date(),
-                isRead: false,
-              })
-            } catch (e) {
-              console.error(e)
-            }
-          }
-        }
-      } else {
-        const emailAddresses = to.value
-        for (const address of emailAddresses) {
-          const username = address.address
-          if (username === user) {
-            continue
-          }
-          try {
-            await mutator.deliverMail({
-              username: username as string,
-              emailId: emailId,
-              sender: mail.from?.value[0].address ?? null,
-              subject: mail.subject ?? null,
-              date: mail.date ?? new Date(),
-              isRead: false,
-            })
-          } catch (e) {
-            console.error(e)
-          }
-        }
+      try {
+        const mutator = new EmailsMutator()
+        await mutator.createEmail(mail, Array.from(mailboxIds))
+      } catch (error) {
+        console.error("Error inserting email", error)
+        return callback(new Error("Error inserting email"))
       }
       return callback()
     })
