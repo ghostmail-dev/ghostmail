@@ -7,6 +7,12 @@ import { readFileSync, existsSync } from "fs"
 const keyFile = process.env.KEY_FILE_PATH
 const certFile = process.env.CERT_FILE_PATH
 
+const connectionCounts = new Map<string, { count: number; lastReset: number }>()
+const RATE_LIMIT_WINDOW = process.env.NODE_ENV === "test" ? 1000 : 60 * 1000 // 1s in test, 1m in prod
+const MAX_CONNECTIONS_PER_IP = process.env.NODE_ENV === "test" ? 5 : 50 // Limit to 5 in test, 50 in prod
+
+export const resetRateLimits = () => connectionCounts.clear()
+
 export const smtpServer = new SMTPServer({
   authOptional: true,
   allowInsecureAuth: process.env.NODE_ENV !== "production",
@@ -14,7 +20,28 @@ export const smtpServer = new SMTPServer({
   disableReverseLookup: true,
   key: keyFile && existsSync(keyFile) ? readFileSync(keyFile) : undefined,
   cert: certFile && existsSync(certFile) ? readFileSync(certFile) : undefined,
-  maxClients: 5,
+  maxClients: 100,
+  onConnect(session, callback) {
+    const ip = session.remoteAddress
+    const now = Date.now()
+    const stats = connectionCounts.get(ip) || { count: 0, lastReset: now }
+
+    if (now - stats.lastReset > RATE_LIMIT_WINDOW) {
+      stats.count = 1
+      stats.lastReset = now
+    } else {
+      stats.count++
+    }
+
+    connectionCounts.set(ip, stats)
+
+    if (stats.count > MAX_CONNECTIONS_PER_IP) {
+      console.info(`Rate limit exceeded for IP: ${ip}`)
+      return callback(new Error("Too many connections from this IP"))
+    }
+
+    return callback()
+  },
   onAuth(
     auth: { username?: string; password?: string },
     _session: { id: string; user?: string },

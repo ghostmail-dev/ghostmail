@@ -1,0 +1,63 @@
+services:
+  traefik:
+    image: traefik:v3.1
+    command:
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.email=admin@ghostmail.dev"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+    restart: always
+
+  mongodb:
+    image: mongo:latest
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-password}
+    restart: always
+
+  client:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-yourusername}/ghostmail-client:latest
+    environment:
+      - MONGODB_URI=mongodb://${MONGO_USER:-admin}:${MONGO_PASSWORD:-password}@mongodb:27017/ghostmail?authSource=admin
+      - SESSION_SECRET=${SESSION_SECRET}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.client.rule=Host(`ghostmail.dev`) || Host(`www.ghostmail.dev`)"
+      - "traefik.http.routers.client.entrypoints=websecure"
+      - "traefik.http.routers.client.tls.certresolver=myresolver"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.client-http.rule=Host(`ghostmail.dev`) || Host(`www.ghostmail.dev`)"
+      - "traefik.http.routers.client-http.entrypoints=web"
+      - "traefik.http.routers.client-http.middlewares=redirect-to-https"
+    depends_on:
+      - mongodb
+    restart: always
+
+  smtp-server:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-yourusername}/ghostmail-smtp:latest
+    ports:
+      - "25:25"
+      - "465:465"
+      - "587:587"
+    environment:
+      - MONGODB_URI=mongodb://${MONGO_USER:-admin}:${MONGO_PASSWORD:-password}@mongodb:27017/ghostmail?authSource=admin
+      - SMTP_DOMAIN=ghostmail.dev
+    depends_on:
+      - mongodb
+    restart: always
+
+volumes:
+  mongodb_data:

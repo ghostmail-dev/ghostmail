@@ -2,7 +2,7 @@ import nodemailer from "nodemailer"
 import Mail from "nodemailer/lib/mailer"
 import SMTPTransport from "nodemailer/lib/smtp-transport"
 import { faker } from "@faker-js/faker"
-import { smtpServer } from "../server.js"
+import { smtpServer, resetRateLimits } from "../server.js"
 import { describe, it, expect, beforeAll, afterEach, afterAll } from "vitest"
 
 import {
@@ -22,6 +22,7 @@ describe("SMTP Server", () => {
 
   afterEach(async () => {
     resetDatabase()
+    resetRateLimits()
   })
 
   afterAll(() => {
@@ -111,6 +112,42 @@ describe("SMTP Server", () => {
     if (emailId) {
       expect(mailboxDocument?.emails[0].emailId).toStrictEqual(emailId)
     }
+  })
+
+  it("should rate limit connections from the same IP", async () => {
+    const username = "ratelimit@test.dev"
+    seedMailbox({ username })
+    const message = makeMessage({ to: username })
+
+    // Send 5 successful emails (the limit in test mode)
+    for (let i = 0; i < 5; i++) {
+      const result = await sendEmail(message)
+      expect(result).not.toBeInstanceOf(String)
+    }
+
+    // The 6th should fail
+    const result = await sendEmail(message)
+    expect(result).toContain("554 Too many connections from this IP")
+  })
+
+  it("should reset the rate limit after the window expires", async () => {
+    const username = "reset@test.dev"
+    seedMailbox({ username })
+    const message = makeMessage({ to: username })
+
+    // Hit the limit
+    for (let i = 0; i < 5; i++) {
+      await sendEmail(message)
+    }
+    const failedResult = await sendEmail(message)
+    expect(failedResult).toContain("554 Too many connections from this IP")
+
+    // Wait for the window to expire (1.1 seconds)
+    await new Promise((resolve) => setTimeout(resolve, 1100))
+
+    // Should work again
+    const successResult = await sendEmail(message)
+    expect(successResult).not.toBeInstanceOf(String)
   })
 })
 

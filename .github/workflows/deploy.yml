@@ -1,0 +1,60 @@
+name: Deploy to OCI
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Client image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: packages/client/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/ghostmail-client:latest
+
+      - name: Build and push SMTP image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: packages/smtp-server/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/ghostmail-smtp:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH into OCI and Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.OCI_HOST }}
+          username: ${{ secrets.OCI_USER }}
+          key: ${{ secrets.OCI_SSH_KEY }}
+          script: |
+            cd ~/ghostmail
+            # Pull latest images
+            docker compose pull
+            # Restart services
+            docker compose up -d --remove-orphans
+            # Cleanup old images
+            docker image prune -f

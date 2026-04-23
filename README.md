@@ -138,6 +138,42 @@ Ghostmail is designed for **simplicity**, **modularity**, and **modernity**. It 
 
 ---
 
+---
+
+## 🚢 Deployment
+
+Ghostmail is designed to be deployed to an OCI instance (Ubuntu/Oracle Linux) using Docker Compose and GitHub Actions.
+
+### 🛡️ Architecture
+- **Web**: Cloudflare Proxy ➜ OCI ➜ Traefik (Auto-SSL) ➜ React Router 7.
+- **SMTP**: OCI Native Protection ➜ Node.js SMTP Server.
+- **DB**: MongoDB (Internal Docker network).
+
+### 🚀 Setup Steps
+
+1. **OCI Instance**:
+   - Install Docker & Docker Compose.
+   - Open ports `80`, `443`, `25`, `465`, `587` in your VCN Security List.
+
+2. **GitHub Secrets**:
+   Set the following secrets in your repository:
+   - `OCI_HOST`: Your instance IP.
+   - `OCI_USER`: Usually `ubuntu` or `opc`.
+   - `OCI_SSH_KEY`: Your private SSH key.
+   - `MONGO_USER`: Admin username for MongoDB.
+   - `MONGO_PASSWORD`: Admin password for MongoDB.
+   - `SESSION_SECRET`: A long random string for session signing.
+
+3. **Domain & DNS**:
+   - Point `ghostmail.dev` to your OCI IP in Cloudflare.
+   - Enable the Cloudflare Proxy (Orange Cloud) for the A record.
+   - Set up an MX record pointing to your OCI IP.
+
+4. **Deploy**:
+   Push to `master` to trigger the automatic deployment.
+
+---
+
 ## 📜 License
 
 MIT
