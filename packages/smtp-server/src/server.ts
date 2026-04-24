@@ -11,10 +11,6 @@ const connectionCounts = new Map<string, { count: number; lastReset: number }>()
 const RATE_LIMIT_WINDOW = process.env.NODE_ENV === "test" ? 1000 : 60 * 1000 // 1s in test, 1m in prod
 const MAX_CONNECTIONS_PER_IP = process.env.NODE_ENV === "test" ? 5 : 50 // Limit to 5 in test, 50 in prod
 
-console.info(
-  `SMTP Server starting with MAX_CONNECTIONS_PER_IP=${MAX_CONNECTIONS_PER_IP} (NODE_ENV=${process.env.NODE_ENV})`,
-)
-
 export const resetRateLimits = () => connectionCounts.clear()
 
 export const smtpServer = new SMTPServer({
@@ -38,9 +34,6 @@ export const smtpServer = new SMTPServer({
     }
 
     connectionCounts.set(ip, stats)
-    console.info(
-      `Connection from ${ip} - Current count: ${stats.count}/${MAX_CONNECTIONS_PER_IP}`,
-    )
 
     if (stats.count > MAX_CONNECTIONS_PER_IP) {
       console.info(`Rate limit exceeded for IP: ${ip}`)
