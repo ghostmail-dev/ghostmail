@@ -7,7 +7,7 @@ WORKDIR /app
 
 # Stage 1: Build
 FROM base AS build
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json tsconfig.json ./
 COPY packages/database/package.json ./packages/database/
 COPY packages/client/package.json ./packages/client/
 
