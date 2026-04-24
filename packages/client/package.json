@@ -1,8 +1,8 @@
 {
   "name": "@ghostmail/client",
   "private": true,
-  "sideEffects": false,
   "type": "module",
+  "sideEffects": false,
   "scripts": {
     "dev": "react-router dev",
     "build": "react-router build",

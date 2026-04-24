@@ -64,10 +64,10 @@ describe("Mailboxes DAL", () => {
     const seeded = await seedMailbox()
     const loader = new MailboxesLoader()
     expect(
-      await loader.validateMailboxCredentials(seeded.username, seeded.password)
+      await loader.validateMailboxCredentials(seeded.username, seeded.password),
     ).toBe(true)
     expect(
-      await loader.validateMailboxCredentials(seeded.username, "wrongpass")
+      await loader.validateMailboxCredentials(seeded.username, "wrongpass"),
     ).toBe(false)
   })
 
