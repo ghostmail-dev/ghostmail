@@ -94,6 +94,7 @@ jobs:
     needs: build-and-push
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    environment: Deploy
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
