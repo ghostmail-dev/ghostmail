@@ -38,6 +38,9 @@ export const smtpServer = new SMTPServer({
     }
 
     connectionCounts.set(ip, stats)
+    console.info(
+      `Connection from ${ip} - Current count: ${stats.count}/${MAX_CONNECTIONS_PER_IP}`,
+    )
 
     if (stats.count > MAX_CONNECTIONS_PER_IP) {
       console.info(`Rate limit exceeded for IP: ${ip}`)
