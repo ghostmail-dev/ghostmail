@@ -163,6 +163,14 @@ jobs:
           script: |
             mkdir -p ~/ghostmail
             cd ~/ghostmail
+            # Generate mongo keyfile if it doesn't exist yet
+            # chown to uid 999 (mongodb user inside container) via a temporary alpine container
+            if [ ! -f ~/ghostmail/mongo-keyfile ]; then
+              openssl rand -base64 756 > ~/ghostmail/mongo-keyfile
+              docker run --rm \
+                -v ~/ghostmail/mongo-keyfile:/keyfile \
+                alpine sh -c "chown 999:999 /keyfile && chmod 400 /keyfile"
+            fi
             # Log in to GHCR
             echo $GITHUB_TOKEN | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             # Pull latest images from GHCR
