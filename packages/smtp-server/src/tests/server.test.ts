@@ -127,6 +127,7 @@ describe("SMTP Server", () => {
 
     // The 6th should fail
     const result = await sendEmail(message)
+    expect(typeof result).toBe("string")
     expect(result).toContain("554 Too many connections from this IP")
   })
 
@@ -140,6 +141,7 @@ describe("SMTP Server", () => {
       await sendEmail(message)
     }
     const failedResult = await sendEmail(message)
+    expect(typeof failedResult).toBe("string")
     expect(failedResult).toContain("554 Too many connections from this IP")
 
     // Wait for the window to expire (1.1 seconds)

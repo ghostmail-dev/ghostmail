@@ -9,11 +9,12 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  NODE_ENV: test
+
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      NODE_ENV: test
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
