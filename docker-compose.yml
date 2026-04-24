@@ -18,6 +18,28 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./letsencrypt:/letsencrypt"
+      - "./certs:/certs"
+    restart: always
+
+  cert-dumper:
+    image: ldez/traefik-certs-dumper:latest
+    platform: linux/arm64
+    entrypoint:
+      [
+        "/app/traefik-certs-dumper",
+        "file",
+        "--watch",
+        "--domain-subdir",
+        "--dest",
+        "/output",
+        "--source",
+        "/traefik/acme.json",
+      ]
+    volumes:
+      - "./letsencrypt:/traefik:ro"
+      - "./certs:/output"
+    depends_on:
+      - traefik
     restart: always
 
   mongodb:
@@ -38,12 +60,17 @@ services:
     environment:
       - MONGODB_URI=mongodb://${MONGO_USER:-admin}:${MONGO_PASSWORD:-password}@mongodb:27017/ghostmail?authSource=admin
       - SESSION_SECRET=${SESSION_SECRET}
+      - VITE_SMTP_HOST=smtp.ghostmail.dev
+      - VITE_SMTP_PORT=587
+      - VITE_MAIL_DOMAIN=ghostmail.dev
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.client.rule=Host(`ghostmail.dev`)||Host(`www.ghos\
         tmail.dev`)||Host(`stage.ghostmail.dev`)"
       - "traefik.http.routers.client.entrypoints=websecure"
       - "traefik.http.routers.client.tls.certresolver=myresolver"
+      - "traefik.http.services.client.loadbalancer.server.port=3000"
+      - "traefik.http.services.client.loadbalancer.passhostheader=true"
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
       - "traefik.http.routers.client-http.rule=Host(`ghostmail.dev`)||Host(`www\
         .ghostmail.dev`)||Host(`stage.ghostmail.dev`)"
@@ -57,14 +84,19 @@ services:
     image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-yourusername}/ghostmail-smtp:latest
     platform: linux/arm64
     ports:
-      - "25:25"
-      - "465:465"
-      - "587:587"
+      - "25:2525"
+      - "587:2525"
     environment:
       - MONGODB_URI=mongodb://${MONGO_USER:-admin}:${MONGO_PASSWORD:-password}@mongodb:27017/ghostmail?authSource=admin
       - SMTP_DOMAIN=ghostmail.dev
+      - SMTP_PORT=${SMTP_PORT:-2525}
+      - KEY_FILE_PATH=/certs/smtp.ghostmail.dev/privatekey.pem
+      - CERT_FILE_PATH=/certs/smtp.ghostmail.dev/certificate.pem
+    volumes:
+      - "./certs:/certs:ro"
     depends_on:
       - mongodb
+      - cert-dumper
     restart: always
 
 volumes:
