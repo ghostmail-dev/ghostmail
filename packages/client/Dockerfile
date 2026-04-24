@@ -7,6 +7,14 @@ WORKDIR /app
 
 # Stage 1: Build
 FROM base AS build
+
+ARG VITE_SMTP_HOST
+ARG VITE_SMTP_PORT
+ARG VITE_MAIL_DOMAIN
+ENV VITE_SMTP_HOST=$VITE_SMTP_HOST
+ENV VITE_SMTP_PORT=$VITE_SMTP_PORT
+ENV VITE_MAIL_DOMAIN=$VITE_MAIL_DOMAIN
+
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json tsconfig.json ./
 COPY packages/database/package.json ./packages/database/
 COPY packages/client/package.json ./packages/client/

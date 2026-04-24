@@ -207,8 +207,4 @@ const syncIndexes = async (): Promise<void> => {
   console.info("✓ Index synchronization completed!")
 }
 
-syncIndexes()
-  .catch(console.error)
-  .finally(() => {
-    process.exit(0)
-  })
+export { syncIndexes }

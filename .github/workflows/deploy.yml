@@ -97,6 +97,10 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/ghostmail-client:latest
           platforms: linux/amd64,linux/arm64
+          build-args: |
+            VITE_SMTP_HOST=smtp.ghostmail.dev
+            VITE_SMTP_PORT=587
+            VITE_MAIL_DOMAIN=ghostmail.dev
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -145,6 +149,7 @@ jobs:
             echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> ~/ghostmail/.env
             echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> ~/ghostmail/.env
             echo "GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}" >> ~/ghostmail/.env
+            echo "CLOUDFLARE_DNS_API_TOKEN=${{ secrets.CLOUDFLARE_TOKEN }}" >> ~/ghostmail/.env
 
       - name: SSH into OCI and Deploy
         uses: appleboy/ssh-action@v1.0.3

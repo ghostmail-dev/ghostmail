@@ -4,6 +4,7 @@ export * from "./dal/users.js"
 export * from "./models/email.js"
 export * from "./models/mailbox.js"
 export * from "./models/users.js"
+export { syncIndexes } from "./create-indexes.js"
 
 export {
   resetDatabase,

@@ -11,10 +11,12 @@ services:
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
       - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
       - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
-      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.dnschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.dnschallenge.provider=cloudflare"
       - "--certificatesresolvers.myresolver.acme.email=admin@ghostmail.dev"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    environment:
+      - CLOUDFLARE_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
     ports:
       - "80:80"
       - "443:443"
@@ -27,7 +29,7 @@ services:
   cert-dumper:
     image: ldez/traefik-certs-dumper:latest
     platform: linux/arm64
-    command: file --watch --domain-subdir --dest /output --source /traefik/acme.json
+    command: file --watch --domain-subdir --dest /output --source /traefik/acme.json --version v3
     volumes:
       - "./letsencrypt:/traefik:ro"
       - "./certs:/output"
@@ -53,9 +55,6 @@ services:
     environment:
       - MONGODB_URI=mongodb://${MONGO_USER:-admin}:${MONGO_PASSWORD:-password}@mongodb:27017/ghostmail?authSource=admin
       - SESSION_SECRET=${SESSION_SECRET}
-      - VITE_SMTP_HOST=smtp.ghostmail.dev
-      - VITE_SMTP_PORT=587
-      - VITE_MAIL_DOMAIN=ghostmail.dev
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.client.rule=Host(`ghostmail.dev`)||Host(`www.ghos\
@@ -78,8 +77,8 @@ services:
       - MONGODB_URI=mongodb://${MONGO_USER:-admin}:${MONGO_PASSWORD:-password}@mongodb:27017/ghostmail?authSource=admin
       - SMTP_DOMAIN=ghostmail.dev
       - SMTP_PORT=${SMTP_PORT:-2525}
-      - KEY_FILE_PATH=/certs/smtp.ghostmail.dev/privatekey.pem
-      - CERT_FILE_PATH=/certs/smtp.ghostmail.dev/certificate.pem
+      - KEY_FILE_PATH=/certs/ghostmail.dev/privatekey.key
+      - CERT_FILE_PATH=/certs/ghostmail.dev/certificate.crt
     volumes:
       - "./certs:/certs:ro"
     depends_on:
