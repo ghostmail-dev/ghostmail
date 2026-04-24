@@ -145,6 +145,7 @@ Ghostmail is designed for **simplicity**, **modularity**, and **modernity**. It 
 Ghostmail is designed to be deployed to an OCI instance (Ubuntu/Oracle Linux) using Docker Compose and GitHub Actions.
 
 ### 🛡️ Architecture
+
 - **Web**: Cloudflare Proxy ➜ OCI ➜ Traefik (Auto-SSL) ➜ React Router 7.
 - **SMTP**: OCI Native Protection ➜ Node.js SMTP Server.
 - **DB**: MongoDB (Internal Docker network).
@@ -170,7 +171,7 @@ Ghostmail is designed to be deployed to an OCI instance (Ubuntu/Oracle Linux) us
    - Set up an MX record pointing to your OCI IP.
 
 4. **Deploy**:
-   Push to `master` to trigger the automatic deployment.
+   - Merge Pull Requests to `main` to trigger the automatic deployment.
 
 ---
 
