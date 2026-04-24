@@ -24,13 +24,16 @@ RUN pnpm --filter @ghostmail/smtp-server build
 FROM base AS runtime
 ENV NODE_ENV=production
 
-COPY --from=build /app/packages/smtp-server/dist ./dist
-COPY --from=build /app/packages/smtp-server/package.json ./
+COPY --from=build /app/pnpm-lock.yaml ./
+COPY --from=build /app/pnpm-workspace.yaml ./
+COPY --from=build /app/package.json ./
+COPY --from=build /app/packages/smtp-server/dist ./packages/smtp-server/dist
+COPY --from=build /app/packages/smtp-server/package.json ./packages/smtp-server/
 
-RUN pnpm install --prod --frozen-lockfile
+RUN pnpm install --prod --frozen-lockfile --filter @ghostmail/smtp-server
 
 # SMTP ports
 EXPOSE 25 587
 
-WORKDIR /app
+WORKDIR /app/packages/smtp-server
 CMD ["node", "dist/index.js"]
