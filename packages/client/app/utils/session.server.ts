@@ -3,6 +3,7 @@ import { createCookieSessionStorage, redirect } from "react-router"
 export type AuthData = {
   userId: string
   username: string
+  roles: ("admin" | "user")[]
 }
 
 const sessionSecret =
@@ -32,12 +33,13 @@ export { commitSession, destroySession, getSession }
 
 export async function requireAuth(
   request: Request,
-): Promise<{ userId: string; username: string }> {
+): Promise<{ userId: string; username: string; roles: ("admin" | "user")[] }> {
   const session = await getSession(request.headers.get("Cookie"))
   const userId = session.get("userId")
   const username = session.get("username")
-  if (!userId || !username) {
+  const roles = session.get("roles")
+  if (!userId || !username || !roles) {
     throw redirect("/login")
   }
-  return { userId, username }
+  return { userId, username, roles }
 }

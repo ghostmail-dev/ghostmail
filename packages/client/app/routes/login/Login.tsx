@@ -40,6 +40,7 @@ export async function action({ request }: Route.ActionArgs) {
   const session = await getSession(request.headers.get("Cookie"))
   session.set("userId", user._id)
   session.set("username", user.username)
+  session.set("roles", user.roles)
 
   return redirect("/mailboxes", {
     headers: { "Set-Cookie": await commitSession(session) },

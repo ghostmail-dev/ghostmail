@@ -10,6 +10,15 @@ export default [
   route("login", "routes/login/Login.tsx"),
   route("signup", "routes/signup/Signup.tsx"),
   route("logout", "routes/logout/Logout.tsx"),
+  route("settings/:userId", "routes/settings.$userid/Route.tsx", [
+    layout("routes/settings.$userid/Layout.tsx", [
+      index("routes/settings.$userid/Index.tsx"),
+      route("password", "routes/settings.$userid/Password.tsx"),
+      route("invites", "routes/settings.$userid/Invites.tsx", [
+        route("create", "routes/settings.$userid/CreateInvite.tsx"),
+      ]),
+    ]),
+  ]),
 
   route("mailboxes", "routes/mailboxes/Mailboxes.tsx", [
     route("create", "routes/mailboxes.create/CreateMailboxRoute.tsx"),

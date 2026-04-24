@@ -7,7 +7,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
-  type LoaderFunction,
+  type LoaderFunctionArgs,
 } from "react-router"
 import "./styles/index.css"
 import { LogOut, Moon, Settings, Sun, User } from "lucide-react"
@@ -53,7 +53,7 @@ export const meta = () => [
   },
 ]
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
     const user = await requireAuth(request)
     return user
@@ -106,7 +106,7 @@ export default function App() {
                 >
                   <li>
                     <Link
-                      to="/settings"
+                      to={`/settings/${user.userId}/password`}
                       className="text-sm flex items-center gap-2"
                     >
                       <Settings className="w-4 h-4" />

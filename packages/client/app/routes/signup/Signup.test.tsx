@@ -2,16 +2,17 @@ import { describe, expect, it } from "vitest"
 import { userEvent } from "vitest/browser"
 import Signup, { loader, action } from "./Signup"
 import { renderRoute } from "../../../test-utils/render-router"
-import { UsersLoader, UsersMutator } from "@ghostmail/database"
+import { seedUser, UsersLoader } from "@ghostmail/database"
 import Login, {
   action as loginAction,
   loader as loginLoader,
 } from "../login/Login"
 import { action as logoutAction } from "../logout/Logout"
 import { Form } from "react-router"
+import { seedInvite } from "@ghostmail/database"
 
 describe("Signup Page", () => {
-  it("will handle a password errors", async () => {
+  it("will handle a password error", async () => {
     const screen = await renderRoute([
       { path: "/", Component: Signup, loader, action },
     ])
@@ -19,11 +20,13 @@ describe("Signup Page", () => {
     const usernameInput = screen.getByLabelText(/Username/i)
     const passwordInput = screen.getByLabelText(/^Password$/i)
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/i)
+    const inviteInput = screen.getByLabelText(/Invite Code/i)
 
     // test password mismatch error
     await userEvent.type(usernameInput, "testuser")
     await userEvent.type(passwordInput, "testpassword")
     await userEvent.type(confirmPasswordInput, "differentpassword")
+    await userEvent.type(inviteInput, "VALID-INVITE-CODE")
     await userEvent.click(
       screen.getByRole("button", { name: /Create Account/i }),
     )
@@ -44,8 +47,8 @@ describe("Signup Page", () => {
 
   it("will handle a username already taken error", async () => {
     // Pre-create a user to trigger the "username already taken" error
-    const mutator = new UsersMutator()
-    await mutator.createUser("existinguser", "password")
+    const inviteCode = seedInvite().code
+    seedUser({ username: "existinguser" })
 
     const screen = await renderRoute([
       { path: "/", Component: Signup, loader, action },
@@ -54,14 +57,36 @@ describe("Signup Page", () => {
     const usernameInput = screen.getByLabelText(/Username/i)
     const passwordInput = screen.getByLabelText(/^Password$/i)
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/i)
+    const inviteInput = screen.getByLabelText(/Invite Code/i)
 
     await userEvent.type(usernameInput, "existinguser")
     await userEvent.type(passwordInput, "password")
     await userEvent.type(confirmPasswordInput, "password")
+    await userEvent.type(inviteInput, inviteCode)
     await userEvent.click(
       screen.getByRole("button", { name: /Create Account/i }),
     )
     expect(screen.getByText(/Username already taken/i)).toBeInTheDocument()
+  })
+
+  it("will handle an invalid invite code error", async () => {
+    const screen = await renderRoute([
+      { path: "/", Component: Signup, loader, action },
+    ])
+
+    const usernameInput = screen.getByLabelText(/Username/i)
+    const passwordInput = screen.getByLabelText(/^Password$/i)
+    const confirmPasswordInput = screen.getByLabelText(/Confirm Password/i)
+    const inviteInput = screen.getByLabelText(/Invite Code/i)
+
+    await userEvent.type(usernameInput, "testuser")
+    await userEvent.type(passwordInput, "testpassword")
+    await userEvent.type(confirmPasswordInput, "testpassword")
+    await userEvent.type(inviteInput, "INVALID-CODE")
+    await userEvent.click(
+      screen.getByRole("button", { name: /Create Account/i }),
+    )
+    expect(screen.getByText(/Invalid invite code/i)).toBeInTheDocument()
   })
 
   it("redirects to /mailboxes if user is already authenticated", async () => {
@@ -76,13 +101,14 @@ describe("Signup Page", () => {
         },
       ],
       "/",
-      { userId: "testuserid", username: "testuser" },
+      { userId: "testuserid", username: "testuser", roles: ["user"] },
     )
 
     expect(screen.getByText(/Mailboxes Test SuccessPage/i)).toBeInTheDocument()
   })
 
   it("creates a new account with valid input in all fields and redirects to /mailboxes", async () => {
+    const seededInvite = seedInvite()
     const screen = await renderRoute(
       [
         { path: "/signup", Component: Signup, loader, action },
@@ -97,10 +123,12 @@ describe("Signup Page", () => {
     const usernameInput = screen.getByLabelText(/Username/i)
     const passwordInput = screen.getByLabelText(/^Password$/i)
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/i)
+    const inviteInput = screen.getByLabelText(/Invite Code/i)
 
     await userEvent.type(usernameInput, "testuser")
     await userEvent.type(passwordInput, "testpassword")
     await userEvent.type(confirmPasswordInput, "testpassword")
+    await userEvent.type(inviteInput, seededInvite.code)
 
     await userEvent.click(
       screen.getByRole("button", { name: /Create Account/i }),
@@ -121,6 +149,7 @@ describe("Signup Page", () => {
   it("user can login after signup", async () => {
     const username = "testuser"
     const password = "testpassword"
+    const inviteCode = seedInvite().code
     const screen = await renderRoute(
       [
         { path: "/signup", Component: Signup, loader, action },
@@ -154,10 +183,12 @@ describe("Signup Page", () => {
     const usernameInputSignup = screen.getByLabelText(/Username/i)
     const passwordInputSignup = screen.getByLabelText(/^Password$/i)
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/i)
+    const inviteInput = screen.getByLabelText(/Invite Code/i)
 
     await userEvent.type(usernameInputSignup, username)
     await userEvent.type(passwordInputSignup, password)
     await userEvent.type(confirmPasswordInput, password)
+    await userEvent.type(inviteInput, inviteCode)
 
     await userEvent.click(
       screen.getByRole("button", { name: /Create Account/i }),

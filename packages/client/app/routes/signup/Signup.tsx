@@ -7,6 +7,7 @@ import {
   requireAuth,
 } from "../../utils/session.server"
 import { AuthenticationCard } from "../../components/AuthenticationWrapper"
+import { InvitesLoader } from "@ghostmail/database"
 
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
@@ -22,6 +23,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const username = String(formData.get("username") ?? "").trim()
   const password = String(formData.get("password") ?? "")
   const confirm = String(formData.get("confirm") ?? "")
+  const invite = String(formData.get("invite") ?? "").trim()
 
   if (!username || !password) {
     return data(
@@ -29,6 +31,11 @@ export async function action({ request }: ActionFunctionArgs) {
       { status: 400 },
     )
   }
+
+  if (!invite) {
+    return data({ error: "Invite code is required" }, { status: 400 })
+  }
+
   if (password !== confirm) {
     return data({ error: "Passwords do not match" }, { status: 400 })
   }
@@ -39,6 +46,12 @@ export async function action({ request }: ActionFunctionArgs) {
     )
   }
 
+  const inviteLoader = new InvitesLoader()
+  const validInvite = await inviteLoader.validateInvite(invite)
+  if (!validInvite) {
+    return data({ error: "Invalid invite code" }, { status: 400 })
+  }
+
   const loader = new UsersLoader()
   const existing = await loader.getUserByName(username)
   if (existing) {
@@ -46,7 +59,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const mutator = new UsersMutator()
-  const user = await mutator.createUser(username, password)
+  const user = await mutator.createUser(username, password, invite)
 
   const session = await getSession(request.headers.get("Cookie"))
   session.set("userId", user._id)
@@ -112,6 +125,21 @@ export default function Signup() {
             autoComplete="new-password"
             required
             placeholder="repeat your password"
+            className="input input-bordered w-full"
+          />
+        </label>
+
+        <label className="form-control w-full">
+          <div className="label">
+            <span className="label-text">Invite Code</span>
+          </div>
+          <input
+            id="invite"
+            name="invite"
+            type="text"
+            autoComplete="off"
+            required
+            placeholder="Enter your invite code"
             className="input input-bordered w-full"
           />
         </label>

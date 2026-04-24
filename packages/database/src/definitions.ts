@@ -2,6 +2,7 @@ import type { ParsedMail } from "mailparser"
 import { SerializableEmailDocument } from "./models/email"
 import { SerializableMailbox } from "./models/mailbox"
 import { SerializableUserDocument } from "./models/users"
+import { SerializableInviteDocument } from "./models/invites"
 
 export type IdLike = string | { toHexString(): string }
 
@@ -55,10 +56,37 @@ export abstract class AbstractUsersMutator {
   abstract createUser(
     username: string,
     password: string,
+    inviteCode: string,
   ): Promise<SerializableUserDocument>
   abstract deleteUser(id: string): Promise<void>
   abstract changePersistentMailboxLimit(
     userId: IdLike,
     newLimit: number,
   ): Promise<void>
+
+  abstract changeUserRoles(
+    userId: IdLike,
+    newRoles: ("admin" | "user")[],
+  ): Promise<void>
+
+  abstract changeUserPassword(
+    userId: IdLike,
+    newPassword: string,
+  ): Promise<void>
+}
+
+export abstract class AbstractInvitesLoader {
+  abstract getInvitesByUsername(
+    username: string,
+  ): Promise<SerializableInviteDocument[]>
+  abstract validateInvite(code: string): Promise<boolean>
+}
+
+export abstract class AbstractInvitesMutator {
+  abstract createInvite(
+    invitedBy: string,
+    persistentTokens: number,
+    expiresAt?: Date,
+  ): Promise<SerializableInviteDocument>
+  abstract deleteInvite(code: string): Promise<void>
 }

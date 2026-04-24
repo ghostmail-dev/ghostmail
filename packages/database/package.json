@@ -20,8 +20,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "vitest run",
-    "sync-indexes": "node --env-file=../../.env dist/create-indexes.js"
+    "test": "vitest run"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

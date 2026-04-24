@@ -11,6 +11,8 @@ import type {
   AbstractUsersMutator,
 } from "../definitions.js"
 import { faker } from "@faker-js/faker"
+import { mongoClient } from "../connection.js"
+import { invitesCollection } from "../collections/invites.js"
 
 export class UsersLoader implements AbstractUsersLoader {
   private batchUsersById = new DataLoader<string, UserDocument | null>(
@@ -46,14 +48,28 @@ export class UsersMutator implements AbstractUsersMutator {
   async createUser(
     username: string,
     password: string,
+    inviteCode: string,
   ): Promise<SerializableUserDocument> {
     const doc: UserDocument = {
       _id: faker.database.mongodbObjectId(),
       username,
       password: hashSync(password, 10),
       maxPersistentMailboxes: 0,
+      roles: ["user"],
     }
-    await usersCollection.insertOne(doc)
+    const session = mongoClient.startSession()
+    try {
+      session.startTransaction()
+      await usersCollection.insertOne(doc, { session })
+      await invitesCollection.updateOne(
+        { code: inviteCode },
+        { $set: { status: "used", usedBy: username, usedAt: new Date() } },
+        { session },
+      )
+      await session.commitTransaction()
+    } finally {
+      await session.endSession()
+    }
     return toUserDTO(doc)
   }
 
@@ -69,5 +85,22 @@ export class UsersMutator implements AbstractUsersMutator {
 
   async deleteUser(id: string): Promise<void> {
     await usersCollection.deleteOne({ _id: id })
+  }
+
+  async changeUserRoles(
+    userId: string,
+    newRoles: ("admin" | "user")[],
+  ): Promise<void> {
+    await usersCollection.updateOne(
+      { _id: userId },
+      { $set: { roles: newRoles } },
+    )
+  }
+
+  async changeUserPassword(userId: string, newPassword: string): Promise<void> {
+    await usersCollection.updateOne(
+      { _id: userId },
+      { $set: { password: hashSync(newPassword, 10) } },
+    )
   }
 }

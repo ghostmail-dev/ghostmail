@@ -37,23 +37,66 @@ services:
       - traefik
     restart: always
 
-  mongodb:
+  mongo1:
     image: mongo:latest
     platform: linux/arm64
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
     ports:
       - "127.0.0.1:27017:27017"
-    volumes:
-      - mongodb_data:/data/db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER:-admin}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-password}
+    healthcheck:
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'host.docker.internal:27017',priority:1},{_id:1,host:'host.docker.internal:27018',priority:0.5},{_id:2,host:'host.docker.internal:27019',priority:0.5}]}) }" | mongosh --port 27017 --quiet
+      interval: 5s
+      timeout: 30s
+      start_period: 0s
+      start_interval: 1s
+      retries: 30
+    volumes:
+      - "mongo1_data:/data/db"
+      - "mongo1_config:/data/configdb"
+    restart: always
+
+  mongo2:
+    image: mongo:latest
+    platform: linux/arm64
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27018"]
+    ports:
+      - "127.0.0.1:27018:27018"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-password}
+    volumes:
+      - "mongo2_data:/data/db"
+      - "mongo2_config:/data/configdb"
+    restart: always
+
+  mongo3:
+    image: mongo:latest
+    platform: linux/arm64
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27019"]
+    ports:
+      - "127.0.0.1:27019:27019"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-password}
+    volumes:
+      - "mongo3_data:/data/db"
+      - "mongo3_config:/data/configdb"
     restart: always
 
   client:
     image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-yourusername}/ghostmail-client:latest
     platform: linux/arm64
     environment:
-      - MONGODB_URI=mongodb://${MONGO_USER:-admin}:${MONGO_PASSWORD:-password}@mongodb:27017/ghostmail?authSource=admin
+      - MONGODB_URI=mongodb://${MONGO_USER:-admin}:${MONGO_PASSWORD:-password}@host.docker.internal:27017,host.docker.internal:27018,host.docker.internal:27019/ghostmail?authSource=admin&replicaSet=rs0
       - SESSION_SECRET=${SESSION_SECRET}
     labels:
       - "traefik.enable=true"
@@ -63,8 +106,11 @@ services:
       - "traefik.http.routers.client.tls.certresolver=myresolver"
       - "traefik.http.services.client.loadbalancer.server.port=3000"
       - "traefik.http.services.client.loadbalancer.passhostheader=true"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
-      - mongodb
+      mongo1:
+        condition: service_healthy
     restart: always
 
   smtp-server:
@@ -74,17 +120,26 @@ services:
       - "25:2525"
       - "587:2525"
     environment:
-      - MONGODB_URI=mongodb://${MONGO_USER:-admin}:${MONGO_PASSWORD:-password}@mongodb:27017/ghostmail?authSource=admin
+      - MONGODB_URI=mongodb://${MONGO_USER:-admin}:${MONGO_PASSWORD:-password}@host.docker.internal:27017,host.docker.internal:27018,host.docker.internal:27019/ghostmail?authSource=admin&replicaSet=rs0
       - SMTP_DOMAIN=ghostmail.dev
       - SMTP_PORT=${SMTP_PORT:-2525}
       - KEY_FILE_PATH=/certs/ghostmail.dev/privatekey.key
       - CERT_FILE_PATH=/certs/ghostmail.dev/certificate.crt
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - "./certs:/certs:ro"
     depends_on:
-      - mongodb
-      - cert-dumper
+      mongo1:
+        condition: service_healthy
+      cert-dumper:
+        condition: service_started
     restart: always
 
 volumes:
-  mongodb_data:
+  mongo1_data:
+  mongo1_config:
+  mongo2_data:
+  mongo2_config:
+  mongo3_data:
+  mongo3_config:

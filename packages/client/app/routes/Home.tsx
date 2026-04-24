@@ -1,7 +1,16 @@
 import { Clock, Code, Eye, Inbox } from "lucide-react"
-
 import { GhostMailLogo } from "../components/GhostmailLogo"
-import { Link } from "react-router"
+import { Link, redirect, type LoaderFunctionArgs } from "react-router"
+import { requireAuth } from "../utils/session.server"
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  try {
+    await requireAuth(request)
+    return redirect("/mailboxes")
+  } catch {
+    return {}
+  }
+}
 
 export default function LandingPage() {
   return (

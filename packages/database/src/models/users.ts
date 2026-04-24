@@ -5,6 +5,7 @@ export type UserDocument = {
   username: string
   password: string
   maxPersistentMailboxes: number
+  roles: ("admin" | "user")[]
 }
 
 export type SerializableUserDocument = UserDocument
@@ -15,6 +16,7 @@ export const toUserDTO = (doc: UserDocument): SerializableUserDocument => {
     username: doc.username,
     password: doc.password,
     maxPersistentMailboxes: doc.maxPersistentMailboxes,
+    roles: doc.roles,
   }
 }
 
@@ -24,6 +26,7 @@ export function spawnUser(overrides?: Partial<UserDocument>): UserDocument {
     username: faker.internet.username(),
     password: faker.internet.password(),
     maxPersistentMailboxes: faker.number.int({ min: 0, max: 5 }),
+    roles: ["user"],
     ...overrides,
   }
 }

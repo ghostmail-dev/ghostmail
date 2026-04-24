@@ -21,6 +21,8 @@ import {
 import {
   AbstractEmailsLoader,
   AbstractEmailsMutator,
+  AbstractInvitesLoader,
+  AbstractInvitesMutator,
   AbstractMailboxesLoader,
   AbstractMailboxesMutator,
   AbstractUsersLoader,
@@ -28,6 +30,12 @@ import {
 } from "../definitions"
 import type { ParsedMail } from "mailparser"
 import { hashSync } from "bcryptjs"
+import {
+  InviteDocument,
+  SerializableInviteDocument,
+  spawnInvite,
+  toInviteDTO,
+} from "../models/invites"
 
 /**
  * Stateful in-memory store for client-side tests.
@@ -37,12 +45,14 @@ const mailboxesStore = new Map<string, SerializableMailbox>()
 const mailboxesById = new Map<string, SerializableMailbox>()
 const emailsStore = new Map<string, SerializableEmailDocument>()
 const usersStore = new Map<string, SerializableUserDocument>()
+const invitesStore = new Map<string, SerializableInviteDocument>()
 
 export function resetDatabase() {
   mailboxesStore.clear()
   mailboxesById.clear()
   emailsStore.clear()
   usersStore.clear()
+  invitesStore.clear()
 }
 
 export function seedUser(
@@ -71,6 +81,12 @@ export function seedEmail(
     ...overrides,
   } as EmailDocument)
   emailsStore.set(doc._id, doc)
+  return doc
+}
+
+export function seedInvite(overrides?: Partial<InviteDocument>) {
+  const doc = toInviteDTO(spawnInvite(overrides))
+  invitesStore.set(doc.code, doc)
   return doc
 }
 
@@ -194,7 +210,15 @@ export class UsersLoader implements AbstractUsersLoader {
 }
 
 export class UsersMutator implements AbstractUsersMutator {
-  async createUser(username: string, password: string) {
+  async createUser(username: string, password: string, inviteCode: string) {
+    const invite = invitesStore.get(inviteCode)
+    if (invite) {
+      invite.status = "used"
+      invite.usedBy = username
+      invite.usedAt = new Date().toJSON()
+      invitesStore.set(inviteCode, invite)
+    }
+
     return seedUser({ username, password: hashSync(password, 10) })
   }
 
@@ -218,5 +242,54 @@ export class UsersMutator implements AbstractUsersMutator {
         break
       }
     }
+  }
+
+  async changeUserRoles(
+    userId: string,
+    newRoles: ("admin" | "user")[],
+  ): Promise<void> {
+    for (const user of usersStore.values()) {
+      if (user._id === userId) {
+        const updated = { ...user, roles: newRoles }
+        usersStore.set(user.username, updated)
+        break
+      }
+    }
+  }
+
+  async changeUserPassword(userId: string, newPassword: string): Promise<void> {
+    for (const user of usersStore.values()) {
+      if (user._id === userId) {
+        const updated = { ...user, password: hashSync(newPassword, 10) }
+        usersStore.set(user.username, updated)
+        break
+      }
+    }
+  }
+}
+
+export class InvitesLoader implements AbstractInvitesLoader {
+  async getInvitesByUsername(username: string) {
+    const invites = [...invitesStore.values()].filter(
+      (invite) => invite.invitedBy === username,
+    )
+    return invites
+  }
+  async validateInvite(code: string) {
+    return !!invitesStore.get(code)
+  }
+}
+
+export class InvitesMutator implements AbstractInvitesMutator {
+  async createInvite(
+    invitedBy: string,
+    persistentTokens: number,
+    expiresAt?: Date,
+  ) {
+    return seedInvite({ invitedBy, persistentTokens, expiresAt })
+  }
+
+  async deleteInvite(code: string) {
+    invitesStore.delete(code)
   }
 }

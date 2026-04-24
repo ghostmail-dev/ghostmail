@@ -9,6 +9,7 @@ import {
 import { emailsCollection } from "./collections/email.js"
 import { mailboxesCollection } from "./collections/mailbox.js"
 import { usersCollection } from "./collections/users.js"
+import { invitesCollection } from "./collections/invites.js"
 
 /** Narrow type covering only the Collection methods needed for index management. */
 type IndexManageableCollection = Pick<
@@ -37,6 +38,11 @@ const dbIndexes: CollectionIndexes = {
     { keys: { expiresAt: 1 }, options: { expireAfterSeconds: 3600 * 24 } },
   ],
   usersCollection: [{ keys: { username: 1 }, options: { unique: true } }],
+  invitesCollection: [
+    { keys: { code: 1 }, options: { unique: true } },
+    { keys: { invitedBy: 1 } },
+    { keys: { expiresAt: 1 }, options: { expireAfterSeconds: 3600 * 24 * 30 } },
+  ],
 }
 
 const getCurrentIndexes = async (
@@ -114,6 +120,7 @@ const syncIndexes = async (): Promise<void> => {
     emailsCollection,
     mailboxesCollection,
     usersCollection,
+    invitesCollection,
   }
 
   for (const [collectionName, expectedIndexes] of Object.entries(dbIndexes)) {
