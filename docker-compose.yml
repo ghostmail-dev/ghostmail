@@ -1,6 +1,7 @@
 services:
   traefik:
-    image: traefik:v3.1
+    image: traefik:v3.6
+    platform: linux/arm64
     command:
       - "--api.insecure=false"
       - "--providers.docker=true"
@@ -21,6 +22,7 @@ services:
 
   mongodb:
     image: mongo:latest
+    platform: linux/arm64
     ports:
       - "127.0.0.1:27017:27017"
     volumes:
@@ -32,18 +34,19 @@ services:
 
   client:
     image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-yourusername}/ghostmail-client:latest
+    platform: linux/arm64
     environment:
       - MONGODB_URI=mongodb://${MONGO_USER:-admin}:${MONGO_PASSWORD:-password}@mongodb:27017/ghostmail?authSource=admin
       - SESSION_SECRET=${SESSION_SECRET}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.client.rule=Host(`ghostmail.dev`) ||
-        Host(`www.ghostmail.dev`) || Host(`stage.ghostmail.dev`)"
+      - "traefik.http.routers.client.rule=Host(`ghostmail.dev`)||Host(`www.ghos\
+        tmail.dev`)||Host(`stage.ghostmail.dev`)"
       - "traefik.http.routers.client.entrypoints=websecure"
       - "traefik.http.routers.client.tls.certresolver=myresolver"
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-      - "traefik.http.routers.client-http.rule=Host(`ghostmail.dev`) ||
-        Host(`www.ghostmail.dev`) || Host(`stage.ghostmail.dev`)"
+      - "traefik.http.routers.client-http.rule=Host(`ghostmail.dev`)||Host(`www\
+        .ghostmail.dev`)||Host(`stage.ghostmail.dev`)"
       - "traefik.http.routers.client-http.entrypoints=web"
       - "traefik.http.routers.client-http.middlewares=redirect-to-https"
     depends_on:
@@ -52,6 +55,7 @@ services:
 
   smtp-server:
     image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-yourusername}/ghostmail-smtp:latest
+    platform: linux/arm64
     ports:
       - "25:25"
       - "465:465"
