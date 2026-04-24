@@ -37,11 +37,13 @@ services:
       - SESSION_SECRET=${SESSION_SECRET}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.client.rule=Host(`ghostmail.dev`) || Host(`www.ghostmail.dev`)"
+      - "traefik.http.routers.client.rule=Host(`ghostmail.dev`) ||
+        Host(`www.ghostmail.dev`) || Host(`stage.ghostmail.dev`)"
       - "traefik.http.routers.client.entrypoints=websecure"
       - "traefik.http.routers.client.tls.certresolver=myresolver"
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-      - "traefik.http.routers.client-http.rule=Host(`ghostmail.dev`) || Host(`www.ghostmail.dev`)"
+      - "traefik.http.routers.client-http.rule=Host(`ghostmail.dev`) ||
+        Host(`www.ghostmail.dev`)"
       - "traefik.http.routers.client-http.entrypoints=web"
       - "traefik.http.routers.client-http.middlewares=redirect-to-https"
     depends_on:
