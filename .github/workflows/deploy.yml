@@ -139,13 +139,18 @@ jobs:
 
       - name: SSH into OCI and Deploy
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           host: ${{ secrets.OCI_HOST }}
           username: ${{ secrets.OCI_USER }}
           key: ${{ secrets.OCI_SSH_KEY }}
+          envs: GITHUB_TOKEN
           script: |
             mkdir -p ~/ghostmail
             cd ~/ghostmail
+            # Log in to GHCR
+            echo $GITHUB_TOKEN | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             # Pull latest images from GHCR
             docker compose pull
             # Restart services
