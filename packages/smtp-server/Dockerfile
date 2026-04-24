@@ -37,4 +37,4 @@ RUN pnpm install --prod --frozen-lockfile
 EXPOSE 25 465 587
 
 WORKDIR /app/packages/smtp-server
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/packages/smtp-server/src/index.js"]
