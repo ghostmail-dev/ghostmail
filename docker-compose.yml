@@ -15,8 +15,6 @@ services:
       - "--certificatesresolvers.myresolver.acme.dnschallenge.provider=cloudflare"
       - "--certificatesresolvers.myresolver.acme.email=admin@ghostmail.dev"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-    environment:
-      - CLOUDFLARE_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
     ports:
       - "80:80"
       - "443:443"
