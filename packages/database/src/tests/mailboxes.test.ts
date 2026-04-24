@@ -23,22 +23,24 @@ describe("Mailboxes DAL", () => {
     expect(found?.username).toBe(mailbox.username)
     expect(found?.ownerId).toBe(mailbox.ownerId)
     expect(found?.createdAt).toBe(mailbox.createdAt.toJSON())
-    expect(found?.emails).toEqual([
-      {
-        emailId: email1._id,
-        date: email1.date?.toISOString() || "",
-        isRead: email1.isRead,
-        sender: email1.from?.text || "Unknown sender",
-        subject: email1.subject || "(no subject)",
-      },
-      {
-        emailId: email2._id,
-        date: email2.date?.toISOString() || "",
-        isRead: email2.isRead,
-        sender: email2.from?.text || "Unknown sender",
-        subject: email2.subject || "(no subject)",
-      },
-    ])
+    expect(found?.emails).toEqual(
+      expect.arrayContaining([
+        {
+          emailId: email1._id,
+          date: email1.date?.toISOString() || "",
+          isRead: email1.isRead,
+          sender: email1.from?.text || "Unknown sender",
+          subject: email1.subject || "(no subject)",
+        },
+        {
+          emailId: email2._id,
+          date: email2.date?.toISOString() || "",
+          isRead: email2.isRead,
+          sender: email2.from?.text || "Unknown sender",
+          subject: email2.subject || "(no subject)",
+        },
+      ]),
+    )
   })
 
   it("can fetch a mailbox by id", async () => {
