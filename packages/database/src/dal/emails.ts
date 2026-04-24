@@ -17,7 +17,7 @@ export class EmailsLoader {
         .toArray()
       const emailMap = new Map(emails.map((e) => [e._id, e]))
       return keys.map((k) => emailMap.get(k) || null)
-    }
+    },
   )
 
   private batchEmailsByMessageId = new DataLoader<string, EmailDocument | null>(
@@ -27,7 +27,7 @@ export class EmailsLoader {
         .toArray()
       const emailMap = new Map(emails.map((e) => [e.messageId, e]))
       return keys.map((k) => emailMap.get(k) || null)
-    }
+    },
   )
 
   async getEmailById(id: string): Promise<SerializableEmailDocument | null> {
@@ -36,7 +36,7 @@ export class EmailsLoader {
   }
 
   async getEmailByMessageId(
-    messageId: string
+    messageId: string,
   ): Promise<SerializableEmailDocument | null> {
     const email = await this.batchEmailsByMessageId.load(messageId)
     return email ? toEmailDTO(email) : null
@@ -46,7 +46,7 @@ export class EmailsLoader {
 export class EmailsMutator implements AbstractEmailsMutator {
   async createEmail(
     email: Omit<ParsedMail, "_id">,
-    mailboxIds: string[]
+    mailboxIds: string[],
   ): Promise<SerializableEmailDocument> {
     const attachments = email.attachments.map((attachment) => {
       return {

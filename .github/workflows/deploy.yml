@@ -3,16 +3,66 @@ name: Deploy to OCI
 on:
   push:
     branches:
-      - master
+      - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
+env:
+  NODE_ENV: test
+
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm --filter @ghostmail/client exec playwright install --with-deps chromium firefox
+
+      - name: Install Playwright system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm --filter @ghostmail/client exec playwright install-deps chromium firefox
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Run tests
+        run: pnpm test
+
   build-and-push:
+    needs: test
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -42,8 +92,34 @@ jobs:
 
   deploy:
     needs: build-and-push
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy docker-compose.yml to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.OCI_HOST }}
+          username: ${{ secrets.OCI_USER }}
+          key: ${{ secrets.OCI_SSH_KEY }}
+          source: "docker-compose.yml"
+          target: "~/ghostmail"
+
+      - name: Create .env file on server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.OCI_HOST }}
+          username: ${{ secrets.OCI_USER }}
+          key: ${{ secrets.OCI_SSH_KEY }}
+          script: |
+            mkdir -p ~/ghostmail
+            echo "MONGO_USER=${{ secrets.MONGO_USER }}" > ~/ghostmail/.env
+            echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> ~/ghostmail/.env
+            echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> ~/ghostmail/.env
+            echo "GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}" >> ~/ghostmail/.env
+
       - name: SSH into OCI and Deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -51,10 +127,11 @@ jobs:
           username: ${{ secrets.OCI_USER }}
           key: ${{ secrets.OCI_SSH_KEY }}
           script: |
+            mkdir -p ~/ghostmail
             cd ~/ghostmail
-            # Pull latest images
+            # Pull latest images from GHCR
             docker compose pull
             # Restart services
             docker compose up -d --remove-orphans
-            # Cleanup old images
+            # Cleanup old images to save disk space
             docker image prune -f

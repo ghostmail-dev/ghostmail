@@ -127,6 +127,7 @@ describe("SMTP Server", () => {
 
     // The 6th should fail
     const result = await sendEmail(message)
+    expect(typeof result).toBe("string")
     expect(result).toContain("554 Too many connections from this IP")
   })
 
@@ -140,6 +141,7 @@ describe("SMTP Server", () => {
       await sendEmail(message)
     }
     const failedResult = await sendEmail(message)
+    expect(typeof failedResult).toBe("string")
     expect(failedResult).toContain("554 Too many connections from this IP")
 
     // Wait for the window to expire (1.1 seconds)
@@ -156,6 +158,7 @@ const sendEmail = async (
   withAuth?: { user: string; pass: string },
 ): Promise<SMTPTransport.SentMessageInfo | string> => {
   const transporter = nodemailer.createTransport({
+    host: "127.0.0.1", // Force IPv4
     port: process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 2525,
     secure: false,
     ignoreTLS: true,
@@ -164,7 +167,7 @@ const sendEmail = async (
   })
   return await transporter
     .sendMail(args)
-    .then((info) => info as SMTPTransport.SentMessageInfo)
+    .then((info) => info as unknown as SMTPTransport.SentMessageInfo | string)
     .catch((err) => {
       if (err instanceof Error) {
         return err.message

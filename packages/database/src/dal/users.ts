@@ -18,7 +18,7 @@ export class UsersLoader implements AbstractUsersLoader {
       const users = await usersCollection.find({ _id: { $in: keys } }).toArray()
       const userMap = new Map(users.map((u) => [u._id, u]))
       return keys.map((k) => userMap.get(k) || null)
-    }
+    },
   )
 
   private batchUsersByUsername = new DataLoader<string, UserDocument | null>(
@@ -28,7 +28,7 @@ export class UsersLoader implements AbstractUsersLoader {
         .toArray()
       const userMap = new Map(users.map((u) => [u.username, u]))
       return keys.map((k) => userMap.get(k) || null)
-    }
+    },
   )
 
   async getUserById(id: string): Promise<SerializableUserDocument | null> {
@@ -45,7 +45,7 @@ export class UsersLoader implements AbstractUsersLoader {
 export class UsersMutator implements AbstractUsersMutator {
   async createUser(
     username: string,
-    password: string
+    password: string,
   ): Promise<SerializableUserDocument> {
     const doc: UserDocument = {
       _id: faker.database.mongodbObjectId(),
@@ -59,11 +59,11 @@ export class UsersMutator implements AbstractUsersMutator {
 
   async changePersistentMailboxLimit(
     id: string,
-    newLimit: number
+    newLimit: number,
   ): Promise<void> {
     await usersCollection.updateOne(
       { _id: id },
-      { $set: { maxPersistentMailboxes: newLimit } }
+      { $set: { maxPersistentMailboxes: newLimit } },
     )
   }
 

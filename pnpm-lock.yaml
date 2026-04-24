@@ -87,6 +87,9 @@ importers:
       '@vitest/browser-playwright':
         specifier: ^4.1.4
         version: 4.1.4(playwright@1.59.1)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0))(vitest@4.1.4)
+      playwright:
+        specifier: latest
+        version: 1.59.1
       typescript:
         specifier: ^6.0.3
         version: 6.0.3

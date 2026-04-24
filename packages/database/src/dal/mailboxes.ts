@@ -40,10 +40,10 @@ export class MailboxesLoader implements AbstractMailboxesLoader {
             mailbox.username,
             toMailboxDTO(mailbox, emailMap.get(mailbox._id) || []),
           ]
-        })
+        }),
       )
       return keys.map((k) => mailboxMap.get(k) || null)
-    }
+    },
   )
 
   private batchMailboxesById = new DataLoader<
@@ -56,7 +56,7 @@ export class MailboxesLoader implements AbstractMailboxesLoader {
     const emailMap = await this.getEmailsForMailboxes(mailboxes)
 
     const mailboxMap = new Map(
-      mailboxes.map((e) => [e._id, toMailboxDTO(e, emailMap.get(e._id) || [])])
+      mailboxes.map((e) => [e._id, toMailboxDTO(e, emailMap.get(e._id) || [])]),
     )
     return keys.map((k) => mailboxMap.get(k) || null)
   })
@@ -79,7 +79,7 @@ export class MailboxesLoader implements AbstractMailboxesLoader {
 
   async validateMailboxCredentials(
     username: string,
-    password: string
+    password: string,
   ): Promise<boolean> {
     const mailbox = await this.getMailboxByName(username)
     if (!mailbox) return false
