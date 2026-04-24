@@ -56,7 +56,8 @@ jobs:
 
       - name: Install Playwright system dependencies
         if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: pnpm --filter @ghostmail/client exec playwright install-deps chromium
+        run:
+          pnpm --filter @ghostmail/client exec playwright install-deps chromium
           firefox
 
       - name: Lint
@@ -102,7 +103,7 @@ jobs:
           tags: ghcr.io/${{ github.repository_owner }}/ghostmail-smtp:latest
 
   deploy:
-    needs: [ test, build-and-push ]
+    needs: [test, build-and-push]
     if: |
       always() &&
       (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
