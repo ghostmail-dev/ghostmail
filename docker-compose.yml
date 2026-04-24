@@ -7,6 +7,9 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
       - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
@@ -24,17 +27,7 @@ services:
   cert-dumper:
     image: ldez/traefik-certs-dumper:latest
     platform: linux/arm64
-    entrypoint:
-      [
-        "/app/traefik-certs-dumper",
-        "file",
-        "--watch",
-        "--domain-subdir",
-        "--dest",
-        "/output",
-        "--source",
-        "/traefik/acme.json",
-      ]
+    command: file --watch --domain-subdir --dest /output --source /traefik/acme.json
     volumes:
       - "./letsencrypt:/traefik:ro"
       - "./certs:/output"
@@ -71,11 +64,6 @@ services:
       - "traefik.http.routers.client.tls.certresolver=myresolver"
       - "traefik.http.services.client.loadbalancer.server.port=3000"
       - "traefik.http.services.client.loadbalancer.passhostheader=true"
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-      - "traefik.http.routers.client-http.rule=Host(`ghostmail.dev`)||Host(`www\
-        .ghostmail.dev`)||Host(`stage.ghostmail.dev`)"
-      - "traefik.http.routers.client-http.entrypoints=web"
-      - "traefik.http.routers.client-http.middlewares=redirect-to-https"
     depends_on:
       - mongodb
     restart: always

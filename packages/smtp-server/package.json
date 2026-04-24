@@ -1,12 +1,13 @@
 {
   "name": "@ghostmail/smtp-server",
   "version": "1.0.0",
+  "type": "module",
   "main": "dist/index.js",
   "types": "src/index.ts",
   "scripts": {
     "dev": "tsx --env-file=../../.env --watch src/index.ts",
-    "build": "tsc -p tsconfig.json",
-    "start": "node dist/packages/smtp-server/src/index.js",
+    "build": "rolldown -c",
+    "start": "node dist/index.js",
     "test": "vitest run"
   },
   "dependencies": {
@@ -24,6 +25,7 @@
     "@types/nodemailer": "^8.0.0",
     "@types/smtp-server": "^3.5.13",
     "nodemailer": "^8.0.5",
+    "rolldown": "1.0.0-rc.17",
     "ts-node": "latest",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3",
