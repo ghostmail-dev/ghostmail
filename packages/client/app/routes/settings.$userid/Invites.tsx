@@ -45,21 +45,23 @@ export default function Invites({ loaderData: invites }: Route.ComponentProps) {
   }
 
   return (
-    <div className="p-8">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="p-4 md:p-8">
+      <div className="mb-6 flex items-center justify-between gap-4">
         <div>
           <h2 className="mb-2">Invite Codes</h2>
           <p className="text-base-content/60">
             Manage invitation codes and persistent token allocations
           </p>
         </div>
-        <Link to="create" className="btn gap-2 btn-primary">
+        <Link to="create" className="btn gap-2 btn-primary shrink-0">
           <Plus className="w-4 h-4" />
-          Generate Invite
+          <span className="hidden sm:inline">Generate Invite</span>
+          <span className="sm:hidden">Generate</span>
         </Link>
       </div>
 
-      <div className="overflow-x-auto">
+      {/* Desktop table */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="table w-full">
           <thead>
             <tr>
@@ -155,6 +157,79 @@ export default function Invites({ loaderData: invites }: Route.ComponentProps) {
             <p>No invites generated yet</p>
           </div>
         )}
+      </div>
+
+      {/* Mobile cards */}
+      <div className="flex flex-col gap-3 md:hidden">
+        {invites.length === 0 && (
+          <div className="text-center py-12 text-base-content/60">
+            <Mail className="w-12 h-12 mx-auto mb-4 opacity-20" />
+            <p>No invites generated yet</p>
+          </div>
+        )}
+        {invites.map((invite) => (
+          <div key={invite.code} className="card bg-base-200 shadow-sm">
+            <div className="card-body p-4 gap-3">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <code className="text-sm bg-base-300 px-2 py-1 rounded truncate">
+                    {invite.code}
+                  </code>
+                  <button
+                    onClick={() => handleCopyCode(invite.code)}
+                    className="btn btn-ghost btn-xs btn-square shrink-0"
+                    title="Copy code"
+                  >
+                    {copiedCode === invite.code ? (
+                      <Check className="w-3 h-3 text-success" />
+                    ) : (
+                      <Copy className="w-3 h-3" />
+                    )}
+                  </button>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  {invite.usedBy ? (
+                    <span className="badge badge-success badge-sm">Used</span>
+                  ) : (
+                    <span className="badge badge-warning badge-sm">
+                      Pending
+                    </span>
+                  )}
+                  {!invite.usedBy && (
+                    <Form method="post">
+                      <button
+                        type="submit"
+                        name="deleteInvite"
+                        value={invite.code}
+                        className="btn btn-ghost btn-xs btn-square text-error"
+                        title="Delete invite"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </Form>
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-base-content/70">
+                <span className="flex items-center gap-1">
+                  <Ticket className="w-3.5 h-3.5" />
+                  {invite.persistentTokens} token
+                  {invite.persistentTokens !== 1 ? "s" : ""}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5" />
+                  {new Date(invite.createdAt).toLocaleDateString()}
+                </span>
+                {invite.usedBy && (
+                  <span className="flex items-center gap-1">
+                    <Mail className="w-3.5 h-3.5" />
+                    {invite.usedBy}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       <Outlet />

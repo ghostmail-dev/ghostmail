@@ -24,11 +24,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function CreateMailboxRoute() {
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <Form
         method="post"
         action="/mailboxes/create"
-        className="bg-base-100 rounded-lg shadow-xl max-w-md w-full mx-4"
+        className="bg-base-100 rounded-lg shadow-xl max-w-md w-full"
       >
         <div className="p-6 border-b border-base-300">
           <h2>Create New Inbox</h2>

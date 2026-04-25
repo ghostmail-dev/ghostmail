@@ -1,4 +1,4 @@
-import { Link, Outlet } from "react-router"
+import { Link, Outlet, useMatch } from "react-router"
 import MailboxList from "./_components/Mailboxes"
 import { Plus } from "lucide-react"
 import { requireAuth } from "../../utils/session.server"
@@ -16,10 +16,13 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export default function Mailboxes({ loaderData }: Route.ComponentProps) {
   const mailboxes = loaderData
+  const hasMailboxOpen = useMatch("/mailboxes/:mailboxId/*")
 
   return (
     <div className="flex h-screen bg-base-100">
-      <aside className="w-80 border-r border-base-300 flex flex-col">
+      <aside
+        className={`${hasMailboxOpen ? "hidden md:flex" : "flex"} w-full md:w-80 border-r border-base-300 flex-col`}
+      >
         <div className="p-4">
           <Link to="/mailboxes/create" className="btn btn-primary w-full gap-2">
             <Plus className="w-4 h-4" />
@@ -32,7 +35,9 @@ export default function Mailboxes({ loaderData }: Route.ComponentProps) {
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col">
+      <main
+        className={`${hasMailboxOpen ? "flex" : "hidden md:flex"} flex-1 flex-col`}
+      >
         <Outlet />
       </main>
     </div>

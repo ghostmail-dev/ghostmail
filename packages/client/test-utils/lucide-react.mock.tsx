@@ -18,3 +18,7 @@ export const MailOpen = (props: SVGProps<SVGSVGElement>) =>
   Icon(props, "mail-open")
 export const ArrowBigLeft = (props: SVGProps<SVGSVGElement>) =>
   Icon(props, "arrow-big-left")
+export const Check = (props: SVGProps<SVGSVGElement>) => Icon(props, "check")
+export const Copy = (props: SVGProps<SVGSVGElement>) => Icon(props, "copy")
+export const ArrowLeft = (props: SVGProps<SVGSVGElement>) =>
+  Icon(props, "arrow-left")

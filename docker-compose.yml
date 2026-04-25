@@ -38,7 +38,16 @@ services:
   mongo1:
     image: mongo:latest
     platform: linux/arm64
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017", "--keyFile", "/etc/mongo/keyfile"]
+    command:
+      [
+        "--replSet",
+        "rs0",
+        "--bind_ip_all",
+        "--port",
+        "27017",
+        "--keyFile",
+        "/etc/mongo/keyfile",
+      ]
     ports:
       - "127.0.0.1:27017:27017"
     environment:
@@ -60,7 +69,16 @@ services:
   mongo2:
     image: mongo:latest
     platform: linux/arm64
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27018", "--keyFile", "/etc/mongo/keyfile"]
+    command:
+      [
+        "--replSet",
+        "rs0",
+        "--bind_ip_all",
+        "--port",
+        "27018",
+        "--keyFile",
+        "/etc/mongo/keyfile",
+      ]
     ports:
       - "127.0.0.1:27018:27018"
     environment:
@@ -75,7 +93,16 @@ services:
   mongo3:
     image: mongo:latest
     platform: linux/arm64
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27019", "--keyFile", "/etc/mongo/keyfile"]
+    command:
+      [
+        "--replSet",
+        "rs0",
+        "--bind_ip_all",
+        "--port",
+        "27019",
+        "--keyFile",
+        "/etc/mongo/keyfile",
+      ]
     ports:
       - "127.0.0.1:27019:27019"
     environment:

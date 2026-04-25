@@ -80,6 +80,7 @@ describe("/mailboxes", () => {
       const screen = await renderMailboxesRoute({
         userId: user._id,
         username: user.username,
+        roles: user.roles,
       })
 
       await expect
@@ -149,6 +150,7 @@ describe("/mailboxes", () => {
       const screen = await renderMailboxesRoute({
         userId: user._id,
         username: user.username,
+        roles: user.roles,
       })
 
       await userEvent.click(
@@ -184,6 +186,7 @@ describe("/mailboxes", () => {
       const screen = await renderMailboxesRoute({
         userId: user._id,
         username: user.username,
+        roles: user.roles,
       })
 
       await userEvent.click(
@@ -205,6 +208,7 @@ describe("/mailboxes", () => {
       const screen = await renderMailboxesRoute({
         userId: user._id,
         username: user.username,
+        roles: user.roles,
       })
 
       await userEvent.click(
@@ -229,6 +233,7 @@ describe("/mailboxes", () => {
       const screen = await renderMailboxesRoute({
         userId: user._id,
         username: user.username,
+        roles: user.roles,
       })
 
       await userEvent.click(screen.getByLabelText(`Delete ${mailbox.username}`))
@@ -252,6 +257,7 @@ describe("/mailboxes", () => {
       const screen = await renderMailboxesRoute({
         userId: user._id,
         username: user.username,
+        roles: user.roles,
       })
 
       const deleteBtn = screen.getByLabelText(`Delete ${mailbox.username}`)
@@ -281,6 +287,7 @@ describe("/mailboxes", () => {
       const screen = await renderMailboxesRoute({
         userId: user._id,
         username: user.username,
+        roles: user.roles,
       })
 
       const deleteBtn = screen.getByLabelText(`Delete ${mailbox.username}`)
@@ -302,6 +309,7 @@ describe("/mailboxes", () => {
       const screen = await renderMailboxesRoute({
         userId: user._id,
         username: user.username,
+        roles: user.roles,
       })
 
       await userEvent.click(

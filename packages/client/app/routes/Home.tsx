@@ -21,8 +21,8 @@ export default function LandingPage() {
             <GhostMailLogo className="w-32 h-32" />
           </div>
 
-          <h1 className="text-5xl mb-4">GhostMail</h1>
-          <p className="text-xl text-base-content/70 mb-4 max-w-2xl mx-auto">
+          <h1 className="text-3xl md:text-5xl mb-4">GhostMail</h1>
+          <p className="text-lg md:text-xl text-base-content/70 mb-4 max-w-2xl mx-auto">
             Catch-all SMTP server for development teams
           </p>
           <p className="text-base text-base-content/60 mb-12 max-w-2xl mx-auto">

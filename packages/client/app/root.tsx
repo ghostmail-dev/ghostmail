@@ -73,7 +73,7 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <header className="bg-base-200 border-b border-base-300 px-6 py-3 flex items-center justify-between">
+        <header className="bg-base-200 border-b border-base-300 px-4 md:px-6 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <GhostMailLogo className="w-8 h-8" />
             <h1 className="text-lg">GhostMail</h1>
