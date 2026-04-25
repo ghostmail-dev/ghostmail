@@ -49,7 +49,7 @@ const renderMailboxesRoute = (user: AuthData | null) => {
       },
     ],
     "/mailboxes",
-    user
+    user,
   )
 }
 
@@ -97,19 +97,19 @@ describe("/mailboxes", () => {
         .toBeInTheDocument()
       await expect
         .element(
-          screen.getByLabelText(`Inbox info for ${ephemeralMailbox.username}`)
+          screen.getByLabelText(`Inbox info for ${ephemeralMailbox.username}`),
         )
         .toHaveAttribute("href", `/mailboxes/${ephemeralMailbox._id}/info`)
       await expect
         .element(
           screen.getByTestId(
-            `${ephemeralMailbox.type}-${ephemeralMailbox._id}-unread-count`
-          )
+            `${ephemeralMailbox.type}-${ephemeralMailbox._id}-unread-count`,
+          ),
         )
         .toHaveTextContent("1")
       await expect
         .element(
-          screen.getByLabelText(`Inbox for ${ephemeralMailbox.username}`)
+          screen.getByLabelText(`Inbox for ${ephemeralMailbox.username}`),
         )
         .toHaveAttribute("href", `/mailboxes/${ephemeralMailbox._id}`)
       await expect
@@ -123,19 +123,19 @@ describe("/mailboxes", () => {
         .toBeInTheDocument()
       await expect
         .element(
-          screen.getByLabelText(`Inbox info for ${persistentMailbox.username}`)
+          screen.getByLabelText(`Inbox info for ${persistentMailbox.username}`),
         )
         .toHaveAttribute("href", `/mailboxes/${persistentMailbox._id}/info`)
       await expect
         .element(
           screen.getByTestId(
-            `${persistentMailbox.type}-${persistentMailbox._id}-unread-count`
-          )
+            `${persistentMailbox.type}-${persistentMailbox._id}-unread-count`,
+          ),
         )
         .toHaveTextContent("1")
       await expect
         .element(
-          screen.getByLabelText(`Inbox for ${persistentMailbox.username}`)
+          screen.getByLabelText(`Inbox for ${persistentMailbox.username}`),
         )
         .toHaveAttribute("href", `/mailboxes/${persistentMailbox._id}`)
       await expect
@@ -154,7 +154,7 @@ describe("/mailboxes", () => {
       })
 
       await userEvent.click(
-        screen.getByRole("link", { name: /Create New Inbox/i })
+        screen.getByRole("link", { name: /Create New Inbox/i }),
       )
 
       // Assert that Create New Inbox route modal is rendered
@@ -190,11 +190,11 @@ describe("/mailboxes", () => {
       })
 
       await userEvent.click(
-        screen.getByRole("link", { name: /Create New Inbox/i })
+        screen.getByRole("link", { name: /Create New Inbox/i }),
       )
 
       await userEvent.click(
-        screen.getByRole("button", { name: /Persistent Inbox/i })
+        screen.getByRole("button", { name: /Persistent Inbox/i }),
       )
 
       const mailboxLoader = new MailboxesLoader()
@@ -212,11 +212,11 @@ describe("/mailboxes", () => {
       })
 
       await userEvent.click(
-        screen.getByRole("link", { name: /Create New Inbox/i })
+        screen.getByRole("link", { name: /Create New Inbox/i }),
       )
 
       await userEvent.click(
-        screen.getByRole("button", { name: /Ephemeral Inbox/i })
+        screen.getByRole("button", { name: /Ephemeral Inbox/i }),
       )
 
       const mailboxLoader = new MailboxesLoader()
@@ -240,7 +240,7 @@ describe("/mailboxes", () => {
 
       await expect
         .element(
-          screen.getByText(/Are you sure you want to delete this inbox?/i)
+          screen.getByText(/Are you sure you want to delete this inbox?/i),
         )
         .toBeInTheDocument()
       await expect
@@ -313,7 +313,7 @@ describe("/mailboxes", () => {
       })
 
       await userEvent.click(
-        screen.getByLabelText(`Inbox info for ${mailbox.username}`)
+        screen.getByLabelText(`Inbox info for ${mailbox.username}`),
       )
 
       await expect
