@@ -55,7 +55,7 @@ export default function EmailDetail({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="min-h-screen bg-base-200">
-      <div className="w-full mx-auto p-6 flex flex-col gap-4">
+      <div className="w-full mx-auto p-4 md:p-6 flex flex-col gap-4">
         {/* Subject header */}
         <div>
           <h1 className="text-xl font-bold">{subject}</h1>

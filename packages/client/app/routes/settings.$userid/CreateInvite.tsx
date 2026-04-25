@@ -25,11 +25,11 @@ export default function CreateInvite() {
   const navigate = useNavigate()
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
       onClick={() => navigate("..", { replace: true })}
     >
       <div
-        className="bg-base-100 rounded-lg shadow-xl mx-4"
+        className="bg-base-100 rounded-lg shadow-xl w-full max-w-md"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6 border-b border-base-300">
@@ -41,7 +41,7 @@ export default function CreateInvite() {
 
         <Form method="post" replace>
           <div className="p-6">
-            <div className="flex gap-4">
+            <div className="flex flex-col gap-2">
               <label className="label">
                 <span className="label-text">Number of Persistent Tokens:</span>
               </label>
@@ -52,16 +52,14 @@ export default function CreateInvite() {
                 name="tokenCount"
                 value={tokenCount}
                 onChange={(e) => setTokenCount(parseInt(e.target.value, 10))}
-                className="input input-bordered text-center w-20"
+                className="input input-bordered w-full"
                 placeholder="5"
               />
             </div>
-            <label className="label w-full">
-              <span className="label-text-alt text-base-content/60">
-                The invited user will be able to create up to {tokenCount}{" "}
-                persistent mailbox{tokenCount !== 1 ? "es" : ""}
-              </span>
-            </label>
+            <p className="text-sm text-base-content/60 mt-2">
+              The invited user will be able to create up to {tokenCount}{" "}
+              persistent mailbox{tokenCount !== 1 ? "es" : ""}
+            </p>
           </div>
 
           <div className="p-6 border-t border-base-300 flex justify-end gap-2">
