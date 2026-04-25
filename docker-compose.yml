@@ -93,6 +93,7 @@ services:
     environment:
       - MONGODB_URI=mongodb://${MONGO_USER:-admin}:${MONGO_PASSWORD:-password}@mongo1:27017,mongo2:27018,mongo3:27019/ghostmail?authSource=admin&replicaSet=rs0
       - SESSION_SECRET=${SESSION_SECRET}
+      - VITE_MAIL_DOMAIN=ghostmail.dev
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.client.rule=Host(`ghostmail.dev`)||Host(`www.ghos\
