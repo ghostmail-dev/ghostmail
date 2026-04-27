@@ -52,7 +52,14 @@ const renderMailboxesRoute = (user: UserDocument | null) => {
       },
     ],
     "/mailboxes",
-    user,
+    user
+      ? {
+          userId: user._id,
+          username: user.username,
+          roles: user.roles,
+          maxPersistentMailboxes: user.maxPersistentMailboxes,
+        }
+      : null,
   )
 }
 
@@ -201,6 +208,20 @@ describe("/mailboxes", () => {
     it("Disables persistent mailbox button when user has reached limit", async () => {
       const user = seedUser({ maxPersistentMailboxes: 1 })
       seedMailbox({ ownerId: user._id, type: "persistent" })
+      const screen = await renderMailboxesRoute(user)
+
+      await userEvent.click(
+        screen.getByRole("link", { name: /Create New Inbox/i }),
+      )
+
+      const persistentButton = screen.getByRole("button", {
+        name: /Persistent Inbox/i,
+      })
+      expect(persistentButton).toBeDisabled()
+    })
+
+    it("Creates a new ephemeral mailbox", async () => {
+      const user = seedUser()
       const screen = await renderMailboxesRoute(user)
 
       await userEvent.click(
