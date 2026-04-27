@@ -11,7 +11,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const result = await mLoader.getMailboxesByOwnerId(userId)
   if (!result.ok) throw new Response("Service Unavailable", { status: 503 })
   return result.value.filter((mb) =>
-    mb.type === "ephemeral" ? mb.expiresAt > new Date().toJSON() : true
+    mb.type === "ephemeral" ? mb.expiresAt > new Date().toJSON() : true,
   )
 }
 

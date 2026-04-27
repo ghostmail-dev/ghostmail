@@ -8,6 +8,7 @@
     "dev": "tsx --env-file=../../.env --watch src/index.ts",
     "build": "rolldown -c",
     "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {

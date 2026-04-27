@@ -1,4 +1,4 @@
-import { EmailDocument, spawnEmail } from "../models/email.js"
+import { type EmailDocument, spawnEmail } from "../models/email.js"
 import { emailsCollection } from "../collections/email.js"
 
 export async function seedEmail(

@@ -1,4 +1,4 @@
-import { spawnUser, UserDocument } from "../models/users.js"
+import { spawnUser, type UserDocument } from "../models/users.js"
 import { usersCollection } from "../collections/users.js"
 
 export async function seedUser(

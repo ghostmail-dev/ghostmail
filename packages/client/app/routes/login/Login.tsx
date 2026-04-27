@@ -26,7 +26,7 @@ export async function action({ request }: Route.ActionArgs) {
   if (!username || !password) {
     return data(
       { error: "Username and password are required" },
-      { status: 400 }
+      { status: 400 },
     )
   }
 

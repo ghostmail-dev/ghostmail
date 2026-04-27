@@ -1,4 +1,4 @@
-import { MailboxDocument, spawnMailbox } from "../models/mailbox.js"
+import { type MailboxDocument, spawnMailbox } from "../models/mailbox.js"
 import { mailboxesCollection } from "../collections/mailbox.js"
 
 export async function seedMailbox(

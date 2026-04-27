@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker"
-import { EmailDocument, SerializableEmailDocument } from "./email"
+import type { EmailDocument, SerializableEmailDocument } from "./email"
 
 export const EPHEMERAL_TTL_MS = 60 * 60 * 1000 // 1 hour
 

@@ -13,13 +13,14 @@ describe("Users DAL", () => {
 
     const mutator = new UsersMutator()
     const loader = new UsersLoader()
-    const user = await mutator.createUser(
+    const userResult = await mutator.createUser(
       "testuser",
       "testpassword",
       invite.code,
     )
-
-    const found = await loader.getUserByName(user.username)
+    const user = userResult.ok ? userResult.value : null
+    const result = await loader.getUserByName(user?.username || "")
+    const found = result.ok ? result.value : null
     expect(found).not.toBeNull()
     expect(found?.username).toBe("testuser")
     const foundInv = await invitesCollection.findOne({ code: invite.code })
@@ -31,7 +32,8 @@ describe("Users DAL", () => {
   it("can get user by id", async () => {
     const seeded = await seedUser()
     const loader = new UsersLoader()
-    const found = await loader.getUserById(seeded._id)
+    const result = await loader.getUserById(seeded._id)
+    const found = result.ok ? result.value : null
     expect(found).not.toBeNull()
     expect(found?._id).toBe(seeded._id)
   })
@@ -42,7 +44,8 @@ describe("Users DAL", () => {
     await mutator.changePersistentMailboxLimit(seeded._id, 5)
 
     const loader = new UsersLoader()
-    const found = await loader.getUserById(seeded._id)
+    const result = await loader.getUserById(seeded._id)
+    const found = result.ok ? result.value : null
     expect(found).not.toBeNull()
     expect(found?.maxPersistentMailboxes).toBe(5)
   })
@@ -53,7 +56,8 @@ describe("Users DAL", () => {
     await mutator.deleteUser(seeded._id)
 
     const loader = new UsersLoader()
-    const found = await loader.getUserById(seeded._id)
+    const result = await loader.getUserById(seeded._id)
+    const found = result.ok ? result.value : null
     expect(found).toBeNull()
   })
 })

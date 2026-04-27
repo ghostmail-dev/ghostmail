@@ -2,14 +2,18 @@ import { describe, expect, it } from "vitest"
 import { userEvent } from "vitest/browser"
 import Signup, { loader, action } from "./Signup"
 import { renderRoute } from "../../../test-utils/render-router"
-import { seedUser, UsersLoader } from "@ghostmail/database"
+import {
+  seedUser,
+  seedInvite,
+  spawnUser,
+  UsersLoader,
+} from "@ghostmail/database"
 import Login, {
   action as loginAction,
   loader as loginLoader,
 } from "../login/Login"
 import { action as logoutAction } from "../logout/Logout"
 import { Form } from "react-router"
-import { seedInvite } from "@ghostmail/database"
 
 describe("Signup Page", () => {
   it("will handle a password error", async () => {
@@ -28,7 +32,7 @@ describe("Signup Page", () => {
     await userEvent.type(confirmPasswordInput, "differentpassword")
     await userEvent.type(inviteInput, "VALID-INVITE-CODE")
     await userEvent.click(
-      screen.getByRole("button", { name: /Create Account/i })
+      screen.getByRole("button", { name: /Create Account/i }),
     )
     expect(screen.getByText(/Passwords do not match/i)).toBeInTheDocument()
 
@@ -38,10 +42,10 @@ describe("Signup Page", () => {
     await userEvent.type(passwordInput, "short")
     await userEvent.type(confirmPasswordInput, "short")
     await userEvent.click(
-      screen.getByRole("button", { name: /Create Account/i })
+      screen.getByRole("button", { name: /Create Account/i }),
     )
     expect(
-      screen.getByText(/Password must be at least 8 characters/i)
+      screen.getByText(/Password must be at least 8 characters/i),
     ).toBeInTheDocument()
   })
 
@@ -64,7 +68,7 @@ describe("Signup Page", () => {
     await userEvent.type(confirmPasswordInput, "password")
     await userEvent.type(inviteInput, inviteCode)
     await userEvent.click(
-      screen.getByRole("button", { name: /Create Account/i })
+      screen.getByRole("button", { name: /Create Account/i }),
     )
     expect(screen.getByText(/Username already taken/i)).toBeInTheDocument()
   })
@@ -84,7 +88,7 @@ describe("Signup Page", () => {
     await userEvent.type(confirmPasswordInput, "testpassword")
     await userEvent.type(inviteInput, "INVALID-CODE")
     await userEvent.click(
-      screen.getByRole("button", { name: /Create Account/i })
+      screen.getByRole("button", { name: /Create Account/i }),
     )
     expect(screen.getByText(/Invalid invite code/i)).toBeInTheDocument()
   })
@@ -101,7 +105,7 @@ describe("Signup Page", () => {
         },
       ],
       "/",
-      { userId: "testuserid", username: "testuser", roles: ["user"] }
+      spawnUser(),
     )
 
     expect(screen.getByText(/Mailboxes Test SuccessPage/i)).toBeInTheDocument()
@@ -117,7 +121,7 @@ describe("Signup Page", () => {
           Component: () => <div>Mailboxes Test SuccessPage</div>,
         },
       ],
-      "/signup"
+      "/signup",
     )
 
     const usernameInput = screen.getByLabelText(/Username/i)
@@ -131,7 +135,7 @@ describe("Signup Page", () => {
     await userEvent.type(inviteInput, seededInvite.code)
 
     await userEvent.click(
-      screen.getByRole("button", { name: /Create Account/i })
+      screen.getByRole("button", { name: /Create Account/i }),
     )
 
     // Verify we were redirected to the mailboxes page after successful signup
@@ -176,7 +180,7 @@ describe("Signup Page", () => {
           action: loginAction,
         },
       ],
-      "/signup"
+      "/signup",
     )
 
     // Pre-create a user to test login
@@ -191,7 +195,7 @@ describe("Signup Page", () => {
     await userEvent.type(inviteInput, inviteCode)
 
     await userEvent.click(
-      screen.getByRole("button", { name: /Create Account/i })
+      screen.getByRole("button", { name: /Create Account/i }),
     )
 
     await userEvent.click(screen.getByText(/Logout/i))

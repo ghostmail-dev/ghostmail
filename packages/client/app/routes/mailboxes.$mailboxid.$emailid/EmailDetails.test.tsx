@@ -38,10 +38,7 @@ describe("Email Detail Route", () => {
         },
       ],
       `/mailboxes/${mailbox._id}/${email._id}`,
-      {
-        userId: user._id,
-        username: user.username,
-      },
+      user,
     )
 
     await expect

@@ -39,7 +39,7 @@ export default function CreateMailboxRoute({
   const { maxPersistentMailboxes } = loaderData
   const mailboxes = useMailboxesData()
   const persistentCount = mailboxes.filter(
-    (mb) => mb.type === "persistent"
+    (mb) => mb.type === "persistent",
   ).length
   const canCreatePersistent = persistentCount < maxPersistentMailboxes
   return (
@@ -104,7 +104,7 @@ const InboxButton = ({
         "disabled:opacity-50 disabled:cursor-not-allowed",
         "transition-all",
         "text-left",
-        "group"
+        "group",
       )}
       title={
         disabled

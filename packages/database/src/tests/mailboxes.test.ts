@@ -16,7 +16,8 @@ describe("Mailboxes DAL", () => {
       seedEmail({ mailboxes: [mailbox._id] }),
     ])
     const loader = new MailboxesLoader()
-    const found = await loader.getMailboxByName(mailbox.username)
+    const result = await loader.getMailboxByName(mailbox.username)
+    const found = result.ok ? result.value : null
 
     // validate the found mailbox is a serialized version of the seeded mailbox
     expect(found).not.toBeNull()
@@ -46,7 +47,8 @@ describe("Mailboxes DAL", () => {
   it("can fetch a mailbox by id", async () => {
     const seeded = await seedMailbox()
     const loader = new MailboxesLoader()
-    const found = await loader.getMailboxById(seeded._id)
+    const result = await loader.getMailboxById(seeded._id)
+    const found = result.ok ? result.value : null
     expect(found).not.toBeNull()
     expect(found?._id).toBe(seeded._id)
   })
@@ -58,26 +60,37 @@ describe("Mailboxes DAL", () => {
     await seedMailbox() // unrelated mailbox
 
     const loader = new MailboxesLoader()
-    const found = await loader.getMailboxesByOwnerId(owner._id)
+    const result = await loader.getMailboxesByOwnerId(owner._id)
+    const found = result.ok ? result.value : []
     expect(found).toHaveLength(2)
   })
 
   it("can validate credentials", async () => {
     const seeded = await seedMailbox()
     const loader = new MailboxesLoader()
-    expect(
-      await loader.validateMailboxCredentials(seeded.username, seeded.password),
-    ).toBe(true)
-    expect(
-      await loader.validateMailboxCredentials(seeded.username, "wrongpass"),
-    ).toBe(false)
+    const validResult = await loader.validateMailboxCredentials(
+      seeded.username,
+      seeded.password,
+    )
+    const invalidResult = await loader.validateMailboxCredentials(
+      seeded.username,
+      "wrongpassword",
+    )
+    const valid = validResult.ok ? validResult.value : null
+    const invalid = invalidResult.ok ? invalidResult.value : null
+    expect(valid).toBe(true)
+    expect(invalid).toBe(false)
   })
 
   it("can create an ephemeral mailbox with expiry", async () => {
     const owner = spawnUser()
     const mutator = new MailboxesMutator()
 
-    const mailbox = await mutator.addEphemeralMailbox(owner._id)
+    const result = await mutator.addEphemeralMailbox(owner._id)
+    if (!result.ok) {
+      throw new Error("Failed to create ephemeral mailbox")
+    }
+    const mailbox = result.value
     if (mailbox.type !== "ephemeral") {
       throw new Error("Mailbox type is not ephemeral")
     }
@@ -93,15 +106,26 @@ describe("Mailboxes DAL", () => {
   })
 
   it("can create a persistent mailbox without expiry", async () => {
-    const owner = spawnUser()
+    const owner = await seedUser({ maxPersistentMailboxes: 1 })
     const mutator = new MailboxesMutator()
-    const mailbox = await mutator.addPersistentMailbox(owner._id)
+    const result = await mutator.addPersistentMailbox(owner._id)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    const mailbox = result.value
     if (mailbox.type !== "persistent") {
       throw new Error("Mailbox type is not persistent")
     }
     if ("expiresAt" in mailbox) {
       throw new Error("Mailbox has expiry")
     }
+  })
+
+  it("won't create persistent mailbox when limit reached", async () => {
+    const owner = await seedUser({ maxPersistentMailboxes: 1 })
+    await seedMailbox({ ownerId: owner._id, type: "persistent" })
+    const mutator = new MailboxesMutator()
+    const result = await mutator.addPersistentMailbox(owner._id)
+    expect(result.ok).toBe(false)
   })
 
   it("can delete a mailbox", async () => {
