@@ -46,10 +46,7 @@ describe("/mailboxes/:mailboxId", () => {
         },
       ],
       `/mailboxes/${mailbox._id}`,
-      {
-        userId: user._id,
-        username: user.username,
-      },
+      user,
     )
 
     await expect
@@ -102,10 +99,7 @@ describe("/mailboxes/:mailboxId", () => {
         },
       ],
       `/mailboxes/${mailbox._id}`,
-      {
-        userId: user._id,
-        username: user.username,
-      },
+      user,
     )
 
     await expect.element(screen.getByText("0 messages")).toBeInTheDocument()

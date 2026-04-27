@@ -12,10 +12,6 @@
     "./mock": {
       "types": "./src/mock.ts",
       "default": "./dist/mock.js"
-    },
-    "./sync-indexes": {
-      "types": "./src/create-indexes.ts",
-      "default": "./dist/create-indexes.js"
     }
   },
   "scripts": {

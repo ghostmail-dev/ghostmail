@@ -13,8 +13,14 @@ describe("Emails DAL", () => {
     it("can fetch email by id through loader", async () => {
       const seeded = await seedEmail()
       const loader = new EmailsLoader()
-      const found = await loader.getEmailById(seeded._id)
+      const result = await loader.getEmailById(seeded._id)
 
+      if (!result.ok) {
+        throw new Error("Failed to load email")
+      }
+
+      expect(result.ok).toBe(true)
+      const found = result.value
       expect(found).not.toBeNull()
       expect(found?._id).toBe(seeded._id)
     })
@@ -22,8 +28,14 @@ describe("Emails DAL", () => {
     it("can fetch email by message id", async () => {
       const seeded = await seedEmail({ messageId: "testing-msg-id" })
       const loader = new EmailsLoader()
-      const found = await loader.getEmailByMessageId("testing-msg-id")
+      const result = await loader.getEmailByMessageId("testing-msg-id")
 
+      if (!result.ok) {
+        throw new Error("Failed to load email")
+      }
+
+      expect(result.ok).toBe(true)
+      const found = result.value
       expect(found).not.toBeNull()
       expect(found?._id).toBe(seeded._id)
     })
@@ -62,9 +74,17 @@ describe("Emails DAL", () => {
         ],
       }
 
-      // @ts-ignore - simulating a ParsedMail payload structurally similar
-      const created = await mutator.createEmail(mockedParsedMailPayload, [])
+      const result = await mutator.createEmail(
+        // @ts-ignore - simulating a ParsedMail payload structurally similar
+        mockedParsedMailPayload,
+        [],
+      )
 
+      if (!result.ok) {
+        throw new Error("Failed to create email")
+      }
+
+      const created = result.value
       expect(created).toBeDefined()
       expect(typeof created._id).toBe("string")
       expect(created.attachments).toHaveLength(2)
