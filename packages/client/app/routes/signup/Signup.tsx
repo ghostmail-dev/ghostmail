@@ -28,7 +28,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (!username || !password) {
     return data(
       { error: "Username and password are required" },
-      { status: 400 }
+      { status: 400 },
     )
   }
 
@@ -42,7 +42,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (password.length < 8) {
     return data(
       { error: "Password must be at least 8 characters" },
-      { status: 400 }
+      { status: 400 },
     )
   }
 

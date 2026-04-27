@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "pnpm -r dev",
     "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
     "lint": "oxlint -c .oxlintrc.json . && oxfmt --check .",
     "format": "oxfmt .",
     "test": "pnpm -r test"

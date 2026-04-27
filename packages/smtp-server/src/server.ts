@@ -1,6 +1,6 @@
 import "dotenv/config"
 import { SMTPServer } from "smtp-server"
-import { HeaderValue, simpleParser } from "mailparser"
+import { type HeaderValue, simpleParser } from "mailparser"
 import { EmailsMutator, MailboxesLoader } from "@ghostmail/database"
 import { readFileSync, existsSync } from "fs"
 
@@ -45,11 +45,11 @@ export const smtpServer = new SMTPServer({
   onAuth(
     auth: { username?: string; password?: string },
     _session: { id: string; user?: string },
-    callback: (err: Error | null, response?: { user: string }) => void,
+    callback: (err: Error | null, response?: { user: string }) => void
   ) {
     if (!auth.username || !auth.password) {
       return callback(
-        new Error("Invalid authentication: missing username or password"),
+        new Error("Invalid authentication: missing username or password")
       )
     }
     const username = auth.username.toLowerCase()
@@ -63,7 +63,7 @@ export const smtpServer = new SMTPServer({
         const mailbox = result.value
         if (!mailbox) {
           return callback(
-            new Error("Invalid authentication: mailbox not found"),
+            new Error("Invalid authentication: mailbox not found")
           )
         }
 
@@ -88,7 +88,7 @@ export const smtpServer = new SMTPServer({
   onRcptTo(
     address: { address: string },
     { user }: { user?: string },
-    callback: (err?: Error | null) => void,
+    callback: (err?: Error | null) => void
   ) {
     if (user) {
       return callback()
@@ -112,7 +112,7 @@ export const smtpServer = new SMTPServer({
   onData(
     stream: NodeJS.ReadableStream,
     { user }: { user?: string },
-    callback: (err?: Error | null) => void,
+    callback: (err?: Error | null) => void
   ) {
     simpleParser(stream).then(async (mail) => {
       mail.date = mail.date ?? new Date()
@@ -160,7 +160,7 @@ export const smtpServer = new SMTPServer({
       const mutator = new EmailsMutator()
       const emailResult = await mutator.createEmail(
         mail,
-        Array.from(mailboxIds),
+        Array.from(mailboxIds)
       )
       if (!emailResult.ok) {
         console.error("Error inserting email")

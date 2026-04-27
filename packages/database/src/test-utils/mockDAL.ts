@@ -1,22 +1,22 @@
 import {
-  EmailDocument,
-  SerializableEmailDocument,
+  type EmailDocument,
+  type SerializableEmailDocument,
   spawnEmail,
   toEmailDTO,
 } from "../models/email"
 import {
-  MailboxDocument,
-  SerializableEmailDetails,
-  SerializableMailbox,
+  type MailboxDocument,
+  type SerializableEmailDetails,
+  type SerializableMailbox,
   spawnMailbox,
   toEmailDetailsDTO,
   toMailboxDTO,
 } from "../models/mailbox"
 import {
-  SerializableUserDocument,
+  type SerializableUserDocument,
   spawnUser,
   toUserDTO,
-  UserDocument,
+  type UserDocument,
 } from "../models/users"
 import {
   AbstractEmailsLoader,
@@ -33,8 +33,8 @@ import { Ok, Err } from "../result"
 import type { ParsedMail } from "mailparser"
 import { hashSync } from "bcryptjs"
 import {
-  InviteDocument,
-  SerializableInviteDocument,
+  type InviteDocument,
+  type SerializableInviteDocument,
   spawnInvite,
   toInviteDTO,
 } from "../models/invites"
