@@ -13,13 +13,19 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!mailboxId || !emailId) throw new Response("Not Found", { status: 404 })
 
   const mLoader = new MailboxesLoader()
-  const mailbox = await mLoader.getMailboxById(mailboxId)
+  const mailboxResult = await mLoader.getMailboxById(mailboxId)
+  if (!mailboxResult.ok)
+    throw new Response("Service Unavailable", { status: 503 })
+  const mailbox = mailboxResult.value
   if (!mailbox || mailbox.ownerId !== userId) {
     throw new Response("Not Found", { status: 404 })
   }
 
   const eLoader = new EmailsLoader()
-  const email = await eLoader.getEmailById(emailId)
+  const emailResult = await eLoader.getEmailById(emailId)
+  if (!emailResult.ok)
+    throw new Response("Service Unavailable", { status: 503 })
+  const email = emailResult.value
   if (!email) throw new Response("Email Not Found", { status: 404 })
 
   // Mark as read

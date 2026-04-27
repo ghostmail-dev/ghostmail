@@ -26,12 +26,15 @@ export async function action({ request }: Route.ActionArgs) {
   if (!username || !password) {
     return data(
       { error: "Username and password are required" },
-      { status: 400 },
+      { status: 400 }
     )
   }
 
   const loader = new UsersLoader()
-  const user = await loader.getUserByName(username)
+  const userResult = await loader.getUserByName(username)
+  if (!userResult.ok)
+    return data({ error: "Service unavailable" }, { status: 503 })
+  const user = userResult.value
 
   if (!user || !compareSync(password, user.password)) {
     return data({ error: "Invalid username or password" }, { status: 401 })
@@ -41,6 +44,7 @@ export async function action({ request }: Route.ActionArgs) {
   session.set("userId", user._id)
   session.set("username", user.username)
   session.set("roles", user.roles)
+  session.set("maxPersistentMailboxes", user.maxPersistentMailboxes)
 
   return redirect("/mailboxes", {
     headers: { "Set-Cookie": await commitSession(session) },

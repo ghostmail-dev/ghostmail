@@ -4,6 +4,7 @@ export type AuthData = {
   userId: string
   username: string
   roles: ("admin" | "user")[]
+  maxPersistentMailboxes: number
 }
 
 const sessionSecret =
@@ -31,15 +32,14 @@ const { getSession, commitSession, destroySession } =
 
 export { commitSession, destroySession, getSession }
 
-export async function requireAuth(
-  request: Request,
-): Promise<{ userId: string; username: string; roles: ("admin" | "user")[] }> {
+export async function requireAuth(request: Request): Promise<AuthData> {
   const session = await getSession(request.headers.get("Cookie"))
   const userId = session.get("userId")
   const username = session.get("username")
   const roles = session.get("roles")
-  if (!userId || !username || !roles) {
+  const maxPersistentMailboxes = session.get("maxPersistentMailboxes")
+  if (!userId || !username || !roles || maxPersistentMailboxes === undefined) {
     throw redirect("/login")
   }
-  return { userId, username, roles }
+  return { userId, username, roles, maxPersistentMailboxes }
 }

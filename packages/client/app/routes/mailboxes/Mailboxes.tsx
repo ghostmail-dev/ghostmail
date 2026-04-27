@@ -8,9 +8,10 @@ import type { Route } from "./+types/Mailboxes"
 export async function loader({ request }: Route.LoaderArgs) {
   const { userId } = await requireAuth(request)
   const mLoader = new MailboxesLoader()
-  const mailboxes = await mLoader.getMailboxesByOwnerId(userId)
-  return mailboxes.filter((mb) =>
-    mb.type === "ephemeral" ? mb.expiresAt > new Date().toJSON() : true,
+  const result = await mLoader.getMailboxesByOwnerId(userId)
+  if (!result.ok) throw new Response("Service Unavailable", { status: 503 })
+  return result.value.filter((mb) =>
+    mb.type === "ephemeral" ? mb.expiresAt > new Date().toJSON() : true
   )
 }
 

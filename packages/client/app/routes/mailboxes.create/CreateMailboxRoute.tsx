@@ -4,6 +4,15 @@ import type { ActionFunctionArgs } from "react-router"
 import { MailboxesMutator } from "@ghostmail/database"
 import { requireAuth } from "../../utils/session.server"
 import { cn } from "../../utils/class-names"
+import type { Route } from "./+types/CreateMailboxRoute"
+import { useMailboxesData } from "../mailboxes/useMailboxesData"
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const user = await requireAuth(request)
+  return {
+    maxPersistentMailboxes: user.maxPersistentMailboxes,
+  }
+}
 
 export async function action({ request }: ActionFunctionArgs) {
   const { userId } = await requireAuth(request)
@@ -17,12 +26,22 @@ export async function action({ request }: ActionFunctionArgs) {
     type === "ephemeral"
       ? mutator.addEphemeralMailbox
       : mutator.addPersistentMailbox
-  const mailbox = await fn(userId)
 
-  return redirect(`/mailboxes/${mailbox._id}`)
+  const result = await fn(userId)
+
+  if (!result.ok) return redirect("/mailboxes")
+  return redirect(`/mailboxes/${result.value._id}`)
 }
 
-export default function CreateMailboxRoute() {
+export default function CreateMailboxRoute({
+  loaderData,
+}: Route.ComponentProps) {
+  const { maxPersistentMailboxes } = loaderData
+  const mailboxes = useMailboxesData()
+  const persistentCount = mailboxes.filter(
+    (mb) => mb.type === "persistent"
+  ).length
+  const canCreatePersistent = persistentCount < maxPersistentMailboxes
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <Form
@@ -39,7 +58,7 @@ export default function CreateMailboxRoute() {
 
         <div className="p-6 space-y-3">
           <InboxButton type="ephemeral" />
-          <InboxButton type="persistent" />
+          <InboxButton type="persistent" disabled={!canCreatePersistent} />
         </div>
 
         <div className="p-6 border-t border-base-300 flex justify-end">
@@ -52,7 +71,13 @@ export default function CreateMailboxRoute() {
   )
 }
 
-const InboxButton = ({ type }: { type: "ephemeral" | "persistent" }) => {
+const InboxButton = ({
+  type,
+  disabled,
+}: {
+  type: "ephemeral" | "persistent"
+  disabled?: boolean
+}) => {
   const Icon = () => {
     switch (type) {
       case "ephemeral":
@@ -76,10 +101,17 @@ const InboxButton = ({ type }: { type: "ephemeral" | "persistent" }) => {
       className={cn(
         "w-full p-4 border-2 border-base-300 rounded-lg",
         "hover:bg-base-200 hover:border-accent",
+        "disabled:opacity-50 disabled:cursor-not-allowed",
         "transition-all",
         "text-left",
-        "group",
+        "group"
       )}
+      title={
+        disabled
+          ? "You have reached the maximum number of persistent inboxes"
+          : undefined
+      }
+      disabled={disabled}
     >
       <div className="flex items-start gap-3">
         <div className="p-2 rounded-lg transition-colors bg-accent-200">
