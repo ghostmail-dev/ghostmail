@@ -60,7 +60,7 @@ export function resetDatabase() {
 export { spawnEmail, spawnMailbox, spawnUser, spawnInvite }
 
 export function seedUser(
-  overrides?: Partial<UserDocument>
+  overrides?: Partial<UserDocument>,
 ): SerializableUserDocument {
   const user = toUserDTO(spawnUser(overrides))
   usersStore.set(user.username, user)
@@ -69,7 +69,7 @@ export function seedUser(
 
 export function seedMailbox(
   overrides?: Partial<MailboxDocument>,
-  emails: SerializableEmailDetails[] = []
+  emails: SerializableEmailDetails[] = [],
 ): SerializableMailbox {
   const doc = toMailboxDTO(spawnMailbox(overrides), emails)
   mailboxesStore.set(doc.username, doc)
@@ -78,7 +78,7 @@ export function seedMailbox(
 }
 
 export function seedEmail(
-  overrides?: Partial<EmailDocument>
+  overrides?: Partial<EmailDocument>,
 ): SerializableEmailDocument {
   const doc = toEmailDTO({
     ...spawnEmail(),
@@ -122,13 +122,13 @@ export class MailboxesLoader implements AbstractMailboxesLoader {
   async getMailboxesByOwnerId(ownerId: string) {
     const ownerStr = ownerId
     const mailboxes = [...mailboxesById.values()].filter(
-      (m) => m.ownerId === ownerStr
+      (m) => m.ownerId === ownerStr,
     )
     return Ok(
       mailboxes.map((mailbox) => {
         const emails = MailboxesLoader.getEmailsForMailbox(mailbox._id)
         return { ...mailbox, emails: emails.map(toEmailDetailsDTO) }
-      })
+      }),
     )
   }
 
@@ -145,7 +145,7 @@ export class MailboxesMutator implements AbstractMailboxesMutator {
 
   async addPersistentMailbox(userId: string) {
     const existingMailboxesCount = [...mailboxesById.values()].filter(
-      (m) => m.ownerId === userId && m.type === "persistent"
+      (m) => m.ownerId === userId && m.type === "persistent",
     ).length
     const user = [...usersStore.values()].find((u) => u._id === userId)
     if (!user || user.maxPersistentMailboxes <= existingMailboxesCount) {
@@ -285,7 +285,7 @@ export class UsersMutator implements AbstractUsersMutator {
 export class InvitesLoader implements AbstractInvitesLoader {
   async getInvitesByUsername(username: string) {
     const invites = [...invitesStore.values()].filter(
-      (invite) => invite.invitedBy === username
+      (invite) => invite.invitedBy === username,
     )
     return Ok(invites)
   }
@@ -299,7 +299,7 @@ export class InvitesMutator implements AbstractInvitesMutator {
   async createInvite(
     invitedBy: string,
     persistentTokens: number,
-    expiresAt?: Date
+    expiresAt?: Date,
   ) {
     return Ok(seedInvite({ invitedBy, persistentTokens, expiresAt }))
   }
