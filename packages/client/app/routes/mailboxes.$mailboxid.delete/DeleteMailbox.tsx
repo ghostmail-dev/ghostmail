@@ -10,7 +10,10 @@ export async function action({ request, params }: Route.ActionArgs) {
   if (!mailboxId) throw new Response("Not Found", { status: 404 })
 
   const mailboxLoader = new MailboxesLoader()
-  const mailbox = await mailboxLoader.getMailboxById(mailboxId)
+  const mailboxResult = await mailboxLoader.getMailboxById(mailboxId)
+  if (!mailboxResult.ok)
+    throw new Response("Service Unavailable", { status: 503 })
+  const mailbox = mailboxResult.value
   if (!mailbox || mailbox.ownerId !== userId) {
     throw new Response("Not Found", { status: 404 })
   }

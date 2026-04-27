@@ -9,7 +9,7 @@ describe("Login Page", () => {
     // Pre-create a user to test login
     const [username, password] = ["existinguser", "figureItOut"]
     const mutator = new UsersMutator()
-    await mutator.createUser(username, password)
+    await mutator.createUser(username, password, "")
 
     const screen = await renderRoute(
       [
@@ -24,7 +24,7 @@ describe("Login Page", () => {
           Component: () => <div>Mailboxes Test SuccessPage</div>,
         },
       ],
-      "/login",
+      "/login"
     )
 
     const usernameInput = screen.getByLabelText(/Username/i)
@@ -49,7 +49,7 @@ describe("Login Page", () => {
           action,
         },
       ],
-      "/login",
+      "/login"
     )
 
     const usernameInput = screen.getByLabelText(/Username/i)
@@ -74,7 +74,7 @@ describe("Login Page", () => {
         },
       ],
       "/",
-      { userId: "testuserid", username: "testuser" },
+      { userId: "testuserid", username: "testuser", roles: [] as const }
     )
 
     expect(screen.getByText(/Mailboxes Test SuccessPage/i)).toBeInTheDocument()

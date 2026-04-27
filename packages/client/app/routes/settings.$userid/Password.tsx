@@ -14,7 +14,10 @@ export async function action({ request }: Route.ActionArgs) {
   const confirmPassword = String(formData.get("confirmPassword") ?? "")
 
   const userLoader = new UsersLoader()
-  const user = await userLoader.getUserById(userId)
+  const userResult = await userLoader.getUserById(userId)
+  if (!userResult.ok)
+    return { success: false, error: "Service unavailable" } as const
+  const user = userResult.value
   if (!user || !compareSync(currentPassword, user.password)) {
     return { success: false, error: "Invalid password" } as const
   }

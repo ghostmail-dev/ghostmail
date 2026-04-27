@@ -8,8 +8,9 @@ import { InvitesLoader, InvitesMutator } from "@ghostmail/database"
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const user = await requireAuth(request)
   const inviteLoader = new InvitesLoader()
-  const invites = await inviteLoader.getInvitesByUsername(user.username)
-  return invites
+  const result = await inviteLoader.getInvitesByUsername(user.username)
+  if (!result.ok) throw new Response("Service Unavailable", { status: 503 })
+  return result.value
 }
 
 export const action = async ({ request }: Route.ActionArgs) => {

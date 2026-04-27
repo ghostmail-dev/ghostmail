@@ -7,21 +7,23 @@ import {
   seedEmail,
   seedMailbox,
   seedUser,
+  type UserDocument,
 } from "@ghostmail/database"
 import { renderRoute } from "../../../test-utils/render-router"
 import CreateMailboxRoute, {
   action,
+  loader as createLoader,
 } from "../mailboxes.create/CreateMailboxRoute"
-import type { AuthData } from "../../utils/session.server"
 import DeleteMailboxRoute, {
   action as deleteMailboxAction,
 } from "../mailboxes.$mailboxid.delete/DeleteMailbox"
 import { userEvent } from "vitest/browser"
 
-const renderMailboxesRoute = (user: AuthData | null) => {
+const renderMailboxesRoute = (user: UserDocument | null) => {
   return renderRoute(
     [
       {
+        id: "routes/mailboxes/Mailboxes",
         path: "/mailboxes",
         Component: MailboxesRoute,
         loader,
@@ -30,6 +32,7 @@ const renderMailboxesRoute = (user: AuthData | null) => {
             path: "create",
             Component: CreateMailboxRoute,
             action,
+            loader: createLoader,
           },
           {
             path: ":mailboxId/info",
@@ -49,7 +52,14 @@ const renderMailboxesRoute = (user: AuthData | null) => {
       },
     ],
     "/mailboxes",
-    user,
+    user
+      ? {
+          userId: user._id,
+          username: user.username,
+          roles: user.roles,
+          maxPersistentMailboxes: user.maxPersistentMailboxes,
+        }
+      : null
   )
 }
 
@@ -77,11 +87,7 @@ describe("/mailboxes", () => {
         mailboxes: [persistentMailbox._id],
       })
 
-      const screen = await renderMailboxesRoute({
-        userId: user._id,
-        username: user.username,
-        roles: user.roles,
-      })
+      const screen = await renderMailboxesRoute(user)
 
       await expect
         .element(screen.getByRole("link", { name: /Create New Inbox/i }))
@@ -97,19 +103,19 @@ describe("/mailboxes", () => {
         .toBeInTheDocument()
       await expect
         .element(
-          screen.getByLabelText(`Inbox info for ${ephemeralMailbox.username}`),
+          screen.getByLabelText(`Inbox info for ${ephemeralMailbox.username}`)
         )
         .toHaveAttribute("href", `/mailboxes/${ephemeralMailbox._id}/info`)
       await expect
         .element(
           screen.getByTestId(
-            `${ephemeralMailbox.type}-${ephemeralMailbox._id}-unread-count`,
-          ),
+            `${ephemeralMailbox.type}-${ephemeralMailbox._id}-unread-count`
+          )
         )
         .toHaveTextContent("1")
       await expect
         .element(
-          screen.getByLabelText(`Inbox for ${ephemeralMailbox.username}`),
+          screen.getByLabelText(`Inbox for ${ephemeralMailbox.username}`)
         )
         .toHaveAttribute("href", `/mailboxes/${ephemeralMailbox._id}`)
       await expect
@@ -123,19 +129,19 @@ describe("/mailboxes", () => {
         .toBeInTheDocument()
       await expect
         .element(
-          screen.getByLabelText(`Inbox info for ${persistentMailbox.username}`),
+          screen.getByLabelText(`Inbox info for ${persistentMailbox.username}`)
         )
         .toHaveAttribute("href", `/mailboxes/${persistentMailbox._id}/info`)
       await expect
         .element(
           screen.getByTestId(
-            `${persistentMailbox.type}-${persistentMailbox._id}-unread-count`,
-          ),
+            `${persistentMailbox.type}-${persistentMailbox._id}-unread-count`
+          )
         )
         .toHaveTextContent("1")
       await expect
         .element(
-          screen.getByLabelText(`Inbox for ${persistentMailbox.username}`),
+          screen.getByLabelText(`Inbox for ${persistentMailbox.username}`)
         )
         .toHaveAttribute("href", `/mailboxes/${persistentMailbox._id}`)
       await expect
@@ -147,14 +153,12 @@ describe("/mailboxes", () => {
   describe("/mailboxes/create", () => {
     it("Create New Inbox button navigates to create page", async () => {
       const user = seedUser()
-      const screen = await renderMailboxesRoute({
-        userId: user._id,
-        username: user.username,
-        roles: user.roles,
-      })
+      seedMailbox({ ownerId: user._id })
+
+      const screen = await renderMailboxesRoute(user)
 
       await userEvent.click(
-        screen.getByRole("link", { name: /Create New Inbox/i }),
+        screen.getByRole("link", { name: /Create New Inbox/i })
       )
 
       // Assert that Create New Inbox route modal is rendered
@@ -182,45 +186,55 @@ describe("/mailboxes", () => {
     })
 
     it("Creates a new persistent mailbox", async () => {
-      const user = seedUser()
-      const screen = await renderMailboxesRoute({
-        userId: user._id,
-        username: user.username,
-        roles: user.roles,
-      })
+      const user = seedUser({ maxPersistentMailboxes: 1 })
+      const screen = await renderMailboxesRoute(user)
 
       await userEvent.click(
-        screen.getByRole("link", { name: /Create New Inbox/i }),
+        screen.getByRole("link", { name: /Create New Inbox/i })
       )
 
       await userEvent.click(
-        screen.getByRole("button", { name: /Persistent Inbox/i }),
+        screen.getByRole("button", { name: /Persistent Inbox/i })
       )
 
       const mailboxLoader = new MailboxesLoader()
-      const mailboxes = await mailboxLoader.getMailboxesByOwnerId(user._id)
+      const result = await mailboxLoader.getMailboxesByOwnerId(user._id)
+
+      const mailboxes = result.ok ? result.value : []
       expect(mailboxes.length).toBe(1)
       expect(mailboxes[0].type).toBe("persistent")
     })
 
-    it("Creates a new ephemeral mailbox", async () => {
-      const user = seedUser()
-      const screen = await renderMailboxesRoute({
-        userId: user._id,
-        username: user.username,
-        roles: user.roles,
-      })
+    it("Disables persistent mailbox button when user has reached limit", async () => {
+      const user = seedUser({ maxPersistentMailboxes: 1 })
+      seedMailbox({ ownerId: user._id, type: "persistent" })
+      const screen = await renderMailboxesRoute(user)
 
       await userEvent.click(
-        screen.getByRole("link", { name: /Create New Inbox/i }),
+        screen.getByRole("link", { name: /Create New Inbox/i })
+      )
+
+      const persistentButton = screen.getByRole("button", {
+        name: /Persistent Inbox/i,
+      })
+      expect(persistentButton).toBeDisabled()
+    })
+
+    it("Creates a new ephemeral mailbox", async () => {
+      const user = seedUser()
+      const screen = await renderMailboxesRoute(user)
+
+      await userEvent.click(
+        screen.getByRole("link", { name: /Create New Inbox/i })
       )
 
       await userEvent.click(
-        screen.getByRole("button", { name: /Ephemeral Inbox/i }),
+        screen.getByRole("button", { name: /Ephemeral Inbox/i })
       )
 
       const mailboxLoader = new MailboxesLoader()
-      const mailboxes = await mailboxLoader.getMailboxesByOwnerId(user._id)
+      const result = await mailboxLoader.getMailboxesByOwnerId(user._id)
+      const mailboxes = result.ok ? result.value : []
       expect(mailboxes.length).toBe(1)
       expect(mailboxes[0].type).toBe("ephemeral")
     })
@@ -230,17 +244,13 @@ describe("/mailboxes", () => {
     it("renders the delete confirmation modal", async () => {
       const user = seedUser()
       const mailbox = seedMailbox({ ownerId: user._id })
-      const screen = await renderMailboxesRoute({
-        userId: user._id,
-        username: user.username,
-        roles: user.roles,
-      })
+      const screen = await renderMailboxesRoute(user)
 
       await userEvent.click(screen.getByLabelText(`Delete ${mailbox.username}`))
 
       await expect
         .element(
-          screen.getByText(/Are you sure you want to delete this inbox?/i),
+          screen.getByText(/Are you sure you want to delete this inbox?/i)
         )
         .toBeInTheDocument()
       await expect
@@ -254,11 +264,7 @@ describe("/mailboxes", () => {
     it("Deletes the mailbox", async () => {
       const user = seedUser()
       const mailbox = seedMailbox({ ownerId: user._id })
-      const screen = await renderMailboxesRoute({
-        userId: user._id,
-        username: user.username,
-        roles: user.roles,
-      })
+      const screen = await renderMailboxesRoute(user)
 
       const deleteBtn = screen.getByLabelText(`Delete ${mailbox.username}`)
       await userEvent.hover(deleteBtn)
@@ -267,7 +273,8 @@ describe("/mailboxes", () => {
       await userEvent.click(screen.getByRole("button", { name: /Delete/i }))
 
       const mailboxLoader = new MailboxesLoader()
-      const mailboxes = await mailboxLoader.getMailboxesByOwnerId(user._id)
+      const result = await mailboxLoader.getMailboxesByOwnerId(user._id)
+      const mailboxes = result.ok ? result.value : []
       expect(mailboxes.length).toBe(0)
 
       await expect
@@ -284,11 +291,7 @@ describe("/mailboxes", () => {
     it("Cancels the deletion", async () => {
       const user = seedUser()
       const mailbox = seedMailbox({ ownerId: user._id })
-      const screen = await renderMailboxesRoute({
-        userId: user._id,
-        username: user.username,
-        roles: user.roles,
-      })
+      const screen = await renderMailboxesRoute(user)
 
       const deleteBtn = screen.getByLabelText(`Delete ${mailbox.username}`)
       await userEvent.hover(deleteBtn)
@@ -297,7 +300,8 @@ describe("/mailboxes", () => {
       await userEvent.click(screen.getByRole("link", { name: /Cancel/i }))
 
       const mailboxLoader = new MailboxesLoader()
-      const mailboxes = await mailboxLoader.getMailboxesByOwnerId(user._id)
+      const result = await mailboxLoader.getMailboxesByOwnerId(user._id)
+      const mailboxes = result.ok ? result.value : []
       expect(mailboxes.length).toBe(1)
     })
   })
@@ -306,14 +310,10 @@ describe("/mailboxes", () => {
     it("renders the mailbox info", async () => {
       const user = seedUser()
       const mailbox = seedMailbox({ ownerId: user._id })
-      const screen = await renderMailboxesRoute({
-        userId: user._id,
-        username: user.username,
-        roles: user.roles,
-      })
+      const screen = await renderMailboxesRoute(user)
 
       await userEvent.click(
-        screen.getByLabelText(`Inbox info for ${mailbox.username}`),
+        screen.getByLabelText(`Inbox info for ${mailbox.username}`)
       )
 
       await expect

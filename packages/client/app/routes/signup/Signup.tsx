@@ -28,7 +28,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (!username || !password) {
     return data(
       { error: "Username and password are required" },
-      { status: 400 },
+      { status: 400 }
     )
   }
 
@@ -42,28 +42,37 @@ export async function action({ request }: ActionFunctionArgs) {
   if (password.length < 8) {
     return data(
       { error: "Password must be at least 8 characters" },
-      { status: 400 },
+      { status: 400 }
     )
   }
 
   const inviteLoader = new InvitesLoader()
-  const validInvite = await inviteLoader.validateInvite(invite)
-  if (!validInvite) {
+  const inviteResult = await inviteLoader.validateInvite(invite)
+  if (!inviteResult.ok)
+    return data({ error: "Service unavailable" }, { status: 503 })
+  if (!inviteResult.value) {
     return data({ error: "Invalid invite code" }, { status: 400 })
   }
 
   const loader = new UsersLoader()
-  const existing = await loader.getUserByName(username)
-  if (existing) {
+  const existingResult = await loader.getUserByName(username)
+  if (!existingResult.ok)
+    return data({ error: "Service unavailable" }, { status: 503 })
+  if (existingResult.value) {
     return data({ error: "Username already taken" }, { status: 409 })
   }
 
   const mutator = new UsersMutator()
-  const user = await mutator.createUser(username, password, invite)
+  const userResult = await mutator.createUser(username, password, invite)
+  if (!userResult.ok)
+    return data({ error: "Service unavailable" }, { status: 503 })
+  const user = userResult.value
 
   const session = await getSession(request.headers.get("Cookie"))
   session.set("userId", user._id)
   session.set("username", user.username)
+  session.set("roles", user.roles)
+  session.set("maxPersistentMailboxes", user.maxPersistentMailboxes)
 
   return redirect("/mailboxes", {
     headers: { "Set-Cookie": await commitSession(session) },
