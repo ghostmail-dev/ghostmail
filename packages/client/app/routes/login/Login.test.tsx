@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import Login, { loader, action } from "./Login"
 import { renderRoute } from "../../../test-utils/render-router"
 import { userEvent } from "vitest/browser"
-import { UsersMutator } from "@ghostmail/database"
+import { spawnUser, UsersMutator } from "@ghostmail/database"
 
 describe("Login Page", () => {
   it("correct username and password will authenticate session", async () => {
@@ -24,7 +24,7 @@ describe("Login Page", () => {
           Component: () => <div>Mailboxes Test SuccessPage</div>,
         },
       ],
-      "/login"
+      "/login",
     )
 
     const usernameInput = screen.getByLabelText(/Username/i)
@@ -49,7 +49,7 @@ describe("Login Page", () => {
           action,
         },
       ],
-      "/login"
+      "/login",
     )
 
     const usernameInput = screen.getByLabelText(/Username/i)
@@ -74,7 +74,7 @@ describe("Login Page", () => {
         },
       ],
       "/",
-      { userId: "testuserid", username: "testuser", roles: [] as const }
+      spawnUser(),
     )
 
     expect(screen.getByText(/Mailboxes Test SuccessPage/i)).toBeInTheDocument()

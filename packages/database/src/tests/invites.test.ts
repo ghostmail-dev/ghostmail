@@ -16,8 +16,13 @@ describe("Invites DAL", () => {
       await seedInvite({ invitedBy: "bob" })
 
       const loader = new InvitesLoader()
-      const found = await loader.getInvitesByUsername("alice")
+      const result = await loader.getInvitesByUsername("alice")
 
+      if (!result.ok) {
+        throw new Error("Failed to load invites")
+      }
+
+      const found = result.value
       expect(found).toHaveLength(2)
       expect(found.map((i) => i.code)).toEqual(
         expect.arrayContaining([invite1.code, invite2.code]),
@@ -28,8 +33,13 @@ describe("Invites DAL", () => {
       await seedInvite({ invitedBy: "bob" })
 
       const loader = new InvitesLoader()
-      const found = await loader.getInvitesByUsername("alice")
+      const result = await loader.getInvitesByUsername("alice")
 
+      if (!result.ok) {
+        throw new Error("Failed to load invites")
+      }
+
+      const found = result.value
       expect(found).toHaveLength(0)
     })
 
@@ -37,7 +47,15 @@ describe("Invites DAL", () => {
       await seedInvite({ invitedBy: "alice" })
 
       const loader = new InvitesLoader()
-      const [invite] = await loader.getInvitesByUsername("alice")
+      const result = await loader.getInvitesByUsername("alice")
+
+      if (!result.ok) {
+        throw new Error("Failed to load invites")
+      }
+
+      const {
+        value: [invite],
+      } = result
 
       expect(typeof invite.createdAt).toBe("string")
       expect(typeof invite.expiresAt).toBe("string")
@@ -50,8 +68,13 @@ describe("Invites DAL", () => {
       })
 
       const loader = new InvitesLoader()
-      const valid = await loader.validateInvite(invite.code)
+      const result = await loader.validateInvite(invite.code)
 
+      if (!result.ok) {
+        throw new Error("Failed to validate invite")
+      }
+
+      const { value: valid } = result
       expect(valid).toBe(true)
     })
 
@@ -62,8 +85,13 @@ describe("Invites DAL", () => {
       })
 
       const loader = new InvitesLoader()
-      const valid = await loader.validateInvite(invite.code)
+      const result = await loader.validateInvite(invite.code)
 
+      if (!result.ok) {
+        throw new Error("Failed to validate invite")
+      }
+
+      const { value: valid } = result
       expect(valid).toBe(false)
       const stillExists = await invitesCollection.findOne({ code: invite.code })
       expect(stillExists).toBeNull()
@@ -71,8 +99,13 @@ describe("Invites DAL", () => {
 
     it("validates a non-existent invite as false", async () => {
       const loader = new InvitesLoader()
-      const valid = await loader.validateInvite("NOT-A-REAL-CODE")
+      const result = await loader.validateInvite("NOT-A-REAL-CODE")
 
+      if (!result.ok) {
+        throw new Error("Failed to validate invite")
+      }
+
+      const { value: valid } = result
       expect(valid).toBe(false)
     })
 
@@ -82,8 +115,13 @@ describe("Invites DAL", () => {
       })
 
       const loader = new InvitesLoader()
-      const valid = await loader.validateInvite(invite.code)
+      const result = await loader.validateInvite(invite.code)
 
+      if (!result.ok) {
+        throw new Error("Failed to validate invite")
+      }
+
+      const { value: valid } = result
       expect(valid).toBe(false)
 
       const stillExists = await invitesCollection.findOne({ code: invite.code })
@@ -94,7 +132,13 @@ describe("Invites DAL", () => {
   describe("InvitesMutator", () => {
     it("creates an invite with the correct fields", async () => {
       const mutator = new InvitesMutator()
-      const created = await mutator.createInvite("alice", 3)
+      const result = await mutator.createInvite("alice", 3)
+
+      if (!result.ok) {
+        throw new Error("Failed to create invite")
+      }
+
+      const { value: created } = result
 
       expect(created).toBeDefined()
       expect(created.invitedBy).toBe("alice")
@@ -109,7 +153,13 @@ describe("Invites DAL", () => {
 
     it("creates an invite and returns a serializable DTO", async () => {
       const mutator = new InvitesMutator()
-      const created = await mutator.createInvite("alice", 3)
+      const result = await mutator.createInvite("alice", 3)
+
+      if (!result.ok) {
+        throw new Error("Failed to create invite")
+      }
+
+      const { value: created } = result
 
       expect(typeof created.createdAt).toBe("string")
       expect(typeof created.expiresAt).toBe("string")

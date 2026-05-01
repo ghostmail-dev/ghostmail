@@ -1,6 +1,6 @@
 import "dotenv/config"
 import { SMTPServer } from "smtp-server"
-import { HeaderValue, simpleParser } from "mailparser"
+import { type HeaderValue, simpleParser } from "mailparser"
 import { EmailsMutator, MailboxesLoader } from "@ghostmail/database"
 import { readFileSync, existsSync } from "fs"
 
@@ -56,7 +56,11 @@ export const smtpServer = new SMTPServer({
     const mailboxesLoader = new MailboxesLoader()
     mailboxesLoader
       .getMailboxByName(username)
-      .then((mailbox) => {
+      .then((result) => {
+        if (!result.ok) {
+          return callback(new Error("Error finding mailbox"))
+        }
+        const mailbox = result.value
         if (!mailbox) {
           return callback(
             new Error("Invalid authentication: mailbox not found"),
@@ -94,8 +98,8 @@ export const smtpServer = new SMTPServer({
 
     mailboxesLoader
       .getMailboxByName(address.address)
-      .then((mailbox) => {
-        if (!mailbox) {
+      .then((result) => {
+        if (!result.ok || !result.value) {
           return callback(new Error("Invalid recipient"))
         }
         return callback()
@@ -147,22 +151,19 @@ export const smtpServer = new SMTPServer({
       const mailboxIds = new Set<string>()
       const mailboxesLoader = new MailboxesLoader()
       for (const mailboxName of mailboxNames) {
-        try {
-          const mailbox = await mailboxesLoader.getMailboxByName(mailboxName)
-          if (!mailbox) {
-            continue
-          }
-          mailboxIds.add(mailbox._id)
-        } catch (e) {
-          console.error(e)
+        const result = await mailboxesLoader.getMailboxByName(mailboxName)
+        if (result.ok && result.value) {
+          mailboxIds.add(result.value._id)
         }
       }
 
-      try {
-        const mutator = new EmailsMutator()
-        await mutator.createEmail(mail, Array.from(mailboxIds))
-      } catch (error) {
-        console.error("Error inserting email", error)
+      const mutator = new EmailsMutator()
+      const emailResult = await mutator.createEmail(
+        mail,
+        Array.from(mailboxIds),
+      )
+      if (!emailResult.ok) {
+        console.error("Error inserting email")
         return callback(new Error("Error inserting email"))
       }
       return callback()

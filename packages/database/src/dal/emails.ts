@@ -1,13 +1,11 @@
 import DataLoader from "dataloader"
-import {
-  type EmailDocument,
-  type SerializableEmailDocument,
-  toEmailDTO,
-} from "../models/email.js"
+import { type EmailDocument, toEmailDTO } from "../models/email.js"
 import { emailsCollection } from "../collections/email.js"
 import type { ParsedMail } from "mailparser"
 import type { AbstractEmailsMutator } from "../definitions.js"
+import { UnknownDatabaseError } from "../definitions.js"
 import { faker } from "@faker-js/faker"
+import { tryCatch } from "../result.js"
 
 export class EmailsLoader {
   private batchEmails = new DataLoader<string, EmailDocument | null>(
@@ -30,50 +28,52 @@ export class EmailsLoader {
     },
   )
 
-  async getEmailById(id: string): Promise<SerializableEmailDocument | null> {
-    const email = await this.batchEmails.load(id)
-    return email ? toEmailDTO(email) : null
+  async getEmailById(id: string) {
+    return await tryCatch(async () => {
+      const email = await this.batchEmails.load(id)
+      return email ? toEmailDTO(email) : null
+    }, UnknownDatabaseError)
   }
 
-  async getEmailByMessageId(
-    messageId: string,
-  ): Promise<SerializableEmailDocument | null> {
-    const email = await this.batchEmailsByMessageId.load(messageId)
-    return email ? toEmailDTO(email) : null
+  async getEmailByMessageId(messageId: string) {
+    return await tryCatch(async () => {
+      const email = await this.batchEmailsByMessageId.load(messageId)
+      return email ? toEmailDTO(email) : null
+    }, UnknownDatabaseError)
   }
 }
 
 export class EmailsMutator implements AbstractEmailsMutator {
-  async createEmail(
-    email: Omit<ParsedMail, "_id">,
-    mailboxIds: string[],
-  ): Promise<SerializableEmailDocument> {
-    const attachments = email.attachments.map((attachment) => {
-      return {
-        ...attachment,
-        fileName: attachment.filename ?? "",
-        headers: Object.fromEntries(attachment.headers),
+  async createEmail(email: Omit<ParsedMail, "_id">, mailboxIds: string[]) {
+    return await tryCatch(async () => {
+      const attachments = email.attachments.map((attachment) => {
+        return {
+          ...attachment,
+          fileName: attachment.filename ?? "",
+          headers: Object.fromEntries(attachment.headers),
+        }
+      })
+      const emailDoc = {
+        ...email,
+        attachments,
+        mailboxes: mailboxIds,
+        isRead: false,
+        _id: faker.database.mongodbObjectId(),
       }
-    })
-    const emailDoc = {
-      ...email,
-      attachments,
-      mailboxes: mailboxIds,
-      isRead: false,
-      _id: faker.database.mongodbObjectId(),
-    }
-
-    await emailsCollection.insertOne(emailDoc)
-    return toEmailDTO(emailDoc)
+      await emailsCollection.insertOne(emailDoc)
+      return toEmailDTO(emailDoc)
+    }, UnknownDatabaseError)
   }
 
-  async markAsRead(id: string): Promise<void> {
-    await emailsCollection.updateOne({ _id: id }, { $set: { isRead: true } })
+  async markAsRead(id: string) {
+    return await tryCatch(async () => {
+      await emailsCollection.updateOne({ _id: id }, { $set: { isRead: true } })
+    }, UnknownDatabaseError)
   }
 
-  async deleteEmail(id: string): Promise<void> {
-    await emailsCollection.deleteOne({
-      _id: id,
-    })
+  async deleteEmail(id: string) {
+    return await tryCatch(async () => {
+      await emailsCollection.deleteOne({ _id: id })
+    }, UnknownDatabaseError)
   }
 }

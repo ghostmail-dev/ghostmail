@@ -47,16 +47,16 @@ describe("SMTP Server", () => {
     expect(result).not.toBeInstanceOf(String)
     const messageId = (result as SMTPTransport.SentMessageInfo).messageId
     const emailsLoader = new EmailsLoader()
-    const email = await emailsLoader.getEmailByMessageId(messageId)
+    const emailResult = await emailsLoader.getEmailByMessageId(messageId)
+    const email = emailResult.ok ? emailResult.value : null
     expect(email).not.toBeNull()
 
     const mailboxLoader = new MailboxesLoader()
-    const mailboxDocument = await mailboxLoader.getMailboxByName(
-      mailbox.username,
-    )
+    const mailboxResult = await mailboxLoader.getMailboxByName(mailbox.username)
+    const mailboxDocument = mailboxResult.ok ? mailboxResult.value : null
 
     expect(mailboxDocument).toBeDefined()
-    const emailFound = mailboxDocument?.emails.some((emailDetail) => {
+    const emailFound = mailboxDocument?.emails?.some((emailDetail) => {
       if (!email) return false
       return emailDetail.emailId === email._id
     })
@@ -97,18 +97,20 @@ describe("SMTP Server", () => {
     expect(result).not.toBeInstanceOf(String)
     const messageId = (result as SMTPTransport.SentMessageInfo).messageId
     const emailsLoader = new EmailsLoader()
-    const email = await emailsLoader.getEmailByMessageId(messageId)
+    const emailResult = await emailsLoader.getEmailByMessageId(messageId)
+    const email = emailResult.ok ? emailResult.value : null
 
     expect(email).not.toBeNull()
     const emailId = email?._id
 
     const mailboxesLoader = new MailboxesLoader()
-    const mailboxDocument = await mailboxesLoader.getMailboxByName(
+    const mailboxResult = await mailboxesLoader.getMailboxByName(
       mailbox.username,
     )
+    const mailboxDocument = mailboxResult.ok ? mailboxResult.value : null
 
     expect(mailboxDocument).not.toBeNull()
-    expect(mailboxDocument?.emails.length).toBe(1)
+    expect(mailboxDocument?.emails?.length).toBe(1)
     if (emailId) {
       expect(mailboxDocument?.emails[0].emailId).toStrictEqual(emailId)
     }

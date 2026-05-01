@@ -1,22 +1,22 @@
 import {
-  EmailDocument,
-  SerializableEmailDocument,
+  type EmailDocument,
+  type SerializableEmailDocument,
   spawnEmail,
   toEmailDTO,
 } from "../models/email"
 import {
-  MailboxDocument,
-  SerializableEmailDetails,
-  SerializableMailbox,
+  type MailboxDocument,
+  type SerializableEmailDetails,
+  type SerializableMailbox,
   spawnMailbox,
   toEmailDetailsDTO,
   toMailboxDTO,
 } from "../models/mailbox"
 import {
-  SerializableUserDocument,
+  type SerializableUserDocument,
   spawnUser,
   toUserDTO,
-  UserDocument,
+  type UserDocument,
 } from "../models/users"
 import {
   AbstractEmailsLoader,
@@ -27,12 +27,14 @@ import {
   AbstractMailboxesMutator,
   AbstractUsersLoader,
   AbstractUsersMutator,
+  MailboxLimitError,
 } from "../definitions"
+import { Ok, Err } from "../result"
 import type { ParsedMail } from "mailparser"
 import { hashSync } from "bcryptjs"
 import {
-  InviteDocument,
-  SerializableInviteDocument,
+  type InviteDocument,
+  type SerializableInviteDocument,
   spawnInvite,
   toInviteDTO,
 } from "../models/invites"
@@ -54,6 +56,8 @@ export function resetDatabase() {
   usersStore.clear()
   invitesStore.clear()
 }
+
+export { spawnEmail, spawnMailbox, spawnUser, spawnInvite }
 
 export function seedUser(
   overrides?: Partial<UserDocument>,
@@ -101,18 +105,18 @@ export class MailboxesLoader implements AbstractMailboxesLoader {
     const mailbox = mailboxesStore.get(name)
     if (mailbox) {
       const emails = MailboxesLoader.getEmailsForMailbox(mailbox._id)
-      return { ...mailbox, emails: emails.map(toEmailDetailsDTO) }
+      return Ok({ ...mailbox, emails: emails.map(toEmailDetailsDTO) })
     }
-    return null
+    return Ok(null)
   }
 
   async getMailboxById(id: string) {
     const mailbox = mailboxesById.get(id)
     if (mailbox) {
       const emails = MailboxesLoader.getEmailsForMailbox(mailbox._id)
-      return { ...mailbox, emails: emails.map(toEmailDetailsDTO) }
+      return Ok({ ...mailbox, emails: emails.map(toEmailDetailsDTO) })
     }
-    return null
+    return Ok(null)
   }
 
   async getMailboxesByOwnerId(ownerId: string) {
@@ -120,25 +124,34 @@ export class MailboxesLoader implements AbstractMailboxesLoader {
     const mailboxes = [...mailboxesById.values()].filter(
       (m) => m.ownerId === ownerStr,
     )
-    return mailboxes.map((mailbox) => {
-      const emails = MailboxesLoader.getEmailsForMailbox(mailbox._id)
-      return { ...mailbox, emails: emails.map(toEmailDetailsDTO) }
-    })
+    return Ok(
+      mailboxes.map((mailbox) => {
+        const emails = MailboxesLoader.getEmailsForMailbox(mailbox._id)
+        return { ...mailbox, emails: emails.map(toEmailDetailsDTO) }
+      }),
+    )
   }
 
   async validateMailboxCredentials(username: string, password: string) {
     const mailbox = mailboxesStore.get(username)
-    return mailbox ? mailbox.password === password : false
+    return Ok(mailbox ? mailbox.password === password : false)
   }
 }
 
 export class MailboxesMutator implements AbstractMailboxesMutator {
   async addEphemeralMailbox(userId: string) {
-    return seedMailbox({ type: "ephemeral", ownerId: userId })
+    return Ok(seedMailbox({ type: "ephemeral", ownerId: userId }))
   }
 
   async addPersistentMailbox(userId: string) {
-    return seedMailbox({ type: "persistent", ownerId: userId })
+    const existingMailboxesCount = [...mailboxesById.values()].filter(
+      (m) => m.ownerId === userId && m.type === "persistent",
+    ).length
+    const user = [...usersStore.values()].find((u) => u._id === userId)
+    if (!user || user.maxPersistentMailboxes <= existingMailboxesCount) {
+      return Err(new MailboxLimitError())
+    }
+    return Ok(seedMailbox({ type: "persistent", ownerId: userId }))
   }
 
   async deleteMailbox(id: string) {
@@ -147,19 +160,20 @@ export class MailboxesMutator implements AbstractMailboxesMutator {
       mailboxesStore.delete(doc.username)
       mailboxesById.delete(id)
     }
+    return Ok(undefined)
   }
 }
 
 export class EmailsLoader implements AbstractEmailsLoader {
   async getEmailById(id: string) {
-    return emailsStore.get(id) ?? null
+    return Ok(emailsStore.get(id) ?? null)
   }
 
   async getEmailByMessageId(messageId: string) {
     for (const email of emailsStore.values()) {
-      if (email.messageId === messageId) return email
+      if (email.messageId === messageId) return Ok(email)
     }
-    return null
+    return Ok(null)
   }
 }
 
@@ -180,11 +194,12 @@ export class EmailsMutator implements AbstractEmailsMutator {
     })
 
     emailsStore.set(doc._id, doc)
-    return doc
+    return Ok(doc)
   }
 
   async deleteEmail(id: string) {
     emailsStore.delete(id)
+    return Ok(undefined)
   }
 
   async markAsRead(id: string) {
@@ -193,19 +208,20 @@ export class EmailsMutator implements AbstractEmailsMutator {
       const updated = { ...email, isRead: true }
       emailsStore.set(id, updated)
     }
+    return Ok(undefined)
   }
 }
 
 export class UsersLoader implements AbstractUsersLoader {
   async getUserById(id: string) {
     for (const user of usersStore.values()) {
-      if (user._id === id) return user
+      if (user._id === id) return Ok(user)
     }
-    return null
+    return Ok(null)
   }
 
   async getUserByName(username: string) {
-    return usersStore.get(username) ?? null
+    return Ok(usersStore.get(username) ?? null)
   }
 }
 
@@ -219,13 +235,10 @@ export class UsersMutator implements AbstractUsersMutator {
       invitesStore.set(inviteCode, invite)
     }
 
-    return seedUser({ username, password: hashSync(password, 10) })
+    return Ok(seedUser({ username, password: hashSync(password, 10) }))
   }
 
-  async changePersistentMailboxLimit(
-    userId: string,
-    newLimit: number,
-  ): Promise<void> {
+  async changePersistentMailboxLimit(userId: string, newLimit: number) {
     for (const user of usersStore.values()) {
       if (user._id === userId) {
         const updated = { ...user, maxPersistentMailboxes: newLimit }
@@ -233,6 +246,7 @@ export class UsersMutator implements AbstractUsersMutator {
         break
       }
     }
+    return Ok(undefined)
   }
 
   async deleteUser(id: string) {
@@ -242,12 +256,10 @@ export class UsersMutator implements AbstractUsersMutator {
         break
       }
     }
+    return Ok(undefined)
   }
 
-  async changeUserRoles(
-    userId: string,
-    newRoles: ("admin" | "user")[],
-  ): Promise<void> {
+  async changeUserRoles(userId: string, newRoles: ("admin" | "user")[]) {
     for (const user of usersStore.values()) {
       if (user._id === userId) {
         const updated = { ...user, roles: newRoles }
@@ -255,9 +267,10 @@ export class UsersMutator implements AbstractUsersMutator {
         break
       }
     }
+    return Ok(undefined)
   }
 
-  async changeUserPassword(userId: string, newPassword: string): Promise<void> {
+  async changeUserPassword(userId: string, newPassword: string) {
     for (const user of usersStore.values()) {
       if (user._id === userId) {
         const updated = { ...user, password: hashSync(newPassword, 10) }
@@ -265,6 +278,7 @@ export class UsersMutator implements AbstractUsersMutator {
         break
       }
     }
+    return Ok(undefined)
   }
 }
 
@@ -273,10 +287,11 @@ export class InvitesLoader implements AbstractInvitesLoader {
     const invites = [...invitesStore.values()].filter(
       (invite) => invite.invitedBy === username,
     )
-    return invites
+    return Ok(invites)
   }
+
   async validateInvite(code: string) {
-    return !!invitesStore.get(code)
+    return Ok(!!invitesStore.get(code))
   }
 }
 
@@ -286,10 +301,11 @@ export class InvitesMutator implements AbstractInvitesMutator {
     persistentTokens: number,
     expiresAt?: Date,
   ) {
-    return seedInvite({ invitedBy, persistentTokens, expiresAt })
+    return Ok(seedInvite({ invitedBy, persistentTokens, expiresAt }))
   }
 
   async deleteInvite(code: string) {
     invitesStore.delete(code)
+    return Ok(undefined)
   }
 }

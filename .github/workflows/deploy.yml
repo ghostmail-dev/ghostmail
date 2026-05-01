@@ -19,6 +19,33 @@ env:
   NODE_ENV: test
 
 jobs:
+  static:
+    if: github.event.inputs.skip_tests != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
   test:
     if: github.event.inputs.skip_tests != 'true'
     runs-on: ubuntu-latest
@@ -60,14 +87,11 @@ jobs:
           pnpm --filter @ghostmail/client exec playwright install-deps chromium
           firefox
 
-      - name: Lint
-        run: pnpm lint
-
       - name: Run tests
         run: pnpm test
 
   build-and-push:
-    needs: test
+    needs: [static, test]
     if: |
       (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
       github.event.inputs.skip_tests != 'true'
@@ -116,10 +140,11 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy:
-    needs: [test, build-and-push]
+    needs: [static, test, build-and-push]
     if: |
       always() &&
       (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      (needs.static.result == 'success' || needs.static.result == 'skipped') &&
       (needs.test.result == 'success' || needs.test.result == 'skipped') &&
       (needs.build-and-push.result == 'success' || needs.build-and-push.result == 'skipped')
     runs-on: ubuntu-latest
