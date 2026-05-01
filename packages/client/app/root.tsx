@@ -8,12 +8,12 @@ import {
   ScrollRestoration,
   useLoaderData,
   type LoaderFunctionArgs,
-} from "react-router";
-import "./styles/index.css";
-import { LogOut, Moon, Settings, Sun, User } from "lucide-react";
-import { requireAuth } from "./utils/session.server";
-import { GhostMailLogo } from "./components/GhostmailLogo";
-import { getTheme, toggleTheme } from "./utils/theme-changer";
+} from "react-router"
+import "./styles/index.css"
+import { LogOut, Moon, Settings, Sun, User } from "lucide-react"
+import { requireAuth } from "./utils/session.server"
+import { GhostMailLogo } from "./components/GhostmailLogo"
+import { getTheme, toggleTheme } from "./utils/theme-changer"
 
 export const links = () => [
   {
@@ -41,7 +41,7 @@ export const links = () => [
     rel: "stylesheet",
     href: "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap",
   },
-];
+]
 
 export const meta = () => [
   {
@@ -51,21 +51,21 @@ export const meta = () => [
     name: "viewport",
     content: "width=device-width, initial-scale=1",
   },
-];
+]
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
-    const user = await requireAuth(request);
-    return user;
+    const user = await requireAuth(request)
+    return user
   } catch {
-    return null;
+    return null
   }
-};
+}
 
 export default function App() {
-  const user = useLoaderData<typeof loader>();
+  const user = useLoaderData<typeof loader>()
 
-  const theme = getTheme();
+  const theme = getTheme()
   return (
     <html lang="en" data-theme={theme}>
       <head>
@@ -143,9 +143,9 @@ export default function App() {
         <Scripts />
       </body>
     </html>
-  );
+  )
 }
 
 export function HydrateFallback() {
-  return null;
+  return null
 }
