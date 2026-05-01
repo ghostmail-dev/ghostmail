@@ -51,6 +51,10 @@ export const meta = () => [
     name: "viewport",
     content: "width=device-width, initial-scale=1",
   },
+  {
+    name: "google-adsense-account",
+    content: "ca-pub-5695883157519004",
+  },
 ]
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -71,11 +75,6 @@ export default function App() {
       <head>
         <Meta />
         <Links />
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5695883157519004"
-          crossOrigin="anonymous"
-        ></script>
       </head>
       <body>
         <header className="bg-base-200 border-b border-base-300 px-4 md:px-6 py-3 flex items-center justify-between">
