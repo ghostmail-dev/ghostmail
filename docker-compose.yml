@@ -1,164 +1,53 @@
 services:
-  traefik:
-    image: traefik:v3.6
-    platform: linux/arm64
-    command:
-      - "--api.insecure=false"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.myresolver.acme.dnschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.dnschallenge.provider=cloudflare"
-      - "--certificatesresolvers.myresolver.acme.email=admin@ghostmail.dev"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./letsencrypt:/letsencrypt"
-      - "./certs:/certs"
-    restart: always
-
-  cert-dumper:
-    image: ldez/traefik-certs-dumper:latest
-    platform: linux/arm64
-    command: file --watch --domain-subdir --dest /output --source /traefik/acme.json --version v3
-    volumes:
-      - "./letsencrypt:/traefik:ro"
-      - "./certs:/output"
-    depends_on:
-      - traefik
-    restart: always
-
-  mongo1:
-    image: mongo:latest
-    platform: linux/arm64
-    command:
-      [
-        "--replSet",
-        "rs0",
-        "--bind_ip_all",
-        "--port",
-        "27017",
-        "--keyFile",
-        "/etc/mongo/keyfile",
-      ]
-    ports:
-      - "127.0.0.1:27017:27017"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER:-admin}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-password}
-    healthcheck:
-      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo1:27017',priority:1},{_id:1,host:'mongo2:27018',priority:0.5},{_id:2,host:'mongo3:27019',priority:0.5}]}) }" | mongosh --port 27017 --quiet --username $$MONGO_INITDB_ROOT_USERNAME --password $$MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin
-      interval: 5s
-      timeout: 30s
-      start_period: 0s
-      start_interval: 1s
-      retries: 30
-    volumes:
-      - "mongo1_data:/data/db"
-      - "mongo1_config:/data/configdb"
-      - "./mongo-keyfile:/etc/mongo/keyfile:ro"
-    restart: always
-
-  mongo2:
-    image: mongo:latest
-    platform: linux/arm64
-    command:
-      [
-        "--replSet",
-        "rs0",
-        "--bind_ip_all",
-        "--port",
-        "27018",
-        "--keyFile",
-        "/etc/mongo/keyfile",
-      ]
-    ports:
-      - "127.0.0.1:27018:27018"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER:-admin}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-password}
-    volumes:
-      - "mongo2_data:/data/db"
-      - "mongo2_config:/data/configdb"
-      - "./mongo-keyfile:/etc/mongo/keyfile:ro"
-    restart: always
-
-  mongo3:
-    image: mongo:latest
-    platform: linux/arm64
-    command:
-      [
-        "--replSet",
-        "rs0",
-        "--bind_ip_all",
-        "--port",
-        "27019",
-        "--keyFile",
-        "/etc/mongo/keyfile",
-      ]
-    ports:
-      - "127.0.0.1:27019:27019"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER:-admin}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-password}
-    volumes:
-      - "mongo3_data:/data/db"
-      - "mongo3_config:/data/configdb"
-      - "./mongo-keyfile:/etc/mongo/keyfile:ro"
-    restart: always
-
   client:
-    image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-yourusername}/ghostmail-client:latest
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/ghostmail-client:latest
     platform: linux/arm64
     environment:
-      - MONGODB_URI=mongodb://${MONGO_USER:-admin}:${MONGO_PASSWORD:-password}@mongo1:27017,mongo2:27018,mongo3:27019/ghostmail?authSource=admin&replicaSet=rs0
+      - MONGODB_URI=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongo1:27017,mongo2:27018,mongo3:27019/ghostmail?authSource=admin&replicaSet=rs0
       - SESSION_SECRET=${SESSION_SECRET}
       - VITE_MAIL_DOMAIN=ghostmail.dev
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.client.rule=Host(`ghostmail.dev`)||Host(`www.ghos\
-        tmail.dev`)||Host(`stage.ghostmail.dev`)"
+      - "traefik.http.routers.client.rule=Host(`ghostmail.dev`)||Host(`www.ghostmail.dev`)||Host(`stage.ghostmail.dev`)"
       - "traefik.http.routers.client.entrypoints=websecure"
       - "traefik.http.routers.client.tls.certresolver=myresolver"
       - "traefik.http.services.client.loadbalancer.server.port=3000"
       - "traefik.http.services.client.loadbalancer.passhostheader=true"
-    depends_on:
-      mongo1:
-        condition: service_healthy
+    networks:
+      - traefik-public
+      - mongo-internal
     restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   smtp-server:
-    image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-yourusername}/ghostmail-smtp:latest
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/ghostmail-smtp:latest
     platform: linux/arm64
     ports:
       - "25:2525"
       - "587:2525"
     environment:
-      - MONGODB_URI=mongodb://${MONGO_USER:-admin}:${MONGO_PASSWORD:-password}@mongo1:27017,mongo2:27018,mongo3:27019/ghostmail?authSource=admin&replicaSet=rs0
+      - MONGODB_URI=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongo1:27017,mongo2:27018,mongo3:27019/ghostmail?authSource=admin&replicaSet=rs0
       - SMTP_DOMAIN=ghostmail.dev
       - SMTP_PORT=${SMTP_PORT:-2525}
       - KEY_FILE_PATH=/certs/ghostmail.dev/privatekey.key
       - CERT_FILE_PATH=/certs/ghostmail.dev/certificate.crt
     volumes:
-      - "./certs:/certs:ro"
-    depends_on:
-      mongo1:
-        condition: service_healthy
-      cert-dumper:
-        condition: service_started
+      - "/home/${OCI_USER}/infra/certs:/certs:ro"
+    networks:
+      - mongo-internal
     restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
-volumes:
-  mongo1_data:
-  mongo1_config:
-  mongo2_data:
-  mongo2_config:
-  mongo3_data:
-  mongo3_config:
+networks:
+  traefik-public:
+    external: true
+  mongo-internal:
+    external: true
