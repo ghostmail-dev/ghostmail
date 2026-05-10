@@ -1,4 +1,4 @@
-import { data, Form, Link, redirect } from "react-router"
+import { data, Form, Link, redirect, type MetaFunction } from "react-router"
 import { compareSync } from "bcryptjs"
 import { UsersLoader } from "@ghostmail/database"
 import {
@@ -8,6 +8,30 @@ import {
 } from "../../utils/session.server"
 import type { Route } from "./+types/Login"
 import { AuthenticationCard } from "../../components/AuthenticationWrapper"
+import { canonicalHref, ogImageUrl } from "../../utils/seo"
+
+const LOGIN_TITLE = "Sign in · GhostMail"
+const LOGIN_DESCRIPTION =
+  "Sign in to GhostMail to manage catch-all SMTP test inboxes and inspect outgoing mail."
+
+export const meta: MetaFunction = ({ location }) => {
+  const canonical = canonicalHref(location.pathname)
+  const ogImage = ogImageUrl()
+
+  return [
+    { title: LOGIN_TITLE },
+    { name: "description", content: LOGIN_DESCRIPTION },
+    { property: "og:title", content: LOGIN_TITLE },
+    { property: "og:description", content: LOGIN_DESCRIPTION },
+    ...(canonical ? [{ property: "og:url", content: canonical }] : []),
+    ...(ogImage ? [{ property: "og:image", content: ogImage }] : []),
+    { name: "twitter:title", content: LOGIN_TITLE },
+    { name: "twitter:description", content: LOGIN_DESCRIPTION },
+    ...(canonical
+      ? [{ tagName: "link", rel: "canonical", href: canonical }]
+      : []),
+  ]
+}
 
 export async function loader({ request }: Route.LoaderArgs) {
   try {

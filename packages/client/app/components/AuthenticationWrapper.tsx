@@ -11,7 +11,7 @@ export const AuthenticationCard = ({
         <div className="card-body gap-4">
           <div className="flex justify-center items-center gap-2">
             <GhostMailLogo className="w-16 h-16" />
-            <h1 className="text-4xl font-bold text-center">Ghostmail</h1>
+            <h1 className="text-4xl font-bold text-center">GhostMail</h1>
           </div>
           {children}
         </div>

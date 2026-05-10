@@ -4,6 +4,13 @@ import { Plus } from "lucide-react"
 import { requireAuth } from "../../utils/session.server"
 import { MailboxesLoader } from "@ghostmail/database"
 import type { Route } from "./+types/Mailboxes"
+import type { MetaFunction } from "react-router"
+import { metaRobotsNoIndex } from "../../utils/seo"
+
+export const meta: MetaFunction = () => [
+  { title: "Mailboxes · GhostMail" },
+  metaRobotsNoIndex(),
+]
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { userId } = await requireAuth(request)

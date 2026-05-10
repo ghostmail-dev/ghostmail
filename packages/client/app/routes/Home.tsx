@@ -1,7 +1,36 @@
 import { Clock, Code, Eye, Inbox } from "lucide-react"
 import { GhostMailLogo } from "../components/GhostmailLogo"
-import { Link, redirect, type LoaderFunctionArgs } from "react-router"
+import {
+  Link,
+  redirect,
+  type LoaderFunctionArgs,
+  type MetaFunction,
+} from "react-router"
 import { requireAuth } from "../utils/session.server"
+import { canonicalHref, getSiteOrigin, ogImageUrl } from "../utils/seo"
+
+const HOME_TITLE = "GhostMail — Catch-all SMTP for development teams"
+const HOME_DESCRIPTION =
+  "Test email delivery without spamming real inboxes. Point your app's SMTP at GhostMail and inspect messages instantly—temporary inboxes for developers."
+
+export const meta: MetaFunction = ({ location }) => {
+  const canonical = canonicalHref(location.pathname)
+  const ogImage = ogImageUrl()
+
+  return [
+    { title: HOME_TITLE },
+    { name: "description", content: HOME_DESCRIPTION },
+    { property: "og:title", content: HOME_TITLE },
+    { property: "og:description", content: HOME_DESCRIPTION },
+    ...(canonical ? [{ property: "og:url", content: canonical }] : []),
+    ...(ogImage ? [{ property: "og:image", content: ogImage }] : []),
+    { name: "twitter:title", content: HOME_TITLE },
+    { name: "twitter:description", content: HOME_DESCRIPTION },
+    ...(canonical
+      ? [{ tagName: "link", rel: "canonical", href: canonical }]
+      : []),
+  ]
+}
 
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
@@ -13,8 +42,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function LandingPage() {
+  const siteUrl = getSiteOrigin() || undefined
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "GhostMail",
+    applicationCategory: "DeveloperApplication",
+    operatingSystem: "Web",
+    description: HOME_DESCRIPTION,
+    ...(siteUrl ? { url: siteUrl } : {}),
+  }
+
   return (
     <div className="min-h-screen bg-base-100 flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="max-w-4xl w-full text-center">
           <div className="mb-8 flex justify-center">

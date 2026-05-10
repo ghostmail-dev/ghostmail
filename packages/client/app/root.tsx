@@ -8,12 +8,14 @@ import {
   ScrollRestoration,
   useLoaderData,
   type LoaderFunctionArgs,
+  type MetaFunction,
 } from "react-router"
 import "./styles/index.css"
 import { LogOut, Moon, Settings, Sun, User } from "lucide-react"
 import { requireAuth } from "./utils/session.server"
 import { GhostMailLogo } from "./components/GhostmailLogo"
 import { getTheme, toggleTheme } from "./utils/theme-changer"
+import { canonicalHref, ogImageUrl, seoDefaults } from "./utils/seo"
 
 export const links = () => [
   {
@@ -43,19 +45,43 @@ export const links = () => [
   },
 ]
 
-export const meta = () => [
-  {
-    charset: "utf-8",
-  },
-  {
-    name: "viewport",
-    content: "width=device-width, initial-scale=1",
-  },
-  {
-    name: "google-adsense-account",
-    content: "ca-pub-5695883157519004",
-  },
-]
+export const meta: MetaFunction = ({ location }) => {
+  const canonical = canonicalHref(location.pathname)
+  const ogImage = ogImageUrl()
+
+  return [
+    { charset: "utf-8" },
+    {
+      name: "viewport",
+      content: "width=device-width, initial-scale=1",
+    },
+    {
+      name: "google-adsense-account",
+      content: "ca-pub-5695883157519004",
+    },
+    { title: seoDefaults.title },
+    { name: "description", content: seoDefaults.description },
+    { property: "og:site_name", content: "GhostMail" },
+    { property: "og:type", content: "website" },
+    { property: "og:title", content: seoDefaults.title },
+    { property: "og:description", content: seoDefaults.description },
+    ...(canonical ? [{ property: "og:url", content: canonical }] : []),
+    ...(ogImage
+      ? [
+          { property: "og:image", content: ogImage },
+          { property: "og:image:width", content: "1200" },
+          { property: "og:image:height", content: "630" },
+        ]
+      : []),
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:title", content: seoDefaults.title },
+    { name: "twitter:description", content: seoDefaults.description },
+    ...(ogImage ? [{ name: "twitter:image", content: ogImage }] : []),
+    ...(canonical
+      ? [{ tagName: "link", rel: "canonical", href: canonical }]
+      : []),
+  ]
+}
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
@@ -80,7 +106,7 @@ export default function App() {
         <header className="bg-base-200 border-b border-base-300 px-4 md:px-6 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <GhostMailLogo className="w-8 h-8" />
-            <h1 className="text-lg">GhostMail</h1>
+            <span className="text-lg font-semibold">GhostMail</span>
           </Link>
 
           <div className="flex items-center gap-3">
