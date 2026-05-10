@@ -8,6 +8,7 @@ services:
       - VITE_MAIL_DOMAIN=ghostmail.dev
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=traefik-public"
       - "traefik.http.routers.client.rule=Host(`ghostmail.dev`)||Host(`www.ghostmail.dev`)||Host(`stage.ghostmail.dev`)"
       - "traefik.http.routers.client.entrypoints=websecure"
       - "traefik.http.routers.client.tls.certresolver=myresolver"
