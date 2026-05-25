@@ -17,6 +17,7 @@ on:
 
 env:
   NODE_ENV: test
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   static:
@@ -95,23 +96,52 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      client: ${{ steps.filter.outputs.client }}
+      smtp: ${{ steps.filter.outputs.smtp }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Check path changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            client:
+              - 'packages/client/**'
+              - 'packages/database/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'packages/client/Dockerfile'
+              - '.github/workflows/deploy.yml'
+            smtp:
+              - 'packages/smtp-server/**'
+              - 'packages/database/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'packages/smtp-server/Dockerfile'
+              - '.github/workflows/deploy.yml'
+
       - name: Setup pnpm
+        if: steps.filter.outputs.client == 'true' || steps.filter.outputs.smtp == 'true' || github.event_name == 'workflow_dispatch'
         uses: pnpm/action-setup@v4
 
       - name: Setup Node
+        if: steps.filter.outputs.client == 'true' || steps.filter.outputs.smtp == 'true' || github.event_name == 'workflow_dispatch'
         uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: "pnpm"
 
       - name: Install dependencies
+        if: steps.filter.outputs.client == 'true' || steps.filter.outputs.smtp == 'true' || github.event_name == 'workflow_dispatch'
         run: pnpm install --frozen-lockfile
 
       - name: Build packages
+        if: steps.filter.outputs.client == 'true' || steps.filter.outputs.smtp == 'true' || github.event_name == 'workflow_dispatch'
         run: pnpm build
         env:
           VITE_SMTP_HOST: smtp.ghostmail.dev
@@ -119,6 +149,7 @@ jobs:
           VITE_MAIL_DOMAIN: ghostmail.dev
 
       - name: Log in to GitHub Container Registry
+        if: steps.filter.outputs.client == 'true' || steps.filter.outputs.smtp == 'true' || github.event_name == 'workflow_dispatch'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -126,12 +157,15 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up QEMU
+        if: steps.filter.outputs.client == 'true' || steps.filter.outputs.smtp == 'true' || github.event_name == 'workflow_dispatch'
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
+        if: steps.filter.outputs.client == 'true' || steps.filter.outputs.smtp == 'true' || github.event_name == 'workflow_dispatch'
         uses: docker/setup-buildx-action@v3
 
       - name: Build and push Client image
+        if: steps.filter.outputs.client == 'true' || github.event_name == 'workflow_dispatch'
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -143,6 +177,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Build and push SMTP image
+        if: steps.filter.outputs.smtp == 'true' || github.event_name == 'workflow_dispatch'
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -160,7 +195,8 @@ jobs:
       (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
       (needs.static.result == 'success' || needs.static.result == 'skipped') &&
       (needs.test.result == 'success' || needs.test.result == 'skipped') &&
-      (needs.build-and-push.result == 'success' || needs.build-and-push.result == 'skipped')
+      (needs.build-and-push.result == 'success' || needs.build-and-push.result == 'skipped') &&
+      (needs.build-and-push.outputs.client == 'true' || needs.build-and-push.outputs.smtp == 'true' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     environment: Deploy
     steps:
@@ -202,8 +238,14 @@ jobs:
           script: |
             mkdir -p ~/ghostmail
             cd ~/ghostmail
-            # Log in to GHCR
-            echo $GITHUB_TOKEN | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            # Log in to GHCR (suppress standard unencrypted credentials warning unless it fails)
+            LOGIN_ERR=$(mktemp)
+            if ! echo "$GITHUB_TOKEN" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin 2>"$LOGIN_ERR"; then
+              cat "$LOGIN_ERR" >&2
+              rm -f "$LOGIN_ERR"
+              exit 1
+            fi
+            rm -f "$LOGIN_ERR"
             # Pull latest images from GHCR
             docker compose -p ghostmail pull
             # Restart services
