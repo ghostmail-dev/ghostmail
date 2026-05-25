@@ -41,10 +41,10 @@ export default function CreateInvite() {
 
         <Form method="post" replace>
           <div className="p-6">
-            <div className="flex flex-col gap-2">
-              <label className="label">
-                <span className="label-text">Number of Persistent Tokens:</span>
-              </label>
+            <label className="fieldset w-full">
+              <span className="fieldset-legend">
+                Number of Persistent Tokens:
+              </span>
               <input
                 type="number"
                 min="1"
@@ -55,7 +55,7 @@ export default function CreateInvite() {
                 className="input input-bordered w-full"
                 placeholder="5"
               />
-            </div>
+            </label>
             <p className="text-sm text-base-content/60 mt-2">
               The invited user will be able to create up to {tokenCount}{" "}
               persistent mailbox{tokenCount !== 1 ? "es" : ""}

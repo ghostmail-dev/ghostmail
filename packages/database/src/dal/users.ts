@@ -49,11 +49,22 @@ export class UsersLoader implements AbstractUsersLoader {
 export class UsersMutator implements AbstractUsersMutator {
   async createUser(username: string, password: string, inviteCode: string) {
     return await tryCatch(async () => {
+      let maxPersistentMailboxes = 0
+      if (inviteCode) {
+        const invite = await invitesCollection.findOne({ code: inviteCode })
+        if (!invite) {
+          throw "Invite not found"
+        }
+        if (invite.status === "used") {
+          throw "Invite already used"
+        }
+        maxPersistentMailboxes = invite.persistentTokens
+      }
       const doc: UserDocument = {
         _id: faker.database.mongodbObjectId(),
         username,
         password: hashSync(password, 10),
-        maxPersistentMailboxes: 0,
+        maxPersistentMailboxes,
         roles: ["user"],
       }
       const session = mongoClient.startSession()

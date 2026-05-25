@@ -235,7 +235,13 @@ export class UsersMutator implements AbstractUsersMutator {
       invitesStore.set(inviteCode, invite)
     }
 
-    return Ok(seedUser({ username, password: hashSync(password, 10) }))
+    return Ok(
+      seedUser({
+        username,
+        password: hashSync(password, 10),
+        maxPersistentMailboxes: invite?.persistentTokens ?? 0,
+      }),
+    )
   }
 
   async changePersistentMailboxLimit(userId: string, newLimit: number) {

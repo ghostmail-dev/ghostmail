@@ -72,11 +72,9 @@ export default function ChangePassword({ actionData }: Route.ComponentProps) {
       ) : null}
 
       <Form method="post" className="space-y-6">
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text">Current Password</span>
-          </label>
-          <div className="relative">
+        <fieldset className="fieldset">
+          <legend className="fieldset-legend">Current Password</legend>
+          <div className="relative w-full">
             <input
               type={showCurrentPassword ? "text" : "password"}
               name="currentPassword"
@@ -96,13 +94,11 @@ export default function ChangePassword({ actionData }: Route.ComponentProps) {
               )}
             </button>
           </div>
-        </div>
+        </fieldset>
 
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text">New Password</span>
-          </label>
-          <div className="relative">
+        <fieldset className="fieldset">
+          <legend className="fieldset-legend">New Password</legend>
+          <div className="relative w-full">
             <input
               type={showNewPassword ? "text" : "password"}
               name="newPassword"
@@ -123,18 +119,14 @@ export default function ChangePassword({ actionData }: Route.ComponentProps) {
               )}
             </button>
           </div>
-          <label className="label">
-            <span className="label-text-alt text-base-content/60">
-              Must be at least 8 characters
-            </span>
-          </label>
-        </div>
+          <p className="fieldset-label text-base-content/60">
+            Must be at least 8 characters
+          </p>
+        </fieldset>
 
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text">Confirm New Password</span>
-          </label>
-          <div className="relative">
+        <fieldset className="fieldset">
+          <legend className="fieldset-legend">Confirm New Password</legend>
+          <div className="relative w-full">
             <input
               type={showConfirmPassword ? "text" : "password"}
               name="confirmPassword"
@@ -154,7 +146,7 @@ export default function ChangePassword({ actionData }: Route.ComponentProps) {
               )}
             </button>
           </div>
-        </div>
+        </fieldset>
 
         <div className="flex gap-3">
           <button type="submit" className="btn btn-primary">

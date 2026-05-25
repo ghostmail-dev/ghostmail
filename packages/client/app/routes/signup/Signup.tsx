@@ -1,6 +1,7 @@
 import {
   data,
   Form,
+  Link,
   redirect,
   useActionData,
   type ActionFunctionArgs,
@@ -63,9 +64,9 @@ export async function action({ request }: ActionFunctionArgs) {
     )
   }
 
-  if (!invite) {
-    return data({ error: "Invite code is required" }, { status: 400 })
-  }
+  // if (!invite) {
+  //   return data({ error: "Invite code is required" }, { status: 400 })
+  // }
 
   if (password !== confirm) {
     return data({ error: "Passwords do not match" }, { status: 400 })
@@ -78,11 +79,15 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const inviteLoader = new InvitesLoader()
-  const inviteResult = await inviteLoader.validateInvite(invite)
-  if (!inviteResult.ok)
-    return data({ error: "Service unavailable" }, { status: 503 })
-  if (!inviteResult.value) {
-    return data({ error: "Invalid invite code" }, { status: 400 })
+  let hasInvite = invite !== ""
+  if (hasInvite) {
+    const validInvite = await inviteLoader.validateInvite(invite)
+    if (!validInvite.ok)
+      return data({ error: "Service unavailable" }, { status: 503 })
+    if (!validInvite.value) {
+      return data({ error: "Invalid invite code" }, { status: 400 })
+    }
+    hasInvite = validInvite.value
   }
 
   const loader = new UsersLoader()
@@ -124,10 +129,10 @@ export default function Signup() {
         </div>
       )}
       <Form method="post" className="flex flex-col gap-3">
-        <label className="form-control w-full">
-          <div className="label">
-            <span className="label-text">Username</span>
-          </div>
+        <label className="fieldset w-full">
+          <span className="fieldset-legend">
+            Username <span className="text-error font-medium">*</span>
+          </span>
           <input
             id="username"
             name="username"
@@ -139,10 +144,10 @@ export default function Signup() {
           />
         </label>
 
-        <label className="form-control w-full">
-          <div className="label">
-            <span className="label-text">Password</span>
-          </div>
+        <label className="fieldset w-full">
+          <span className="fieldset-legend">
+            Password <span className="text-error font-medium">*</span>
+          </span>
           <input
             id="password"
             name="password"
@@ -154,10 +159,10 @@ export default function Signup() {
           />
         </label>
 
-        <label className="form-control w-full">
-          <div className="label">
-            <span className="label-text">Confirm Password</span>
-          </div>
+        <label className="fieldset w-full">
+          <span className="fieldset-legend">
+            Confirm Password <span className="text-error font-medium">*</span>
+          </span>
           <input
             id="confirm"
             name="confirm"
@@ -169,16 +174,18 @@ export default function Signup() {
           />
         </label>
 
-        <label className="form-control w-full">
-          <div className="label">
-            <span className="label-text">Invite Code</span>
-          </div>
+        <label className="fieldset w-full">
+          <span className="fieldset-legend flex justify-between w-full items-center">
+            <span>Invite Code</span>
+            <span className="fieldset-label text-base-content/60 font-normal">
+              (Optional)
+            </span>
+          </span>
           <input
             id="invite"
             name="invite"
             type="text"
             autoComplete="off"
-            required
             placeholder="Enter your invite code"
             className="input input-bordered w-full"
           />
@@ -190,9 +197,9 @@ export default function Signup() {
       </Form>
 
       <div className="divider text-xs">Have an account?</div>
-      <a href="/login" className="btn btn-outline btn-sm w-full">
+      <Link to="/login" className="btn btn-outline btn-sm w-full">
         Sign in
-      </a>
+      </Link>
     </AuthenticationCard>
   )
 }

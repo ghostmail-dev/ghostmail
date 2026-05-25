@@ -22,7 +22,7 @@ describe("Signup Page", () => {
     ])
 
     const usernameInput = screen.getByLabelText(/Username/i)
-    const passwordInput = screen.getByLabelText(/^Password$/i)
+    const passwordInput = screen.getByLabelText(/^Password\s*\*?$/i)
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/i)
     const inviteInput = screen.getByLabelText(/Invite Code/i)
 
@@ -59,7 +59,7 @@ describe("Signup Page", () => {
     ])
 
     const usernameInput = screen.getByLabelText(/Username/i)
-    const passwordInput = screen.getByLabelText(/^Password$/i)
+    const passwordInput = screen.getByLabelText(/^Password\s*\*?$/i)
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/i)
     const inviteInput = screen.getByLabelText(/Invite Code/i)
 
@@ -79,7 +79,7 @@ describe("Signup Page", () => {
     ])
 
     const usernameInput = screen.getByLabelText(/Username/i)
-    const passwordInput = screen.getByLabelText(/^Password$/i)
+    const passwordInput = screen.getByLabelText(/^Password\s*\*?$/i)
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/i)
     const inviteInput = screen.getByLabelText(/Invite Code/i)
 
@@ -125,7 +125,7 @@ describe("Signup Page", () => {
     )
 
     const usernameInput = screen.getByLabelText(/Username/i)
-    const passwordInput = screen.getByLabelText(/^Password$/i)
+    const passwordInput = screen.getByLabelText(/^Password\s*\*?$/i)
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/i)
     const inviteInput = screen.getByLabelText(/Invite Code/i)
 
@@ -185,7 +185,7 @@ describe("Signup Page", () => {
 
     // Pre-create a user to test login
     const usernameInputSignup = screen.getByLabelText(/Username/i)
-    const passwordInputSignup = screen.getByLabelText(/^Password$/i)
+    const passwordInputSignup = screen.getByLabelText(/^Password\s*\*?$/i)
     const confirmPasswordInput = screen.getByLabelText(/Confirm Password/i)
     const inviteInput = screen.getByLabelText(/Invite Code/i)
 

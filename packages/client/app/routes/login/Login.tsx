@@ -88,10 +88,8 @@ export default function Login({ actionData }: Route.ComponentProps) {
         </div>
       )}
       <Form method="post" className="flex flex-col gap-3">
-        <label className="form-control w-full">
-          <div className="label">
-            <span className="label-text">Username</span>
-          </div>
+        <label className="fieldset w-full">
+          <span className="fieldset-legend">Username</span>
           <input
             id="username"
             name="username"
@@ -103,17 +101,15 @@ export default function Login({ actionData }: Route.ComponentProps) {
           />
         </label>
 
-        <label className="form-control w-full">
-          <div className="label">
-            <span className="label-text">Password</span>
-          </div>
+        <label className="fieldset w-full">
+          <span className="fieldset-legend">Password</span>
           <input
             id="password"
             name="password"
             type="password"
             autoComplete="current-password"
             required
-            placeholder="••••••••"
+            placeholder={String.fromCharCode(8226).repeat(8)}
             className="input input-bordered w-full"
           />
         </label>

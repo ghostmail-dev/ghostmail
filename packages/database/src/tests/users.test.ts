@@ -23,6 +23,7 @@ describe("Users DAL", () => {
     const found = result.ok ? result.value : null
     expect(found).not.toBeNull()
     expect(found?.username).toBe("testuser")
+    expect(found?.maxPersistentMailboxes).toBe(invite.persistentTokens)
     const foundInv = await invitesCollection.findOne({ code: invite.code })
     expect(foundInv).not.toBeNull()
     expect(foundInv?.status).toBe("used")

@@ -82,7 +82,10 @@ export abstract class AbstractUsersMutator {
     username: string,
     password: string,
     inviteCode: string,
-  ): ResultAsync<SerializableUserDocument, UnknownDatabaseError>
+  ): ResultAsync<
+    SerializableUserDocument,
+    UnknownDatabaseError | "Invite not found" | "Invite already used"
+  >
   abstract deleteUser(id: string): ResultAsync<void, UnknownDatabaseError>
   abstract changePersistentMailboxLimit(
     userId: IdLike,
