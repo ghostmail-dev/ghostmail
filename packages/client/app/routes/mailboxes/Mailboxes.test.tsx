@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import MailboxesRoute, { loader } from "./Mailboxes"
+import MailboxesRoute, { loader, meta } from "./Mailboxes"
 import InfoRoute from "../mailboxes.$mailboxid.info/MailboxInfo"
 import {
   MailboxesLoader,
@@ -318,5 +318,31 @@ describe("/mailboxes", () => {
       expect(jsonElement).toHaveTextContent(import.meta.env.VITE_SMTP_HOST)
       expect(jsonElement).toHaveTextContent(import.meta.env.VITE_SMTP_PORT)
     })
+  })
+
+  it("meta viewport content is set correctly", async () => {
+    await renderRoute(
+      [
+        {
+          path: "/mailboxes",
+          Component: MailboxesRoute,
+          loader,
+          meta,
+        },
+      ],
+      "/mailboxes",
+      seedUser(),
+    )
+
+    expect(
+      document.head
+        .querySelector('meta[name="viewport"]')
+        ?.getAttribute("content"),
+    ).toContain("width=device-width")
+    expect(
+      document.head
+        .querySelector('meta[name="viewport"]')
+        ?.getAttribute("content"),
+    ).toContain("initial-scale=1")
   })
 })

@@ -1,6 +1,6 @@
-import { useState } from "react"
 import { Link, useLocation } from "react-router"
 import { Check, Copy } from "lucide-react"
+import { useCopy } from "../../utils/useCopy"
 
 export default function MailboxInfoRoute() {
   const location = useLocation()
@@ -8,7 +8,6 @@ export default function MailboxInfoRoute() {
     username: "",
     password: "",
   }
-  const [copied, setCopied] = useState(false)
 
   const credentials = JSON.stringify(
     {
@@ -21,11 +20,7 @@ export default function MailboxInfoRoute() {
     2,
   )
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(credentials)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
+  const { copied, handleCopy } = useCopy()
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -40,7 +35,7 @@ export default function MailboxInfoRoute() {
             {credentials}
           </pre>
           <button
-            onClick={handleCopy}
+            onClick={() => handleCopy(credentials)}
             className="absolute top-2 right-2 btn btn-ghost btn-xs btn-square"
             title="Copy credentials"
           >

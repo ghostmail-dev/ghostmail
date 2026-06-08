@@ -5,12 +5,14 @@ import { requireAuth } from "../../utils/session.server"
 import { MailboxesLoader } from "@ghostmail/database"
 import type { Route } from "./+types/Mailboxes"
 import type { MetaFunction } from "react-router"
-import { metaRobotsNoIndex } from "../../utils/seo"
+import { buildMeta, metaRobotsNoIndex } from "../../utils/seo"
 
-export const meta: MetaFunction = () => [
-  { title: "Mailboxes · GhostMail" },
-  metaRobotsNoIndex(),
-]
+export const meta: MetaFunction = ({ location }) =>
+  buildMeta({
+    pathname: location.pathname,
+    title: "Mailboxes · GhostMail",
+    robots: metaRobotsNoIndex().content,
+  })
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { userId } = await requireAuth(request)
@@ -25,7 +27,6 @@ export async function loader({ request }: Route.LoaderArgs) {
 export default function Mailboxes({ loaderData }: Route.ComponentProps) {
   const mailboxes = loaderData
   const hasMailboxOpen = useMatch("/mailboxes/:mailboxId/*")
-
   return (
     <div className="flex h-screen bg-base-100">
       <aside

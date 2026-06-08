@@ -16,29 +16,18 @@ import {
 } from "../../utils/session.server"
 import { AuthenticationCard } from "../../components/AuthenticationWrapper"
 import { InvitesLoader } from "@ghostmail/database"
-import { canonicalHref, ogImageUrl } from "../../utils/seo"
+import { buildMeta } from "../../utils/seo"
 
 const SIGNUP_TITLE = "Create account · GhostMail"
 const SIGNUP_DESCRIPTION =
   "Create a GhostMail account with your invite code and start testing email with catch-all SMTP inboxes."
 
 export const meta: MetaFunction = ({ location }) => {
-  const canonical = canonicalHref(location.pathname)
-  const ogImage = ogImageUrl()
-
-  return [
-    { title: SIGNUP_TITLE },
-    { name: "description", content: SIGNUP_DESCRIPTION },
-    { property: "og:title", content: SIGNUP_TITLE },
-    { property: "og:description", content: SIGNUP_DESCRIPTION },
-    ...(canonical ? [{ property: "og:url", content: canonical }] : []),
-    ...(ogImage ? [{ property: "og:image", content: ogImage }] : []),
-    { name: "twitter:title", content: SIGNUP_TITLE },
-    { name: "twitter:description", content: SIGNUP_DESCRIPTION },
-    ...(canonical
-      ? [{ tagName: "link", rel: "canonical", href: canonical }]
-      : []),
-  ]
+  return buildMeta({
+    pathname: location.pathname,
+    title: SIGNUP_TITLE,
+    description: SIGNUP_DESCRIPTION,
+  })
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {

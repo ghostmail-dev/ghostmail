@@ -10,12 +10,13 @@ import {
   type LoaderFunctionArgs,
   type MetaFunction,
 } from "react-router"
+import type { ReactNode } from "react"
 import "./styles/index.css"
 import { LogOut, Moon, Settings, Sun, User } from "lucide-react"
 import { requireAuth } from "./utils/session.server"
 import { GhostMailLogo } from "./components/GhostmailLogo"
 import { getTheme, toggleTheme } from "./utils/theme-changer"
-import { canonicalHref, ogImageUrl, seoDefaults } from "./utils/seo"
+import { buildMeta } from "./utils/seo"
 
 export const links = () => [
   {
@@ -46,41 +47,7 @@ export const links = () => [
 ]
 
 export const meta: MetaFunction = ({ location }) => {
-  const canonical = canonicalHref(location.pathname)
-  const ogImage = ogImageUrl()
-
-  return [
-    { charset: "utf-8" },
-    {
-      name: "viewport",
-      content: "width=device-width, initial-scale=1",
-    },
-    {
-      name: "google-adsense-account",
-      content: "ca-pub-5695883157519004",
-    },
-    { title: seoDefaults.title },
-    { name: "description", content: seoDefaults.description },
-    { property: "og:site_name", content: "GhostMail" },
-    { property: "og:type", content: "website" },
-    { property: "og:title", content: seoDefaults.title },
-    { property: "og:description", content: seoDefaults.description },
-    ...(canonical ? [{ property: "og:url", content: canonical }] : []),
-    ...(ogImage
-      ? [
-          { property: "og:image", content: ogImage },
-          { property: "og:image:width", content: "1200" },
-          { property: "og:image:height", content: "630" },
-        ]
-      : []),
-    { name: "twitter:card", content: "summary_large_image" },
-    { name: "twitter:title", content: seoDefaults.title },
-    { name: "twitter:description", content: seoDefaults.description },
-    ...(ogImage ? [{ name: "twitter:image", content: ogImage }] : []),
-    ...(canonical
-      ? [{ tagName: "link", rel: "canonical", href: canonical }]
-      : []),
-  ]
+  return buildMeta({ pathname: location.pathname })
 }
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -92,7 +59,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   }
 }
 
-export default function App() {
+export function Layout({ children }: { children: ReactNode }) {
   const user = useLoaderData<typeof loader>()
 
   const theme = getTheme()
@@ -163,12 +130,16 @@ export default function App() {
             )}
           </div>
         </header>
-        <Outlet />
+        {children}
         <ScrollRestoration />
         <Scripts />
       </body>
     </html>
   )
+}
+
+export default function App() {
+  return <Outlet />
 }
 
 export function HydrateFallback() {

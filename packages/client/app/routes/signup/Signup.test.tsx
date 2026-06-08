@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { userEvent } from "vitest/browser"
-import Signup, { loader, action } from "./Signup"
+import Signup, { loader, action, meta } from "./Signup"
 import { renderRoute } from "../../../test-utils/render-router"
 import {
   seedUser,
@@ -210,5 +210,23 @@ describe("Signup Page", () => {
     await expect
       .element(screen.getByText(/Mailboxes Success Page/i))
       .toBeInTheDocument()
+  })
+
+  it("meta viewport content is set correctly", async () => {
+    await renderRoute(
+      [{ path: "/signup", Component: Signup, loader, action, meta }],
+      "/signup",
+    )
+
+    expect(
+      document.head
+        .querySelector('meta[name="viewport"]')
+        ?.getAttribute("content"),
+    ).toContain("width=device-width")
+    expect(
+      document.head
+        .querySelector('meta[name="viewport"]')
+        ?.getAttribute("content"),
+    ).toContain("initial-scale=1")
   })
 })

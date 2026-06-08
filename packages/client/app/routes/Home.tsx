@@ -7,29 +7,18 @@ import {
   type MetaFunction,
 } from "react-router"
 import { requireAuth } from "../utils/session.server"
-import { canonicalHref, getSiteOrigin, ogImageUrl } from "../utils/seo"
+import { buildMeta, getSiteOrigin } from "../utils/seo"
 
 const HOME_TITLE = "GhostMail — Catch-all SMTP for development teams"
 const HOME_DESCRIPTION =
   "Test email delivery without spamming real inboxes. Point your app's SMTP at GhostMail and inspect messages instantly—temporary inboxes for developers."
 
 export const meta: MetaFunction = ({ location }) => {
-  const canonical = canonicalHref(location.pathname)
-  const ogImage = ogImageUrl()
-
-  return [
-    { title: HOME_TITLE },
-    { name: "description", content: HOME_DESCRIPTION },
-    { property: "og:title", content: HOME_TITLE },
-    { property: "og:description", content: HOME_DESCRIPTION },
-    ...(canonical ? [{ property: "og:url", content: canonical }] : []),
-    ...(ogImage ? [{ property: "og:image", content: ogImage }] : []),
-    { name: "twitter:title", content: HOME_TITLE },
-    { name: "twitter:description", content: HOME_DESCRIPTION },
-    ...(canonical
-      ? [{ tagName: "link", rel: "canonical", href: canonical }]
-      : []),
-  ]
+  return buildMeta({
+    pathname: location.pathname,
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
+  })
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {

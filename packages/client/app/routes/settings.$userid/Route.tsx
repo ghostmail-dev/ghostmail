@@ -4,12 +4,14 @@ import {
   type MetaFunction,
 } from "react-router"
 import { requireAuth } from "../../utils/session.server"
-import { metaRobotsNoIndex } from "../../utils/seo"
+import { buildMeta, metaRobotsNoIndex } from "../../utils/seo"
 
-export const meta: MetaFunction = () => [
-  { title: "Settings · GhostMail" },
-  metaRobotsNoIndex(),
-]
+export const meta: MetaFunction = ({ location }) =>
+  buildMeta({
+    pathname: location.pathname,
+    title: "Settings · GhostMail",
+    robots: metaRobotsNoIndex().content,
+  })
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireAuth(request)
