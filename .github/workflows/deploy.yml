@@ -75,8 +75,9 @@ jobs:
 
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: pnpm --filter @ghostmail/client exec playwright install --with-deps
-          chromium firefox
+        env:
+          DEBUG: "pw:install"
+        run: pnpm --filter @ghostmail/client exec playwright install --with-deps chromium firefox
 
       - name: Install Playwright system dependencies
         if: steps.playwright-cache.outputs.cache-hit == 'true'
