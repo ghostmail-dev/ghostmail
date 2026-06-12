@@ -61,7 +61,7 @@ export type SerializableMailbox =
   | SerializableMailboxPersistent
 
 export function toEmailDetailsDTO(
-  email: EmailDocument | SerializableEmailDocument,
+  email: EmailDocument | SerializableEmailDocument
 ): SerializableEmailDetails {
   return {
     emailId: String(email._id),
@@ -77,7 +77,7 @@ export function toEmailDetailsDTO(
 
 export function toMailboxDTO(
   doc: MailboxDocument,
-  emails: SerializableEmailDetails[],
+  emails: SerializableEmailDetails[]
 ): SerializableMailbox {
   return {
     _id: doc._id,
@@ -95,7 +95,7 @@ export function toMailboxDTO(
 }
 
 export function spawnMailbox(
-  overrides?: Partial<MailboxDocument>,
+  overrides?: Partial<MailboxDocument>
 ): MailboxDocument {
   const firstName = faker.person.firstName()
   const lastName = faker.person.lastName()
@@ -106,7 +106,7 @@ export function spawnMailbox(
     lastName,
     username: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${process.env.VITE_MAIL_DOMAIN}`,
     password: faker.internet.password(),
-    createdAt: faker.date.past(),
+    createdAt: new Date(),
     ownerId: faker.database.mongodbObjectId(),
     ...overrides,
     ...(overrides?.type === "ephemeral"

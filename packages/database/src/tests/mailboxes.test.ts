@@ -1,13 +1,16 @@
-import { describe, expect, it, beforeEach } from "vitest"
+import { describe, expect, it, beforeEach, afterEach, vi } from "vitest"
 import { MailboxesLoader, MailboxesMutator } from "../dal/mailboxes.js"
 import { mailboxesCollection } from "../collections/mailbox.js"
 import { seedMailbox } from "../test-utils/seedMailbox.js"
 import { seedUser } from "../test-utils/seedUser.js"
 import { spawnUser } from "../models/users.js"
 import { seedEmail } from "../test-utils/seedEmail.js"
+import { EPHEMERAL_TTL_MS } from "../models/mailbox.js"
+import { resetDatabase } from "../test-utils/resetDatabase.js"
 
 describe("Mailboxes DAL", () => {
-  beforeEach(async () => await mailboxesCollection.deleteMany({}))
+  beforeEach(async () => await resetDatabase())
+  afterEach(() => vi.useRealTimers())
 
   it("can fetch a mailbox by name", async () => {
     const mailbox = await seedMailbox()
@@ -40,7 +43,7 @@ describe("Mailboxes DAL", () => {
           sender: email2.from?.text || "Unknown sender",
           subject: email2.subject || "(no subject)",
         },
-      ]),
+      ])
     )
   })
 
@@ -70,11 +73,11 @@ describe("Mailboxes DAL", () => {
     const loader = new MailboxesLoader()
     const validResult = await loader.validateMailboxCredentials(
       seeded.username,
-      seeded.password,
+      seeded.password
     )
     const invalidResult = await loader.validateMailboxCredentials(
       seeded.username,
-      "wrongpassword",
+      "wrongpassword"
     )
     const valid = validResult.ok ? validResult.value : null
     const invalid = invalidResult.ok ? invalidResult.value : null
@@ -83,6 +86,10 @@ describe("Mailboxes DAL", () => {
   })
 
   it("can create an ephemeral mailbox with expiry", async () => {
+    const now = new Date("2026-01-01T00:00:00.000Z")
+    vi.useFakeTimers()
+    vi.setSystemTime(now)
+
     const owner = spawnUser()
     const mutator = new MailboxesMutator()
 
@@ -98,11 +105,14 @@ describe("Mailboxes DAL", () => {
     expect(mailbox.expiresAt).toBeDefined()
     expect(mailbox.ownerId).toBe(owner._id)
 
-    await mutator.deleteMailbox(mailbox._id)
     const found = await mailboxesCollection.findOne({
       _id: mailbox._id,
     })
-    expect(found).toBeNull()
+    expect(found).not.toBeNull()
+    expect(found?.createdAt).toEqual(now)
+    expect(found?.type === "ephemeral" && found.expiresAt).toEqual(
+      new Date(now.getTime() + EPHEMERAL_TTL_MS)
+    )
   })
 
   it("can create a persistent mailbox without expiry", async () => {
