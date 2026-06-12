@@ -43,10 +43,10 @@ export class MailboxesLoader implements AbstractMailboxesLoader {
             mailbox.username,
             toMailboxDTO(mailbox, emailMap.get(mailbox._id) || []),
           ]
-        })
+        }),
       )
       return keys.map((k) => mailboxMap.get(k) || null)
-    }
+    },
   )
 
   private batchMailboxesById = new DataLoader<
@@ -59,7 +59,7 @@ export class MailboxesLoader implements AbstractMailboxesLoader {
     const emailMap = await this.getEmailsForMailboxes(mailboxes)
 
     const mailboxMap = new Map(
-      mailboxes.map((e) => [e._id, toMailboxDTO(e, emailMap.get(e._id) || [])])
+      mailboxes.map((e) => [e._id, toMailboxDTO(e, emailMap.get(e._id) || [])]),
     )
     return keys.map((k) => mailboxMap.get(k) || null)
   })
@@ -67,14 +67,14 @@ export class MailboxesLoader implements AbstractMailboxesLoader {
   async getMailboxByName(name: string) {
     return await tryCatch(
       () => this.batchMailboxes.load(name),
-      UnknownDatabaseError
+      UnknownDatabaseError,
     )
   }
 
   async getMailboxById(id: string) {
     return await tryCatch(
       () => this.batchMailboxesById.load(id),
-      UnknownDatabaseError
+      UnknownDatabaseError,
     )
   }
 
@@ -83,7 +83,7 @@ export class MailboxesLoader implements AbstractMailboxesLoader {
       const mailboxes = await mailboxesCollection.find({ ownerId }).toArray()
       const emailMap = await this.getEmailsForMailboxes(mailboxes)
       return mailboxes.map((mailbox) =>
-        toMailboxDTO(mailbox, emailMap.get(mailbox._id) || [])
+        toMailboxDTO(mailbox, emailMap.get(mailbox._id) || []),
       )
     }, UnknownDatabaseError)
   }

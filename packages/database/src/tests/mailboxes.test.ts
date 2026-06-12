@@ -43,7 +43,7 @@ describe("Mailboxes DAL", () => {
           sender: email2.from?.text || "Unknown sender",
           subject: email2.subject || "(no subject)",
         },
-      ])
+      ]),
     )
   })
 
@@ -73,11 +73,11 @@ describe("Mailboxes DAL", () => {
     const loader = new MailboxesLoader()
     const validResult = await loader.validateMailboxCredentials(
       seeded.username,
-      seeded.password
+      seeded.password,
     )
     const invalidResult = await loader.validateMailboxCredentials(
       seeded.username,
-      "wrongpassword"
+      "wrongpassword",
     )
     const valid = validResult.ok ? validResult.value : null
     const invalid = invalidResult.ok ? invalidResult.value : null
@@ -111,7 +111,7 @@ describe("Mailboxes DAL", () => {
     expect(found).not.toBeNull()
     expect(found?.createdAt).toEqual(now)
     expect(found?.type === "ephemeral" && found.expiresAt).toEqual(
-      new Date(now.getTime() + EPHEMERAL_TTL_MS)
+      new Date(now.getTime() + EPHEMERAL_TTL_MS),
     )
   })
 
