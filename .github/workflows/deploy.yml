@@ -207,34 +207,34 @@ jobs:
       - name: Copy docker-compose.yml to server
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.OCI_HOST }}
-          username: ${{ secrets.OCI_USER }}
-          key: ${{ secrets.OCI_SSH_KEY }}
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
           source: "docker-compose.yml"
           target: "~/ghostmail"
 
       - name: Create .env file on server
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.OCI_HOST }}
-          username: ${{ secrets.OCI_USER }}
-          key: ${{ secrets.OCI_SSH_KEY }}
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
             mkdir -p ~/ghostmail
             echo "MONGO_USER=${{ secrets.MONGO_USER }}" > ~/ghostmail/.env
             echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> ~/ghostmail/.env
             echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> ~/ghostmail/.env
             echo "GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}" >> ~/ghostmail/.env
-            echo "OCI_USER=${{ secrets.OCI_USER }}" >> ~/ghostmail/.env
+            echo "DEPLOY_USER=${{ secrets.DEPLOY_USER }}" >> ~/ghostmail/.env
 
       - name: SSH into OCI and Deploy
         uses: appleboy/ssh-action@v1.0.3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          host: ${{ secrets.OCI_HOST }}
-          username: ${{ secrets.OCI_USER }}
-          key: ${{ secrets.OCI_SSH_KEY }}
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
           envs: GITHUB_TOKEN
           script: |
             mkdir -p ~/ghostmail

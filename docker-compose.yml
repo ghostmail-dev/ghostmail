@@ -1,7 +1,6 @@
 services:
   client:
     image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/ghostmail-client:latest
-    platform: linux/arm64
     environment:
       - MONGODB_URI=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongo1:27017,mongo2:27018,mongo3:27019/ghostmail?authSource=admin&replicaSet=rs0
       - SESSION_SECRET=${SESSION_SECRET}
@@ -26,7 +25,6 @@ services:
 
   smtp-server:
     image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/ghostmail-smtp:latest
-    platform: linux/arm64
     ports:
       - "25:2525"
       - "587:2525"
@@ -37,7 +35,7 @@ services:
       - KEY_FILE_PATH=/certs/ghostmail.dev/privatekey.key
       - CERT_FILE_PATH=/certs/ghostmail.dev/certificate.crt
     volumes:
-      - "/home/${OCI_USER}/infra/certs:/certs:ro"
+      - "/home/${DEPLOY_USER}/infra/certs:/certs:ro"
     networks:
       - mongo-internal
     restart: always
