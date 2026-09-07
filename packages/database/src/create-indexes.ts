@@ -46,7 +46,7 @@ const dbIndexes: CollectionIndexes = {
 }
 
 const getCurrentIndexes = async (
-  collection: IndexManageableCollection
+  collection: IndexManageableCollection,
 ): Promise<Array<IndexDescriptionInfo>> => {
   try {
     const indexes = await collection.indexes()
@@ -59,7 +59,7 @@ const getCurrentIndexes = async (
     console.error(
       "Unexpected error fetching indexes for collection",
       collection.collectionName,
-      error
+      error,
     )
     return []
   }
@@ -81,7 +81,7 @@ const ensureIndexName = (indexDef: IndexDefinition): CreateIndexesOptions => {
 
 const indexOptionsEqual = (
   existingOpts: IndexDescriptionInfo,
-  proposedOpts: CreateIndexesOptions
+  proposedOpts: CreateIndexesOptions,
 ): boolean => {
   // Compare only the intersection of keys
   for (const key in proposedOpts) {
@@ -134,7 +134,7 @@ const syncIndexes = async (): Promise<void> => {
       const existingIndex = currentIndexes.find(
         (current) =>
           deepEqual(current.key, expectedIndex.keys) ||
-          current.name === ensureIndexName(expectedIndex).name
+          current.name === ensureIndexName(expectedIndex).name,
       )
 
       let shouldCreateIndex = false
@@ -167,15 +167,15 @@ const syncIndexes = async (): Promise<void> => {
             generateAutoIndexName(expectedIndex.keys)
           await collection.createIndex(
             expectedIndex.keys,
-            expectedIndex.options
+            expectedIndex.options,
           )
           console.info(
-            `✓ Successfully ${shouldDropFirst ? "recreated" : "created"} index: ${indexName}`
+            `✓ Successfully ${shouldDropFirst ? "recreated" : "created"} index: ${indexName}`,
           )
         } catch (error) {
           console.error(
             `✗ Failed to create index on ${collection.collectionName}:`,
-            error
+            error,
           )
         }
       }
@@ -191,20 +191,20 @@ const syncIndexes = async (): Promise<void> => {
       const isExpected = expectedIndexes.some(
         (expected) =>
           deepEqual(expected.keys, currentIndex.key) ||
-          ensureIndexName(expected).name === currentIndex.name
+          ensureIndexName(expected).name === currentIndex.name,
       )
 
       if (!isExpected && currentIndex.name != null) {
         try {
           console.info(
-            `Removing unused index from ${collection.collectionName}: ${currentIndex.name}`
+            `Removing unused index from ${collection.collectionName}: ${currentIndex.name}`,
           )
           await collection.dropIndex(currentIndex.name)
           console.info(`✓ Successfully dropped index: ${currentIndex.name}`)
         } catch (error) {
           console.error(
             `✗ Failed to drop index ${currentIndex.name} from ${collection.collectionName}:`,
-            error
+            error,
           )
         }
       }
